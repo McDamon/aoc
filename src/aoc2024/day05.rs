@@ -130,6 +130,9 @@ mod tests {
 
     #[test]
     fn test_get_sum_corrected_middle_page_num() {
-        assert_eq!(6311, get_sum_corrected_middle_page_num("input/2024/day05.txt"));
+        assert_eq!(
+            6311,
+            get_sum_corrected_middle_page_num("input/2024/day05.txt")
+        );
     }
 }

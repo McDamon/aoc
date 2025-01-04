@@ -169,7 +169,10 @@ mod tests {
 
     #[test]
     fn test_get_total_calibration_result_test01() {
-        assert_eq!(3749, get_total_calibration_result("input/2024/day07_test01.txt"));
+        assert_eq!(
+            3749,
+            get_total_calibration_result("input/2024/day07_test01.txt")
+        );
     }
 
     #[test]
@@ -182,42 +185,66 @@ mod tests {
 
     #[test]
     fn test_get_total_calibration_result_test02() {
-        assert_eq!(0, get_total_calibration_result("input/2024/day07_test02.txt"));
+        assert_eq!(
+            0,
+            get_total_calibration_result("input/2024/day07_test02.txt")
+        );
     }
 
     #[test]
     fn test_get_total_calibration_result_test03() {
-        assert_eq!(0, get_total_calibration_result("input/2024/day07_test03.txt"));
+        assert_eq!(
+            0,
+            get_total_calibration_result("input/2024/day07_test03.txt")
+        );
     }
 
     #[test]
     fn test_get_total_calibration_result_test04() {
-        assert_eq!(0, get_total_calibration_result("input/2024/day07_test04.txt"));
+        assert_eq!(
+            0,
+            get_total_calibration_result("input/2024/day07_test04.txt")
+        );
     }
 
     #[test]
     fn test_get_total_calibration_result_test05() {
-        assert_eq!(0, get_total_calibration_result("input/2024/day07_test05.txt"));
+        assert_eq!(
+            0,
+            get_total_calibration_result("input/2024/day07_test05.txt")
+        );
     }
 
     #[test]
     fn test_get_total_calibration_result_test06() {
-        assert_eq!(0, get_total_calibration_result("input/2024/day07_test06.txt"));
+        assert_eq!(
+            0,
+            get_total_calibration_result("input/2024/day07_test06.txt")
+        );
     }
 
     #[test]
     fn test_get_total_calibration_result_test07() {
-        assert_eq!(3267, get_total_calibration_result("input/2024/day07_test07.txt"));
+        assert_eq!(
+            3267,
+            get_total_calibration_result("input/2024/day07_test07.txt")
+        );
     }
 
     #[test]
     fn test_get_total_calibration_result_test08() {
-        assert_eq!(10, get_total_calibration_result("input/2024/day07_test08.txt"));
+        assert_eq!(
+            10,
+            get_total_calibration_result("input/2024/day07_test08.txt")
+        );
     }
 
     #[test]
     fn test_get_total_calibration_result_test09() {
-        assert_eq!(0, get_total_calibration_result("input/2024/day07_test09.txt"));
+        assert_eq!(
+            0,
+            get_total_calibration_result("input/2024/day07_test09.txt")
+        );
     }
 
     #[test]

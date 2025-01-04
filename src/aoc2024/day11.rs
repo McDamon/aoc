@@ -216,7 +216,10 @@ mod tests {
 
     #[test]
     fn test_get_num_stones_memoize_test08() {
-        assert_eq!(55312, get_num_stones_memoize("input/2024/day11_test02.txt", 25));
+        assert_eq!(
+            55312,
+            get_num_stones_memoize("input/2024/day11_test02.txt", 25)
+        );
     }
 
     #[test]

@@ -3,7 +3,7 @@
 use core::panic;
 use std::collections::{HashSet, VecDeque};
 
-use crate::utils::{ArenaTree, get_lines};
+use crate::utils::{get_lines, ArenaTree};
 
 #[derive(Debug, PartialEq, Eq, Hash, Copy, Clone, Default)]
 enum MoveDir {

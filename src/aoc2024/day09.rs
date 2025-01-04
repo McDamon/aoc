@@ -320,7 +320,10 @@ mod tests {
 
     #[test]
     fn test_get_checksum_whole_files_test01() {
-        assert_eq!(2858, get_checksum_whole_files("input/2024/day09_test01.txt"));
+        assert_eq!(
+            2858,
+            get_checksum_whole_files("input/2024/day09_test01.txt")
+        );
     }
 
     // This test takes a while so ignore in CI
@@ -328,6 +331,9 @@ mod tests {
     #[ignore]
     #[test]
     fn test_get_checksum_whole_files() {
-        assert_eq!(6469636832766, get_checksum_whole_files("input/2024/day09.txt"));
+        assert_eq!(
+            6469636832766,
+            get_checksum_whole_files("input/2024/day09.txt")
+        );
     }
 }
