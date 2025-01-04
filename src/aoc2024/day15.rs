@@ -3,7 +3,7 @@
 use core::panic;
 use std::collections::{HashSet, VecDeque};
 
-use crate::utils::{get_lines, ArenaTree};
+use crate::utils::get_lines;
 
 #[derive(Debug, PartialEq, Eq, Hash, Copy, Clone, Default)]
 enum MoveDir {
@@ -167,12 +167,6 @@ fn get_sum_gps(input_file: &str) -> u32 {
 // Part 2
 //
 
-fn print_tree(tree: &ArenaTree<Move>) {
-    for node in tree.arena.iter() {
-        println!("Node: {:?}", node);
-    }
-}
-
 fn widen_warehouse(warehouse: &[Vec<char>]) -> Vec<Vec<char>> {
     warehouse.iter().fold(vec![], |mut acc, row| {
         let mut new_row: Vec<char> = vec![];
@@ -219,80 +213,30 @@ fn is_valid_pot_move(
 ) -> bool {
     let (pos_x, pos_y) = move_pos;
     if *pos_x >= warehouse[0].len() || *pos_y >= warehouse.len() {
-        println!(
+        /*println!(
             "Move to position {:?} is not valid: out of bounds",
             move_pos
-        );
+        );*/
         return false;
     }
     if visited_pos.contains(move_pos) {
-        println!(
+        /*println!(
             "Move to position {:?} is not valid: already visited",
             move_pos
-        );
+        );*/
         return false;
     }
     let entry = warehouse[*pos_y][*pos_x];
     let is_valid = matches!(entry, '@' | '[' | ']');
     if !is_valid {
-        println!(
+        /*println!(
             "Move to position {:?} is not valid: invalid entry '{}'",
             move_pos, entry
-        );
+        );*/
     } else {
-        println!("Move to position {:?} is valid", move_pos);
+        //println!("Move to position {:?} is valid", move_pos);
     }
     is_valid
-}
-
-fn build_moves_wider_dfs(
-    warehouse: &[Vec<char>],
-    visited_pos: &mut HashSet<(usize, usize)>,
-    stored_moves: &mut Vec<Move>,
-    move_pos: (usize, usize),
-    move_dir: MoveDir,
-) {
-    let mut stack = vec![move_pos];
-
-    while !stack.is_empty() {
-        if let Some(move_pos) = stack.pop() {
-            if !is_valid_pot_move(warehouse, visited_pos, &move_pos) {
-                continue;
-            }
-
-            visited_pos.insert(move_pos);
-
-            let (move_x, move_y) = move_pos;
-            let entry = warehouse[move_y][move_x];
-
-            println!("Storing {:?} move {:?}", move_dir, move_pos);
-            let next_move = Move {
-                pos: move_pos,
-                entry,
-                dir: move_dir,
-            };
-            stored_moves.push(next_move);
-
-            match entry {
-                '[' if warehouse[move_y][move_x + 1] == ']'
-                    && (move_dir == MoveDir::Up || move_dir == MoveDir::Down) =>
-                {
-                    let adj_move_pos = (move_x + 1, move_y);
-                    stack.push(adj_move_pos);
-                }
-                ']' if warehouse[move_y][move_x - 1] == '['
-                    && (move_dir == MoveDir::Up || move_dir == MoveDir::Down) =>
-                {
-                    let adj_move_pos = (move_x - 1, move_y);
-                    stack.push(adj_move_pos);
-                }
-                _ => (),
-            }
-
-            let pot_move_pos = get_pot_move(move_pos, move_dir);
-            stack.push(pot_move_pos);
-        }
-    }
 }
 
 fn build_moves_wider_bfs(
@@ -311,7 +255,7 @@ fn build_moves_wider_bfs(
             let (move_x, move_y) = move_pos;
             let entry = warehouse[move_y][move_x];
 
-            println!("Storing {:?} move {:?}", move_dir, move_pos);
+            //println!("Storing {:?} move {:?}", move_dir, move_pos);
             let next_move = Move {
                 pos: move_pos,
                 entry,
@@ -327,11 +271,11 @@ fn build_moves_wider_bfs(
                     if is_valid_pot_move(warehouse, visited_pos, &adj_move_pos) {
                         visited_pos.insert(adj_move_pos);
                         queue.push_back(adj_move_pos);
-                    } else {
-                        if let Some(wall_pos) = found_wall(warehouse, stored_moves, adj_move_pos) {
-                            println!("Found wall at {:?}", wall_pos);
-                            break;
-                        }
+                    } else if let Some(_wall_pos) =
+                        found_wall(warehouse, stored_moves, adj_move_pos)
+                    {
+                        //println!("Found wall at {:?}", wall_pos);
+                        break;
                     }
                 }
                 ']' if warehouse[move_y][move_x - 1] == '['
@@ -341,11 +285,11 @@ fn build_moves_wider_bfs(
                     if is_valid_pot_move(warehouse, visited_pos, &adj_move_pos) {
                         visited_pos.insert(adj_move_pos);
                         queue.push_back(adj_move_pos);
-                    } else {
-                        if let Some(wall_pos) = found_wall(warehouse, stored_moves, adj_move_pos) {
-                            println!("Found wall at {:?}", wall_pos);
-                            break;
-                        }
+                    } else if let Some(_wall_pos) =
+                        found_wall(warehouse, stored_moves, adj_move_pos)
+                    {
+                        //println!("Found wall at {:?}", wall_pos);
+                        break;
                     }
                 }
                 _ => (),
@@ -355,11 +299,9 @@ fn build_moves_wider_bfs(
             if is_valid_pot_move(warehouse, visited_pos, &pot_move_pos) {
                 visited_pos.insert(pot_move_pos);
                 queue.push_back(pot_move_pos);
-            } else {
-                if let Some(wall_pos) = found_wall(warehouse, stored_moves, pot_move_pos) {
-                    println!("Found wall at {:?}", wall_pos);
-                    break;
-                }
+            } else if let Some(_wall_pos) = found_wall(warehouse, stored_moves, pot_move_pos) {
+                //println!("Found wall at {:?}", wall_pos);
+                break;
             }
         }
     }
@@ -373,14 +315,14 @@ fn found_wall(
     let (move_x, move_y) = move_pos;
     let entry = warehouse[move_y][move_x];
     if entry == '#' {
-        println!("Found wall at {:?}", move_pos);
+        //println!("Found wall at {:?}", move_pos);
         stored_moves.clear();
         return Some(move_pos);
     }
     None
 }
 
-fn make_moves(warehouse: &mut [Vec<char>], stored_moves: &Vec<Move>) {
+fn make_moves(warehouse: &mut [Vec<char>], stored_moves: &[Move]) {
     for m in stored_moves.iter().rev() {
         let (from_x, from_y) = m.pos;
         let (to_x, to_y) = get_pot_move(m.pos, m.dir);
@@ -388,13 +330,13 @@ fn make_moves(warehouse: &mut [Vec<char>], stored_moves: &Vec<Move>) {
         let from_entry = warehouse[from_y][from_x];
         let to_entry = warehouse[to_y][to_x];
 
-        println!(
+        /*println!(
             "Moving {:?} from {:?} to {:?}, replacing {:?}",
             from_entry,
             (from_x, from_y),
             (to_x, to_y),
             to_entry
-        );
+        );*/
 
         warehouse[from_y][from_x] = to_entry;
         warehouse[to_y][to_x] = from_entry;
@@ -406,9 +348,9 @@ fn get_sum_gps_wider(input_file: &str) -> u32 {
 
     let mut warehouse_wider = widen_warehouse(&input.warehouse);
 
-    println!("Initial state:");
-    print_warehouse(&warehouse_wider);
-    println!();
+    //println!("Initial state:");
+    //print_warehouse(&warehouse_wider);
+    //println!();
 
     for move_dir in input.moves {
         let mut visited_pos: HashSet<(usize, usize)> = HashSet::new();
@@ -422,8 +364,8 @@ fn get_sum_gps_wider(input_file: &str) -> u32 {
             move_dir,
         );
         make_moves(&mut warehouse_wider, &stored_moves);
-        print_warehouse(&warehouse_wider);
-        println!();
+        //print_warehouse(&warehouse_wider);
+        //println!();
     }
 
     warehouse_wider.iter().enumerate().fold(0, |acc, (y, row)| {
@@ -616,6 +558,6 @@ mod tests {
     #[test]
     fn test_get_sum_gps_wider() {
         // Our test input
-        assert_eq!(0, get_sum_gps_wider("input/2024/day15.txt"));
+        assert_eq!(1538862, get_sum_gps_wider("input/2024/day15.txt"));
     }
 }
