@@ -307,7 +307,10 @@ mod tests {
 
     #[test]
     fn test_get_sum_trailhead_ratings_test07() {
-        assert_eq!(227, get_sum_trailhead_ratings("input/2024/day10_test07.txt"));
+        assert_eq!(
+            227,
+            get_sum_trailhead_ratings("input/2024/day10_test07.txt")
+        );
     }
 
     #[test]

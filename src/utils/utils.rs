@@ -61,7 +61,7 @@ impl<T> ListNode<T> {
 #[derive(Debug)]
 pub struct TreeNode<T>
 where
-    T: PartialEq,
+    T: PartialEq + Clone,
 {
     pub idx: usize,
     pub val: T,
@@ -71,7 +71,7 @@ where
 
 impl<T> TreeNode<T>
 where
-    T: PartialEq,
+    T: PartialEq + Clone,
 {
     pub fn new(idx: usize, val: T) -> Self {
         Self {
@@ -86,15 +86,19 @@ where
 #[derive(Debug, Default)]
 pub struct ArenaTree<T>
 where
-    T: PartialEq,
+    T: PartialEq + Clone,
 {
     pub arena: Vec<TreeNode<T>>,
 }
 
 impl<T> ArenaTree<T>
 where
-    T: PartialEq,
+    T: PartialEq + Clone,
 {
+    pub fn get_node(&self, idx: usize) -> Option<T> {
+        self.arena.get(idx).map(|node| node.val.clone())
+    }
+
     pub fn add_node(&mut self, val: T) -> usize {
         // First see if it exists
         for node in &self.arena {
@@ -106,6 +110,19 @@ where
         let idx = self.arena.len();
         self.arena.push(TreeNode::new(idx, val));
         idx
+    }
+
+    pub fn idx(&self, val: T) -> Option<usize> {
+        for node in &self.arena {
+            if node.val == val {
+                return Some(node.idx);
+            }
+        }
+        None
+    }
+
+    pub fn clear(&mut self) {
+        self.arena.clear();
     }
 
     pub fn size(&self) -> usize {

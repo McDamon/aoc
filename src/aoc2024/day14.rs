@@ -185,72 +185,114 @@ mod tests {
 
     #[test]
     fn test_get_safety_factor_test01() {
-        assert_eq!(0, get_safety_factor("input/2024/day14_test01.txt", 11, 7, 0));
+        assert_eq!(
+            0,
+            get_safety_factor("input/2024/day14_test01.txt", 11, 7, 0)
+        );
     }
 
     #[test]
     fn test_get_safety_factor_test02() {
-        assert_eq!(0, get_safety_factor("input/2024/day14_test02.txt", 11, 7, 0));
+        assert_eq!(
+            0,
+            get_safety_factor("input/2024/day14_test02.txt", 11, 7, 0)
+        );
     }
 
     #[test]
     fn test_get_safety_factor_test03() {
-        assert_eq!(0, get_safety_factor("input/2024/day14_test02.txt", 11, 7, 1));
+        assert_eq!(
+            0,
+            get_safety_factor("input/2024/day14_test02.txt", 11, 7, 1)
+        );
     }
 
     #[test]
     fn test_get_safety_factor_test04() {
-        assert_eq!(0, get_safety_factor("input/2024/day14_test02.txt", 11, 7, 2));
+        assert_eq!(
+            0,
+            get_safety_factor("input/2024/day14_test02.txt", 11, 7, 2)
+        );
     }
 
     #[test]
     fn test_get_safety_factor_test05() {
-        assert_eq!(0, get_safety_factor("input/2024/day14_test02.txt", 11, 7, 3));
+        assert_eq!(
+            0,
+            get_safety_factor("input/2024/day14_test02.txt", 11, 7, 3)
+        );
     }
 
     #[test]
     fn test_get_safety_factor_test06() {
-        assert_eq!(0, get_safety_factor("input/2024/day14_test02.txt", 11, 7, 4));
+        assert_eq!(
+            0,
+            get_safety_factor("input/2024/day14_test02.txt", 11, 7, 4)
+        );
     }
 
     #[test]
     fn test_get_safety_factor_test07() {
-        assert_eq!(0, get_safety_factor("input/2024/day14_test02.txt", 11, 7, 5));
+        assert_eq!(
+            0,
+            get_safety_factor("input/2024/day14_test02.txt", 11, 7, 5)
+        );
     }
 
     #[test]
     fn test_get_safety_factor_test08() {
-        assert_eq!(0, get_safety_factor("input/2024/day14_test03.txt", 11, 7, 0));
+        assert_eq!(
+            0,
+            get_safety_factor("input/2024/day14_test03.txt", 11, 7, 0)
+        );
     }
 
     #[test]
     fn test_get_safety_factor_test09() {
-        assert_eq!(0, get_safety_factor("input/2024/day14_test03.txt", 11, 7, 1));
+        assert_eq!(
+            0,
+            get_safety_factor("input/2024/day14_test03.txt", 11, 7, 1)
+        );
     }
 
     #[test]
     fn test_get_safety_factor_test10() {
-        assert_eq!(0, get_safety_factor("input/2024/day14_test03.txt", 11, 7, 2));
+        assert_eq!(
+            0,
+            get_safety_factor("input/2024/day14_test03.txt", 11, 7, 2)
+        );
     }
 
     #[test]
     fn test_get_safety_factor_test11() {
-        assert_eq!(0, get_safety_factor("input/2024/day14_test03.txt", 11, 7, 3));
+        assert_eq!(
+            0,
+            get_safety_factor("input/2024/day14_test03.txt", 11, 7, 3)
+        );
     }
 
     #[test]
     fn test_get_safety_factor_test12() {
-        assert_eq!(0, get_safety_factor("input/2024/day14_test03.txt", 11, 7, 4));
+        assert_eq!(
+            0,
+            get_safety_factor("input/2024/day14_test03.txt", 11, 7, 4)
+        );
     }
 
     #[test]
     fn test_get_safety_factor_test13() {
-        assert_eq!(0, get_safety_factor("input/2024/day14_test03.txt", 11, 7, 5));
+        assert_eq!(
+            0,
+            get_safety_factor("input/2024/day14_test03.txt", 11, 7, 5)
+        );
     }
 
     #[test]
     fn test_get_safety_factor_test14() {
-        assert_eq!(12, get_safety_factor("input/2024/day14_test01.txt", 11, 7, 100));
+        assert_eq!(
+            12,
+            get_safety_factor("input/2024/day14_test01.txt", 11, 7, 100)
+        );
     }
 
     #[test]
@@ -264,6 +306,9 @@ mod tests {
     #[ignore]
     #[test]
     fn test_check_xmas_tree() {
-        assert_eq!(6243, check_xmas_tree("input/2024/day14.txt", 101, 103, 10000));
+        assert_eq!(
+            6243,
+            check_xmas_tree("input/2024/day14.txt", 101, 103, 10000)
+        );
     }
 }

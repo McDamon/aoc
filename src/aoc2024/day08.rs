@@ -302,17 +302,26 @@ mod tests {
 
     #[test]
     fn test_get_unique_antinodes_with_hr_test01() {
-        assert_eq!(34, get_unique_antinodes_with_hr("input/2024/day08_test01.txt"));
+        assert_eq!(
+            34,
+            get_unique_antinodes_with_hr("input/2024/day08_test01.txt")
+        );
     }
 
     #[test]
     fn test_get_unique_antinodes_with_hr_test05() {
-        assert_eq!(9, get_unique_antinodes_with_hr("input/2024/day08_test05.txt"));
+        assert_eq!(
+            9,
+            get_unique_antinodes_with_hr("input/2024/day08_test05.txt")
+        );
     }
 
     #[test]
     fn test_get_unique_antinodes_with_hr_test06() {
-        assert_eq!(9, get_unique_antinodes_with_hr("input/2024/day08_test06.txt"));
+        assert_eq!(
+            9,
+            get_unique_antinodes_with_hr("input/2024/day08_test06.txt")
+        );
     }
 
     #[test]

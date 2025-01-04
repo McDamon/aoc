@@ -120,6 +120,9 @@ mod tests {
 
     #[test]
     fn test_get_num_safe_reports_with_prob_damp() {
-        assert_eq!(717, get_num_safe_reports_with_prob_damp("input/2024/day02.txt"));
+        assert_eq!(
+            717,
+            get_num_safe_reports_with_prob_damp("input/2024/day02.txt")
+        );
     }
 }
