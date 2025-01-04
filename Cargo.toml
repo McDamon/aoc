@@ -1,0 +1,22 @@
+[package]
+name = "aoc2024"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "MIT"
+repository = "https://github.com/McDamon/aoc2024"
+authors = ["Andrew McMahon <andrew.p.mcmahon@gmail.com>"]
+
+[lib]
+name = "aoc"
+path = "src/lib.rs"
+
+[dependencies]
+itertools = "0.14.0"
+lazy_static = "1.5.0"
+nalgebra = "0.33.2"
+regex = "1.11.1"
+stacker = "0.1.17"
+
+#[profile.test]
+#inherits = "release"
