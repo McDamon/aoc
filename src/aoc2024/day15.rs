@@ -3,20 +3,22 @@
 use core::panic;
 use std::collections::HashSet;
 
-use crate::utils::get_lines;
+use crate::utils::{ArenaTree, get_lines};
 
-#[derive(Debug, PartialEq, Copy, Clone)]
+#[derive(Debug, PartialEq, Eq, Hash, Copy, Clone, Default)]
 enum MoveDir {
+    #[default]
     Up,
     Down,
     Left,
     Right,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Hash, Default, Clone)]
 struct Move {
-    from_pos: (usize, usize),
-    to_pos: (usize, usize),
+    pos: (usize, usize),
+    entry: char,
+    dir: MoveDir,
 }
 
 #[derive(Debug)]
@@ -161,6 +163,16 @@ fn get_sum_gps(input_file: &str) -> u32 {
     })
 }
 
+//
+// Part 2
+//
+
+fn print_tree(tree: &ArenaTree<Move>) {
+    for node in tree.arena.iter() {
+        println!("Node: {:?}", node);
+    }
+}
+
 fn widen_warehouse(warehouse: &[Vec<char>]) -> Vec<Vec<char>> {
     warehouse.iter().fold(vec![], |mut acc, row| {
         let mut new_row: Vec<char> = vec![];
@@ -190,41 +202,6 @@ fn widen_warehouse(warehouse: &[Vec<char>]) -> Vec<Vec<char>> {
     })
 }
 
-fn get_adj_moves(
-    warehouse: &[Vec<char>],
-    stored_moves: &mut Vec<Move>,
-    move_pos: (usize, usize),
-    move_dir: MoveDir,
-) -> Option<Vec<(usize, usize)>> {
-    let pot_move_pos = get_pot_move(move_pos, move_dir);
-    let (pos_move_x, pos_move_y) = pot_move_pos;
-    let pot_move_entry = warehouse[pos_move_y][pos_move_x];
-
-    let mut pot_moves: Vec<(usize, usize)> = vec![pot_move_pos];
-
-    if is_valid_pot_move(pot_move_entry, &pot_move_pos) {
-        store_move(stored_moves, move_pos, pot_move_pos, move_dir);
-        match pot_move_entry {
-            '.' => return None,
-            '[' if warehouse[pos_move_y][pos_move_x + 1] == ']'
-                && (move_dir == MoveDir::Up || move_dir == MoveDir::Down) =>
-            {
-                pot_moves.push((pos_move_x + 1, pos_move_y));
-            }
-            ']' if warehouse[pos_move_y][pos_move_x - 1] == '['
-                && (move_dir == MoveDir::Up || move_dir == MoveDir::Down) =>
-            {
-                pot_moves.push((pos_move_x - 1, pos_move_y));
-            }
-            _ => (),
-        }
-        Some(pot_moves)
-    } else {
-        handle_invalid_move(pot_move_entry, stored_moves, pot_move_pos);
-        None
-    }
-}
-
 fn get_pot_move(move_pos: (usize, usize), move_dir: MoveDir) -> (usize, usize) {
     let (move_x, move_y) = move_pos;
     match move_dir {
@@ -235,73 +212,112 @@ fn get_pot_move(move_pos: (usize, usize), move_dir: MoveDir) -> (usize, usize) {
     }
 }
 
-fn is_valid_pot_move(
-    entry: char,
-    pos: &(usize, usize)
-) -> bool {
+fn is_valid_pot_move(entry: char, pos: &(usize, usize)) -> bool {
     println!("Checking move to position {:?} with entry '{}'", pos, entry);
-    let is_valid = matches!(entry, '.' | '[' | ']');
+    let is_valid = matches!(entry, '[' | ']');
     if !is_valid {
-        println!("Move to position {:?} is not valid: invalid entry '{}'", pos, entry);
+        println!(
+            "Move to position {:?} is not valid: invalid entry '{}'",
+            pos, entry
+        );
     } else {
         println!("Move to position {:?} is valid", pos);
     }
     is_valid
 }
 
-fn store_move(
-    stored_moves: &mut Vec<Move>,
-    from_pos: (usize, usize),
-    to_pos: (usize, usize),
-    move_dir: MoveDir,
-) {
-    println!(
-        "Storing {:?} move from {:?} to {:?}",
-        move_dir, from_pos, to_pos
-    );
-    stored_moves.push(Move { from_pos, to_pos });
-}
-
-fn handle_invalid_move(entry: char, stored_moves: &mut Vec<Move>, pos: (usize, usize)) {
-    if entry == '#' {
-        println!("Found wall at {:?}", pos);
-        stored_moves.clear();
-    }
-}
-
 fn perform_move_wider(
     warehouse: &[Vec<char>],
     visited_pos: &mut HashSet<(usize, usize)>,
-    stored_moves: &mut Vec<Move>,
-    move_pos: (usize, usize),
+    stored_moves: &mut ArenaTree<Move>,
     move_dir: MoveDir,
 ) {
-    let mut stack = vec![move_pos];
+    let mut curr_move_idx = 0;
+    if let Some(curr_move) = stored_moves.get_node(curr_move_idx) {
+        let mut stack = vec![curr_move.pos];
 
-    while !stack.is_empty() {
-        if let Some(move_pos) = stack.pop() {
-            if visited_pos.contains(&move_pos) {
-                continue;
-            }
+        while !stack.is_empty() {
+            if let Some(move_pos) = stack.pop() {
+                if visited_pos.contains(&move_pos) {
+                    println!("Already visited {:?}", move_pos);
+                    continue;
+                }
 
-            println!("Visiting {:?}", move_pos);
+                println!("Visiting {:?}", move_pos);
 
-            visited_pos.insert(move_pos);
+                visited_pos.insert(move_pos);
 
-            // Push adjacent moves to stack
-            if let Some(adj_moves) =
-                get_adj_moves(&warehouse, stored_moves, move_pos, move_dir)
-            {
-                for adj_move_pos in adj_moves {
-                    stack.push(adj_move_pos);
+                let pot_move_pos = get_pot_move(move_pos, move_dir);
+                let (pos_move_x, pos_move_y) = pot_move_pos;
+                let pot_move_entry = warehouse[pos_move_y][pos_move_x];
+
+                if is_valid_pot_move(pot_move_entry, &pot_move_pos) {
+                    println!(
+                        "Storing {:?} move from {:?} to {:?}",
+                        move_dir, move_pos, pot_move_pos
+                    );
+                    let next_move = Move {
+                        pos: pot_move_pos,
+                        entry: pot_move_entry,
+                        dir: move_dir,
+                    };
+                    let next_move_idx = stored_moves.add_node(next_move);
+                    stored_moves.arena[curr_move_idx].children.push(next_move_idx);
+                    stored_moves.arena[next_move_idx].parent = Some(curr_move_idx);
+                    curr_move_idx = next_move_idx;
+
+                    match pot_move_entry {
+                        '.' => {
+                            println!("Found empty space at {:?}", pot_move_pos);
+                            continue;
+                        }
+                        '[' if warehouse[pos_move_y][pos_move_x + 1] == ']'
+                            && (move_dir == MoveDir::Up || move_dir == MoveDir::Down) =>
+                        {
+                            let adj_move_pos = (pos_move_x + 1, pos_move_y);
+                            let (adj_move_pos_x, adj_move_pos_y) = adj_move_pos;
+                            let adj_move_entry = warehouse[adj_move_pos_y][adj_move_pos_x];
+                            let adj_move_idx = stored_moves.add_node(Move {
+                                pos: adj_move_pos,
+                                entry: adj_move_entry,
+                                dir: move_dir,
+                            });
+                            stored_moves.arena[next_move_idx].children.push(adj_move_idx);
+                            stored_moves.arena[adj_move_idx].parent = Some(next_move_idx);
+                            //stack.push(adj_move_pos);
+                        }
+                        ']' if warehouse[pos_move_y][pos_move_x - 1] == '['
+                            && (move_dir == MoveDir::Up || move_dir == MoveDir::Down) =>
+                        {
+                            let adj_move_pos = (pos_move_x - 1, pos_move_y);
+                            let (adj_move_pos_x, adj_move_pos_y) = adj_move_pos;
+                            let adj_move_entry = warehouse[adj_move_pos_y][adj_move_pos_x];
+                            let adj_move_idx = stored_moves.add_node(Move {
+                                pos: adj_move_pos,
+                                entry: adj_move_entry,
+                                dir: move_dir,
+                            });
+                            stored_moves.arena[next_move_idx].children.push(adj_move_idx);
+                            stored_moves.arena[adj_move_idx].parent = Some(next_move_idx);
+                            //stack.push(adj_move_pos);
+                        }
+                        _ => (),
+                    }
+                    stack.push(pot_move_pos);
+                } else {
+                    if pot_move_entry == '#' {
+                        println!("Found wall at {:?}", pot_move_pos);
+                        stored_moves.clear();
+                    }
+                    break;
                 }
             }
         }
     }
 }
 
-fn make_moves(warehouse: &mut [Vec<char>], stored_moves: &[Move]) {
-    for m in stored_moves.iter().rev() {
+fn make_moves(warehouse: &mut [Vec<char>], stored_moves: &ArenaTree<Move>) {
+    /*for m in stored_moves.iter().rev() {
         let Move {
             from_pos: (from_x, from_y),
             to_pos: (to_x, to_y),
@@ -320,7 +336,7 @@ fn make_moves(warehouse: &mut [Vec<char>], stored_moves: &[Move]) {
 
         warehouse[*from_y][*from_x] = to_entry;
         warehouse[*to_y][*to_x] = from_entry;
-    }
+    }*/
 }
 
 fn get_sum_gps_wider(input_file: &str) -> u32 {
@@ -333,18 +349,25 @@ fn get_sum_gps_wider(input_file: &str) -> u32 {
     println!();
 
     for move_dir in input.moves {
-        let robot_pos: (usize, usize) = get_robot_pos(&warehouse_wider);
-        println!("Robot pos: {:?}", robot_pos);
         let mut visited_pos: HashSet<(usize, usize)> = HashSet::new();
-        let mut stored_moves: Vec<Move> = vec![];
+        let mut stored_moves: ArenaTree<Move> = ArenaTree::default();
+
         println!("MoveDir: {:?}", move_dir);
+        let robot_pos: (usize, usize) = get_robot_pos(&warehouse_wider);
+        let robot_move = Move {
+            pos: robot_pos,
+            entry: '@',
+            dir: move_dir,
+        };
+        let curr_move_idx = stored_moves.add_node(robot_move.clone());
+        println!("Robot move {:?}: {:?}", curr_move_idx, robot_move);
         perform_move_wider(
             &warehouse_wider,
             &mut visited_pos,
             &mut stored_moves,
-            robot_pos,
             move_dir,
         );
+        print_tree(&stored_moves);
         make_moves(&mut warehouse_wider, &stored_moves);
         print_warehouse(&warehouse_wider);
         println!();
