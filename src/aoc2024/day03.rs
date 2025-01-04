@@ -58,21 +58,21 @@ mod tests {
 
     #[test]
     fn test_get_sum_mul_test01() {
-        assert_eq!(161, get_sum_mul("input/day03_test01.txt"));
+        assert_eq!(161, get_sum_mul("input/2024/day03_test01.txt"));
     }
 
     #[test]
     fn test_get_sum_mul() {
-        assert_eq!(180233229, get_sum_mul("input/day03.txt"));
+        assert_eq!(180233229, get_sum_mul("input/2024/day03.txt"));
     }
 
     #[test]
     fn test_get_sum_mul_cond_test01() {
-        assert_eq!(48, get_sum_mul_cond("input/day03_test02.txt"));
+        assert_eq!(48, get_sum_mul_cond("input/2024/day03_test02.txt"));
     }
 
     #[test]
     fn test_get_sum_mul_cond() {
-        assert_eq!(95411583, get_sum_mul_cond("input/day03.txt"));
+        assert_eq!(95411583, get_sum_mul_cond("input/2024/day03.txt"));
     }
 }

@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use super::utils::get_lines;
+use crate::utils::get_lines;
 
 use itertools::Itertools;
 
@@ -136,99 +136,99 @@ mod tests {
 
     #[test]
     fn test_get_num_stones_test01() {
-        assert_eq!(7, get_num_stones("input/day11_test01.txt", 1));
+        assert_eq!(7, get_num_stones("input/2024/day11_test01.txt", 1));
     }
 
     #[test]
     fn test_get_num_stones_test02() {
-        assert_eq!(3, get_num_stones("input/day11_test02.txt", 1));
+        assert_eq!(3, get_num_stones("input/2024/day11_test02.txt", 1));
     }
 
     #[test]
     fn test_get_num_stones_test03() {
-        assert_eq!(4, get_num_stones("input/day11_test02.txt", 2));
+        assert_eq!(4, get_num_stones("input/2024/day11_test02.txt", 2));
     }
 
     #[test]
     fn test_get_num_stones_test04() {
-        assert_eq!(5, get_num_stones("input/day11_test02.txt", 3));
+        assert_eq!(5, get_num_stones("input/2024/day11_test02.txt", 3));
     }
 
     #[test]
     fn test_get_num_stones_test05() {
-        assert_eq!(9, get_num_stones("input/day11_test02.txt", 4));
+        assert_eq!(9, get_num_stones("input/2024/day11_test02.txt", 4));
     }
 
     #[test]
     fn test_get_num_stones_test06() {
-        assert_eq!(13, get_num_stones("input/day11_test02.txt", 5));
+        assert_eq!(13, get_num_stones("input/2024/day11_test02.txt", 5));
     }
 
     #[test]
     fn test_get_num_stones_test07() {
-        assert_eq!(22, get_num_stones("input/day11_test02.txt", 6));
+        assert_eq!(22, get_num_stones("input/2024/day11_test02.txt", 6));
     }
 
     #[test]
     fn test_get_num_stones_test08() {
-        assert_eq!(55312, get_num_stones("input/day11_test02.txt", 25));
+        assert_eq!(55312, get_num_stones("input/2024/day11_test02.txt", 25));
     }
 
     #[test]
     fn test_get_num_stones() {
-        assert_eq!(187738, get_num_stones("input/day11.txt", 25));
+        assert_eq!(187738, get_num_stones("input/2024/day11.txt", 25));
     }
 
     #[test]
     fn test_get_num_stones_memoize_test01() {
-        assert_eq!(7, get_num_stones_memoize("input/day11_test01.txt", 1));
+        assert_eq!(7, get_num_stones_memoize("input/2024/day11_test01.txt", 1));
     }
 
     #[test]
     fn test_get_num_stones_memoize_test02() {
-        assert_eq!(3, get_num_stones_memoize("input/day11_test02.txt", 1));
+        assert_eq!(3, get_num_stones_memoize("input/2024/day11_test02.txt", 1));
     }
 
     #[test]
     fn test_get_num_stones_memoize_test03() {
-        assert_eq!(4, get_num_stones_memoize("input/day11_test02.txt", 2));
+        assert_eq!(4, get_num_stones_memoize("input/2024/day11_test02.txt", 2));
     }
 
     #[test]
     fn test_get_num_stones_memoize_test04() {
-        assert_eq!(5, get_num_stones_memoize("input/day11_test02.txt", 3));
+        assert_eq!(5, get_num_stones_memoize("input/2024/day11_test02.txt", 3));
     }
 
     #[test]
     fn test_get_num_stones_memoize_test05() {
-        assert_eq!(9, get_num_stones_memoize("input/day11_test02.txt", 4));
+        assert_eq!(9, get_num_stones_memoize("input/2024/day11_test02.txt", 4));
     }
 
     #[test]
     fn test_get_num_stones_memoize_test06() {
-        assert_eq!(13, get_num_stones_memoize("input/day11_test02.txt", 5));
+        assert_eq!(13, get_num_stones_memoize("input/2024/day11_test02.txt", 5));
     }
 
     #[test]
     fn test_get_num_stones_memoize_test07() {
-        assert_eq!(22, get_num_stones_memoize("input/day11_test02.txt", 6));
+        assert_eq!(22, get_num_stones_memoize("input/2024/day11_test02.txt", 6));
     }
 
     #[test]
     fn test_get_num_stones_memoize_test08() {
-        assert_eq!(55312, get_num_stones_memoize("input/day11_test02.txt", 25));
+        assert_eq!(55312, get_num_stones_memoize("input/2024/day11_test02.txt", 25));
     }
 
     #[test]
     fn test_get_num_stones_memoize_25_blinks() {
-        assert_eq!(187738, get_num_stones_memoize("input/day11.txt", 25));
+        assert_eq!(187738, get_num_stones_memoize("input/2024/day11.txt", 25));
     }
 
     #[test]
     fn test_get_num_stones_memoize_75_blinks() {
         assert_eq!(
             223767210249237,
-            get_num_stones_memoize("input/day11.txt", 75)
+            get_num_stones_memoize("input/2024/day11.txt", 75)
         );
     }
 }

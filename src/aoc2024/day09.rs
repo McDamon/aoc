@@ -2,7 +2,7 @@
 
 use std::collections::HashSet;
 
-use super::utils::get_lines;
+use crate::utils::get_lines;
 
 struct InputPartOne {
     disk: Vec<DiskEntry>,
@@ -292,22 +292,22 @@ mod tests {
 
     #[test]
     fn test_get_checksum_test01() {
-        assert_eq!(1928, get_checksum("input/day09_test01.txt"));
+        assert_eq!(1928, get_checksum("input/2024/day09_test01.txt"));
     }
 
     #[test]
     fn test_get_checksum_test02() {
-        assert_eq!(60, get_checksum("input/day09_test02.txt"));
+        assert_eq!(60, get_checksum("input/2024/day09_test02.txt"));
     }
 
     #[test]
     fn test_get_checksum_test03() {
-        assert_eq!(513, get_checksum("input/day09_test03.txt"));
+        assert_eq!(513, get_checksum("input/2024/day09_test03.txt"));
     }
 
     #[test]
     fn test_get_checksum_test04() {
-        assert_eq!(57, get_checksum("input/day09_test04.txt"));
+        assert_eq!(57, get_checksum("input/2024/day09_test04.txt"));
     }
 
     // This test takes a while so ignore in CI
@@ -315,12 +315,12 @@ mod tests {
     #[ignore]
     #[test]
     fn test_get_checksum() {
-        assert_eq!(6435922584968, get_checksum("input/day09.txt"));
+        assert_eq!(6435922584968, get_checksum("input/2024/day09.txt"));
     }
 
     #[test]
     fn test_get_checksum_whole_files_test01() {
-        assert_eq!(2858, get_checksum_whole_files("input/day09_test01.txt"));
+        assert_eq!(2858, get_checksum_whole_files("input/2024/day09_test01.txt"));
     }
 
     // This test takes a while so ignore in CI
@@ -328,6 +328,6 @@ mod tests {
     #[ignore]
     #[test]
     fn test_get_checksum_whole_files() {
-        assert_eq!(6469636832766, get_checksum_whole_files("input/day09.txt"));
+        assert_eq!(6469636832766, get_checksum_whole_files("input/2024/day09.txt"));
     }
 }

@@ -2,7 +2,7 @@
 
 use std::collections::{HashMap, HashSet};
 
-use super::utils::get_lines;
+use crate::utils::get_lines;
 
 struct Input {
     plants: Vec<Vec<char>>,
@@ -250,7 +250,7 @@ mod tests {
     fn test_get_price_fencing_all_regions_test01() {
         assert_eq!(
             140,
-            get_price_fencing_all_regions("input/day12_test01.txt", false)
+            get_price_fencing_all_regions("input/2024/day12_test01.txt", false)
         );
     }
 
@@ -258,7 +258,7 @@ mod tests {
     fn test_get_price_fencing_all_regions_test02() {
         assert_eq!(
             772,
-            get_price_fencing_all_regions("input/day12_test02.txt", false)
+            get_price_fencing_all_regions("input/2024/day12_test02.txt", false)
         );
     }
 
@@ -266,7 +266,7 @@ mod tests {
     fn test_get_price_fencing_all_regions_test03() {
         assert_eq!(
             1930,
-            get_price_fencing_all_regions("input/day12_test03.txt", false)
+            get_price_fencing_all_regions("input/2024/day12_test03.txt", false)
         );
     }
 
@@ -274,7 +274,7 @@ mod tests {
     fn test_get_price_fencing_all_regions_test04() {
         assert_eq!(
             692,
-            get_price_fencing_all_regions("input/day12_test04.txt", false)
+            get_price_fencing_all_regions("input/2024/day12_test04.txt", false)
         );
     }
 
@@ -282,7 +282,7 @@ mod tests {
     fn test_get_price_fencing_all_regions_test05() {
         assert_eq!(
             1184,
-            get_price_fencing_all_regions("input/day12_test05.txt", false)
+            get_price_fencing_all_regions("input/2024/day12_test05.txt", false)
         );
     }
 
@@ -290,7 +290,7 @@ mod tests {
     fn test_get_price_fencing_all_regions() {
         assert_eq!(
             1363682,
-            get_price_fencing_all_regions("input/day12.txt", false)
+            get_price_fencing_all_regions("input/2024/day12.txt", false)
         );
     }
 
@@ -298,7 +298,7 @@ mod tests {
     fn test_get_price_fencing_all_regions_bulk_discount_test01() {
         assert_eq!(
             80,
-            get_price_fencing_all_regions("input/day12_test01.txt", true)
+            get_price_fencing_all_regions("input/2024/day12_test01.txt", true)
         );
     }
 
@@ -306,7 +306,7 @@ mod tests {
     fn test_get_price_fencing_all_regions_bulk_discount_test02() {
         assert_eq!(
             436,
-            get_price_fencing_all_regions("input/day12_test02.txt", true)
+            get_price_fencing_all_regions("input/2024/day12_test02.txt", true)
         );
     }
 
@@ -314,7 +314,7 @@ mod tests {
     fn test_get_price_fencing_all_regions_bulk_discount_test03() {
         assert_eq!(
             1206,
-            get_price_fencing_all_regions("input/day12_test03.txt", true)
+            get_price_fencing_all_regions("input/2024/day12_test03.txt", true)
         );
     }
 
@@ -322,7 +322,7 @@ mod tests {
     fn test_get_price_fencing_all_regions_bulk_discount_test04() {
         assert_eq!(
             236,
-            get_price_fencing_all_regions("input/day12_test04.txt", true)
+            get_price_fencing_all_regions("input/2024/day12_test04.txt", true)
         );
     }
 
@@ -330,7 +330,7 @@ mod tests {
     fn test_get_price_fencing_all_regions_bulk_discount_test05() {
         assert_eq!(
             368,
-            get_price_fencing_all_regions("input/day12_test05.txt", true)
+            get_price_fencing_all_regions("input/2024/day12_test05.txt", true)
         );
     }
 
@@ -338,7 +338,7 @@ mod tests {
     fn test_get_price_fencing_all_regions_bulk_discount_() {
         assert_eq!(
             787680,
-            get_price_fencing_all_regions("input/day12.txt", true)
+            get_price_fencing_all_regions("input/2024/day12.txt", true)
         );
     }
 }

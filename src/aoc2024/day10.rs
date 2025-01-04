@@ -2,8 +2,8 @@
 
 use std::collections::HashSet;
 
-use super::utils::get_lines;
-use super::utils::ArenaTree;
+use crate::utils::get_lines;
+use crate::utils::ArenaTree;
 
 struct Input {
     top_map: Vec<Vec<u32>>,
@@ -247,71 +247,71 @@ mod tests {
 
     #[test]
     fn test_get_sum_trailheads_test01() {
-        assert_eq!(1, get_sum_trailheads("input/day10_test01.txt"));
+        assert_eq!(1, get_sum_trailheads("input/2024/day10_test01.txt"));
     }
 
     #[test]
     fn test_get_sum_trailheads_test02() {
-        assert_eq!(2, get_sum_trailheads("input/day10_test02.txt"));
+        assert_eq!(2, get_sum_trailheads("input/2024/day10_test02.txt"));
     }
 
     #[test]
     fn test_get_sum_trailheads_test03() {
-        assert_eq!(4, get_sum_trailheads("input/day10_test03.txt"));
+        assert_eq!(4, get_sum_trailheads("input/2024/day10_test03.txt"));
     }
 
     #[test]
     fn test_get_sum_trailheads_test04() {
-        assert_eq!(3, get_sum_trailheads("input/day10_test04.txt"));
+        assert_eq!(3, get_sum_trailheads("input/2024/day10_test04.txt"));
     }
 
     #[test]
     fn test_get_sum_trailheads_test05() {
-        assert_eq!(36, get_sum_trailheads("input/day10_test05.txt"));
+        assert_eq!(36, get_sum_trailheads("input/2024/day10_test05.txt"));
     }
 
     #[test]
     fn test_get_sum_trailheads() {
-        assert_eq!(782, get_sum_trailheads("input/day10.txt"));
+        assert_eq!(782, get_sum_trailheads("input/2024/day10.txt"));
     }
 
     #[test]
     fn test_get_sum_trailhead_ratings_test01() {
-        assert_eq!(16, get_sum_trailhead_ratings("input/day10_test01.txt"));
+        assert_eq!(16, get_sum_trailhead_ratings("input/2024/day10_test01.txt"));
     }
 
     #[test]
     fn test_get_sum_trailheads_ratings_test02() {
-        assert_eq!(2, get_sum_trailhead_ratings("input/day10_test02.txt"));
+        assert_eq!(2, get_sum_trailhead_ratings("input/2024/day10_test02.txt"));
     }
 
     #[test]
     fn test_get_sum_trailheads_ratings_test03() {
-        assert_eq!(13, get_sum_trailhead_ratings("input/day10_test03.txt"));
+        assert_eq!(13, get_sum_trailhead_ratings("input/2024/day10_test03.txt"));
     }
 
     #[test]
     fn test_get_sum_trailheads_ratings_test04() {
-        assert_eq!(3, get_sum_trailhead_ratings("input/day10_test04.txt"));
+        assert_eq!(3, get_sum_trailhead_ratings("input/2024/day10_test04.txt"));
     }
 
     #[test]
     fn test_get_sum_trailhead_ratings_test05() {
-        assert_eq!(81, get_sum_trailhead_ratings("input/day10_test05.txt"));
+        assert_eq!(81, get_sum_trailhead_ratings("input/2024/day10_test05.txt"));
     }
 
     #[test]
     fn test_get_sum_trailhead_ratings_test06() {
-        assert_eq!(3, get_sum_trailhead_ratings("input/day10_test06.txt"));
+        assert_eq!(3, get_sum_trailhead_ratings("input/2024/day10_test06.txt"));
     }
 
     #[test]
     fn test_get_sum_trailhead_ratings_test07() {
-        assert_eq!(227, get_sum_trailhead_ratings("input/day10_test07.txt"));
+        assert_eq!(227, get_sum_trailhead_ratings("input/2024/day10_test07.txt"));
     }
 
     #[test]
     fn test_get_sum_trailhead_ratings() {
-        assert_eq!(1694, get_sum_trailhead_ratings("input/day10.txt"));
+        assert_eq!(1694, get_sum_trailhead_ratings("input/2024/day10.txt"));
     }
 }

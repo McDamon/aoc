@@ -1,6 +1,6 @@
 // https://adventofcode.com/2024/day/2
 
-use super::utils::get_lines;
+use crate::utils::get_lines;
 
 struct Input {
     reports: Vec<Vec<i32>>,
@@ -102,24 +102,24 @@ mod tests {
 
     #[test]
     fn test_get_num_safe_reports_test01() {
-        assert_eq!(2, get_num_safe_reports("input/day02_test01.txt"));
+        assert_eq!(2, get_num_safe_reports("input/2024/day02_test01.txt"));
     }
 
     #[test]
     fn test_get_num_safe_reports() {
-        assert_eq!(686, get_num_safe_reports("input/day02.txt"));
+        assert_eq!(686, get_num_safe_reports("input/2024/day02.txt"));
     }
 
     #[test]
     fn test_get_num_safe_reports_with_prob_damp_test01() {
         assert_eq!(
             4,
-            get_num_safe_reports_with_prob_damp("input/day02_test01.txt")
+            get_num_safe_reports_with_prob_damp("input/2024/day02_test01.txt")
         );
     }
 
     #[test]
     fn test_get_num_safe_reports_with_prob_damp() {
-        assert_eq!(717, get_num_safe_reports_with_prob_damp("input/day02.txt"));
+        assert_eq!(717, get_num_safe_reports_with_prob_damp("input/2024/day02.txt"));
     }
 }

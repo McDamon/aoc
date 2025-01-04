@@ -3,7 +3,7 @@
 use nalgebra::{Matrix2, Vector2};
 use regex::Regex;
 
-use super::utils::get_lines;
+use crate::utils::get_lines;
 
 #[derive(Clone, Copy, Debug)]
 struct GamePosition {
@@ -123,19 +123,19 @@ mod tests {
 
     #[test]
     fn test_get_fewest_tokens_test01() {
-        assert_eq!(480, get_fewest_tokens("input/day13_test01.txt", 0));
+        assert_eq!(480, get_fewest_tokens("input/2024/day13_test01.txt", 0));
     }
 
     #[test]
     fn test_get_fewest_tokens() {
-        assert_eq!(29517, get_fewest_tokens("input/day13.txt", 0));
+        assert_eq!(29517, get_fewest_tokens("input/2024/day13.txt", 0));
     }
 
     #[test]
     fn test_get_fewest_tokens_pos_inc_test01() {
         assert_eq!(
             875318608908,
-            get_fewest_tokens("input/day13_test01.txt", 10000000000000)
+            get_fewest_tokens("input/2024/day13_test01.txt", 10000000000000)
         );
     }
 
@@ -143,7 +143,7 @@ mod tests {
     fn test_get_fewest_token_pos_inc_() {
         assert_eq!(
             103570327981381,
-            get_fewest_tokens("input/day13.txt", 10000000000000)
+            get_fewest_tokens("input/2024/day13.txt", 10000000000000)
         );
     }
 }

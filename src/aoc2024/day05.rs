@@ -1,6 +1,6 @@
 // https://adventofcode.com/2024/day/5
 
-use super::utils::get_lines;
+use crate::utils::get_lines;
 
 struct Input {
     page_order_rules: Vec<(u32, u32)>,
@@ -112,24 +112,24 @@ mod tests {
 
     #[test]
     fn test_get_sum_middle_page_num_test01() {
-        assert_eq!(143, get_sum_middle_page_num("input/day05_test01.txt"));
+        assert_eq!(143, get_sum_middle_page_num("input/2024/day05_test01.txt"));
     }
 
     #[test]
     fn test_get_sum_middle_page_num() {
-        assert_eq!(4996, get_sum_middle_page_num("input/day05.txt"));
+        assert_eq!(4996, get_sum_middle_page_num("input/2024/day05.txt"));
     }
 
     #[test]
     fn test_get_sum_corrected_middle_page_num_test01() {
         assert_eq!(
             123,
-            get_sum_corrected_middle_page_num("input/day05_test01.txt")
+            get_sum_corrected_middle_page_num("input/2024/day05_test01.txt")
         );
     }
 
     #[test]
     fn test_get_sum_corrected_middle_page_num() {
-        assert_eq!(6311, get_sum_corrected_middle_page_num("input/day05.txt"));
+        assert_eq!(6311, get_sum_corrected_middle_page_num("input/2024/day05.txt"));
     }
 }

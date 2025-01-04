@@ -3,7 +3,7 @@
 use core::panic;
 use std::collections::HashSet;
 
-use super::utils::get_lines;
+use crate::utils::get_lines;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 enum MoveDir {
@@ -382,53 +382,53 @@ mod tests {
 
     #[test]
     fn test_get_sum_gps_test01() {
-        assert_eq!(10092, get_sum_gps("input/day15_test01.txt"));
+        assert_eq!(10092, get_sum_gps("input/2024/day15_test01.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_test02() {
-        assert_eq!(2028, get_sum_gps("input/day15_test02.txt"));
+        assert_eq!(2028, get_sum_gps("input/2024/day15_test02.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_test03() {
         // Down
-        assert_eq!(1624, get_sum_gps("input/day15_test03.txt"));
+        assert_eq!(1624, get_sum_gps("input/2024/day15_test03.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_test04() {
         // Right
-        assert_eq!(1626, get_sum_gps("input/day15_test04.txt"));
+        assert_eq!(1626, get_sum_gps("input/2024/day15_test04.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_test05() {
         // Down
-        assert_eq!(2024, get_sum_gps("input/day15_test05.txt"));
+        assert_eq!(2024, get_sum_gps("input/2024/day15_test05.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_test06() {
         // Left
-        assert_eq!(1621, get_sum_gps("input/day15_test06.txt"));
+        assert_eq!(1621, get_sum_gps("input/2024/day15_test06.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_test07() {
         // Up
-        assert_eq!(1224, get_sum_gps("input/day15_test07.txt"));
+        assert_eq!(1224, get_sum_gps("input/2024/day15_test07.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_test08() {
         // Right
-        assert_eq!(1627, get_sum_gps("input/day15_test08.txt"));
+        assert_eq!(1627, get_sum_gps("input/2024/day15_test08.txt"));
     }
 
     #[test]
     fn test_get_sum_gps() {
-        assert_eq!(1517819, get_sum_gps("input/day15.txt"));
+        assert_eq!(1517819, get_sum_gps("input/2024/day15.txt"));
     }
 
     //
@@ -438,96 +438,96 @@ mod tests {
     #[test]
     fn test_get_sum_gps_wider_test01() {
         // From Part 1
-        assert_eq!(0, get_sum_gps_wider("input/day15_test01.txt"));
+        assert_eq!(0, get_sum_gps_wider("input/2024/day15_test01.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_wider_test02() {
         // Also from Part 1
-        assert_eq!(1751, get_sum_gps_wider("input/day15_test02.txt"));
+        assert_eq!(1751, get_sum_gps_wider("input/2024/day15_test02.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_wider_test03() {
         // Down, no boxes, blocked by wall
-        assert_eq!(1648, get_sum_gps_wider("input/day15_test03.txt"));
+        assert_eq!(1648, get_sum_gps_wider("input/2024/day15_test03.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_wider_test04() {
         // Right
-        assert_eq!(1652, get_sum_gps_wider("input/day15_test04.txt"));
+        assert_eq!(1652, get_sum_gps_wider("input/2024/day15_test04.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_wider_test05() {
         // Down
-        assert_eq!(2048, get_sum_gps_wider("input/day15_test05.txt"));
+        assert_eq!(2048, get_sum_gps_wider("input/2024/day15_test05.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_wider_test06() {
         // Left
-        assert_eq!(1642, get_sum_gps_wider("input/day15_test06.txt"));
+        assert_eq!(1642, get_sum_gps_wider("input/2024/day15_test06.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_wider_test07() {
         // Up
-        assert_eq!(1248, get_sum_gps_wider("input/day15_test07.txt"));
+        assert_eq!(1248, get_sum_gps_wider("input/2024/day15_test07.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_wider_test08() {
         // Right
-        assert_eq!(1654, get_sum_gps_wider("input/day15_test08.txt"));
+        assert_eq!(1654, get_sum_gps_wider("input/2024/day15_test08.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_wider_test09() {
         // Part 2 example
-        assert_eq!(9021, get_sum_gps_wider("input/day15_test09.txt"));
+        assert_eq!(9021, get_sum_gps_wider("input/2024/day15_test09.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_wider_test10() {
         // Test all directions
-        assert_eq!(0, get_sum_gps_wider("input/day15_test10.txt"));
+        assert_eq!(0, get_sum_gps_wider("input/2024/day15_test10.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_wider_test11() {
         // Left
-        assert_eq!(406, get_sum_gps_wider("input/day15_test11.txt"));
+        assert_eq!(406, get_sum_gps_wider("input/2024/day15_test11.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_wider_test12() {
         // Up, blocked by wall
-        assert_eq!(509, get_sum_gps_wider("input/day15_test12.txt"));
+        assert_eq!(509, get_sum_gps_wider("input/2024/day15_test12.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_wider_test13() {
         // Up, blocked by wall (alt)
-        assert_eq!(511, get_sum_gps_wider("input/day15_test13.txt"));
+        assert_eq!(511, get_sum_gps_wider("input/2024/day15_test13.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_wider_test14() {
         // Around and then up
-        assert_eq!(816, get_sum_gps_wider("input/day15_test14.txt"));
+        assert_eq!(816, get_sum_gps_wider("input/2024/day15_test14.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_wider_test15() {
         // Around and then up (alt)
-        assert_eq!(822, get_sum_gps_wider("input/day15_test15.txt"));
+        assert_eq!(822, get_sum_gps_wider("input/2024/day15_test15.txt"));
     }
 
     #[test]
     fn test_get_sum_gps_wider() {
         // Our test input
-        assert_eq!(0, get_sum_gps_wider("input/day15.txt"));
+        assert_eq!(0, get_sum_gps_wider("input/2024/day15.txt"));
     }
 }

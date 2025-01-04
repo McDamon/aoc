@@ -1,6 +1,6 @@
 // https://adventofcode.com/2024/day/1
 
-use super::utils::get_lines;
+use crate::utils::get_lines;
 
 use std::iter::zip;
 
@@ -65,21 +65,21 @@ mod tests {
 
     #[test]
     fn test_get_total_distance_test01() {
-        assert_eq!(11, get_total_distance("input/day01_test01.txt"));
+        assert_eq!(11, get_total_distance("input/2024/day01_test01.txt"));
     }
 
     #[test]
     fn test_get_total_distance() {
-        assert_eq!(1151792, get_total_distance("input/day01.txt"));
+        assert_eq!(1151792, get_total_distance("input/2024/day01.txt"));
     }
 
     #[test]
     fn test_get_similarity_score_test01() {
-        assert_eq!(31, get_similarity_score("input/day01_test01.txt"));
+        assert_eq!(31, get_similarity_score("input/2024/day01_test01.txt"));
     }
 
     #[test]
     fn test_similarity_score() {
-        assert_eq!(21790168, get_similarity_score("input/day01.txt"));
+        assert_eq!(21790168, get_similarity_score("input/2024/day01.txt"));
     }
 }

@@ -2,7 +2,7 @@
 
 use std::collections::{HashMap, HashSet};
 
-use super::utils::get_lines;
+use crate::utils::get_lines;
 
 struct Input {
     map: Vec<Vec<char>>,
@@ -277,46 +277,46 @@ mod tests {
 
     #[test]
     fn test_get_unique_antinodes_test01() {
-        assert_eq!(14, get_unique_antinodes("input/day08_test01.txt"));
+        assert_eq!(14, get_unique_antinodes("input/2024/day08_test01.txt"));
     }
 
     #[test]
     fn test_get_unique_antinodes_test02() {
-        assert_eq!(2, get_unique_antinodes("input/day08_test02.txt"));
+        assert_eq!(2, get_unique_antinodes("input/2024/day08_test02.txt"));
     }
 
     #[test]
     fn test_get_unique_antinodes_test03() {
-        assert_eq!(4, get_unique_antinodes("input/day08_test03.txt"));
+        assert_eq!(4, get_unique_antinodes("input/2024/day08_test03.txt"));
     }
 
     #[test]
     fn test_get_unique_antinodes_test04() {
-        assert_eq!(4, get_unique_antinodes("input/day08_test04.txt"));
+        assert_eq!(4, get_unique_antinodes("input/2024/day08_test04.txt"));
     }
 
     #[test]
     fn test_get_unique_antinodes() {
-        assert_eq!(261, get_unique_antinodes("input/day08.txt"));
+        assert_eq!(261, get_unique_antinodes("input/2024/day08.txt"));
     }
 
     #[test]
     fn test_get_unique_antinodes_with_hr_test01() {
-        assert_eq!(34, get_unique_antinodes_with_hr("input/day08_test01.txt"));
+        assert_eq!(34, get_unique_antinodes_with_hr("input/2024/day08_test01.txt"));
     }
 
     #[test]
     fn test_get_unique_antinodes_with_hr_test05() {
-        assert_eq!(9, get_unique_antinodes_with_hr("input/day08_test05.txt"));
+        assert_eq!(9, get_unique_antinodes_with_hr("input/2024/day08_test05.txt"));
     }
 
     #[test]
     fn test_get_unique_antinodes_with_hr_test06() {
-        assert_eq!(9, get_unique_antinodes_with_hr("input/day08_test06.txt"));
+        assert_eq!(9, get_unique_antinodes_with_hr("input/2024/day08_test06.txt"));
     }
 
     #[test]
     fn test_get_unique_antinodes_with_hr() {
-        assert_eq!(898, get_unique_antinodes_with_hr("input/day08.txt"));
+        assert_eq!(898, get_unique_antinodes_with_hr("input/2024/day08.txt"));
     }
 }

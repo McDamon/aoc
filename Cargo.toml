@@ -1,10 +1,10 @@
 [package]
-name = "aoc2024"
+name = "aoc"
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.85"
 license = "MIT"
-repository = "https://github.com/McDamon/aoc2024"
+repository = "https://github.com/McDamon/aoc"
 authors = ["Andrew McMahon <andrew.p.mcmahon@gmail.com>"]
 
 [lib]

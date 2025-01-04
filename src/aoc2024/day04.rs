@@ -1,7 +1,7 @@
 // https://adventofcode.com/2024/day/4
 
-use super::utils::get_lines;
-use super::utils::Compass;
+use crate::utils::get_lines;
+use crate::utils::Compass;
 
 struct Input {
     search_grid: Vec<Vec<char>>,
@@ -297,21 +297,21 @@ mod tests {
 
     #[test]
     fn test_get_sum_xmas_test01() {
-        assert_eq!(18, get_sum_xmas("input/day04_test01.txt"));
+        assert_eq!(18, get_sum_xmas("input/2024/day04_test01.txt"));
     }
 
     #[test]
     fn test_get_sum_xmas() {
-        assert_eq!(2336, get_sum_xmas("input/day04.txt"));
+        assert_eq!(2336, get_sum_xmas("input/2024/day04.txt"));
     }
 
     #[test]
     fn test_get_sum_x_mas_test01() {
-        assert_eq!(9, get_sum_x_mas("input/day04_test01.txt"));
+        assert_eq!(9, get_sum_x_mas("input/2024/day04_test01.txt"));
     }
 
     #[test]
     fn test_get_sum_x_mas() {
-        assert_eq!(1831, get_sum_x_mas("input/day04.txt"));
+        assert_eq!(1831, get_sum_x_mas("input/2024/day04.txt"));
     }
 }

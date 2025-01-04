@@ -2,9 +2,9 @@
 
 use std::collections::HashSet;
 
-use super::utils::get_lines;
-use super::utils::Direction;
-use super::utils::ListNode;
+use crate::utils::get_lines;
+use crate::utils::Direction;
+use crate::utils::ListNode;
 
 #[derive(Debug, Default, PartialEq, Eq, Copy, Clone)]
 #[repr(u8)]
@@ -340,68 +340,68 @@ mod tests {
 
     #[test]
     fn test_get_distinct_pos_vec_test02() {
-        let input = parse_input("input/day06_test02.txt");
+        let input = parse_input("input/2024/day06_test02.txt");
         assert!(get_distinct_pos_vec(&input.map, (6, 4)).1);
     }
 
     #[test]
     fn test_get_distinct_pos_vec_test03() {
-        let input = parse_input("input/day06_test03.txt");
+        let input = parse_input("input/2024/day06_test03.txt");
         assert!(get_distinct_pos_vec(&input.map, (6, 4)).1);
     }
 
     #[test]
     fn test_get_distinct_pos_vec_test04() {
-        let input = parse_input("input/day06_test04.txt");
+        let input = parse_input("input/2024/day06_test04.txt");
         assert!(get_distinct_pos_vec(&input.map, (6, 4)).1);
     }
 
     #[test]
     fn test_get_distinct_pos_vec_test05() {
-        let input = parse_input("input/day06_test05.txt");
+        let input = parse_input("input/2024/day06_test05.txt");
         assert!(get_distinct_pos_vec(&input.map, (6, 4)).1);
     }
 
     #[test]
     fn test_get_distinct_pos_vec_test06() {
-        let input = parse_input("input/day06_test06.txt");
+        let input = parse_input("input/2024/day06_test06.txt");
         assert!(get_distinct_pos_vec(&input.map, (6, 4)).1);
     }
 
     #[test]
     fn test_get_distinct_pos_vec_test07() {
-        let input = parse_input("input/day06_test07.txt");
+        let input = parse_input("input/2024/day06_test07.txt");
         assert!(get_distinct_pos_vec(&input.map, (6, 4)).1);
     }
 
     #[test]
     fn test_get_distinct_pos_vec_test08() {
-        let input = parse_input("input/day06_test08.txt");
+        let input = parse_input("input/2024/day06_test08.txt");
         assert!(!get_distinct_pos_vec(&input.map, (6, 4)).1);
     }
 
     #[test]
     fn test_get_distinct_pos_vec_test09() {
-        let input = parse_input("input/day06_test09.txt");
+        let input = parse_input("input/2024/day06_test09.txt");
         assert!(!get_distinct_pos_vec(&input.map, (6, 4)).1);
     }
 
     #[test]
     fn test_get_distinct_pos_test01() {
-        assert_eq!(41, get_distinct_pos("input/day06_test01.txt"));
+        assert_eq!(41, get_distinct_pos("input/2024/day06_test01.txt"));
     }
 
     #[test]
     fn test_get_distinct_pos() {
         // Requires 8MB of stack space
         stacker::grow(8 * 1024 * 1024, || {
-            assert_eq!(5564, get_distinct_pos("input/day06.txt"));
+            assert_eq!(5564, get_distinct_pos("input/2024/day06.txt"));
         });
     }
 
     #[test]
     fn test_get_sum_time_loop_pos_test01() {
-        assert_eq!(6, get_sum_time_loop_pos("input/day06_test01.txt"));
+        assert_eq!(6, get_sum_time_loop_pos("input/2024/day06_test01.txt"));
     }
 
     // This test takes a while so ignore in CI
@@ -411,7 +411,7 @@ mod tests {
     fn test_get_sum_time_loop_pos() {
         // Requires 16MB of stack space
         stacker::grow(16 * 1024 * 1024, || {
-            assert_eq!(1976, get_sum_time_loop_pos("input/day06.txt"));
+            assert_eq!(1976, get_sum_time_loop_pos("input/2024/day06.txt"));
         });
     }
 }
