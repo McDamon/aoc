@@ -26,12 +26,45 @@ pub fn get_lines(input_file: &str) -> Vec<String> {
         .collect()
 }
 
-#[derive(Debug, PartialEq, Eq, Copy, Clone)]
+#[derive(Debug, PartialEq, Eq, Hash, Copy, Clone, Ord, PartialOrd)]
 pub enum Direction {
     N,
     S,
     E,
     W,
+}
+
+impl Direction {
+    pub fn to_delta(self) -> (isize, isize) {
+        match self {
+            Direction::E => (1, 0),
+            Direction::S => (0, 1),
+            Direction::W => (-1, 0),
+            Direction::N => (0, -1),
+        }
+    }
+
+    pub fn turn_left(&self) -> Direction {
+        match self {
+            Direction::E => Direction::N,
+            Direction::S => Direction::E,
+            Direction::W => Direction::S,
+            Direction::N => Direction::W,
+        }
+    }
+
+    pub fn turn_right(&self) -> Direction {
+        match self {
+            Direction::E => Direction::S,
+            Direction::S => Direction::W,
+            Direction::W => Direction::N,
+            Direction::N => Direction::E,
+        }
+    }
+
+    pub fn all() -> impl Iterator<Item = Direction> {
+        [Direction::E, Direction::S, Direction::W, Direction::N].iter().copied()
+    }
 }
 
 #[derive(Debug, Default, Clone, Copy, Hash, Ord, PartialOrd, Eq, PartialEq)]
