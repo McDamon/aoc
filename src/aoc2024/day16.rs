@@ -186,7 +186,7 @@ fn get_lowest_score(input_file: &str) -> (usize, usize) {
 
     let mut min_length = isize::MAX;
 
-    let mut tiles: HashSet<NodeIndex> = HashSet::new();
+    let mut tiles: HashSet<(isize, isize)> = HashSet::new();
 
     let start_move = Move {
         pos: (start_x, start_y),
@@ -232,13 +232,12 @@ fn get_lowest_score(input_file: &str) -> (usize, usize) {
                         for path_entry in path {
                             println!(
                                 "Path entry: {:?} -> {:?}",
-                                graph[*path_entry].pos,
-                                graph[*path_entry].dir
+                                graph[*path_entry].pos, graph[*path_entry].dir
                             )
                         }
                     }
 
-                    tiles.extend(all_paths.into_iter().flatten());
+                    tiles.extend(all_paths.into_iter().flatten().map(|idx| graph[idx].pos));
                 }
             }
         }
