@@ -34,50 +34,6 @@ fn parse_input(input_file: &str) -> Input {
     Input { maze }
 }
 
-fn build_paths_from_predecessors(
-    end: NodeIndex,
-    target_distance: f64,
-    distances: &[f64],
-    predecessors: &[Option<NodeIndex>],
-) -> Vec<Vec<NodeIndex>> {
-    let mut all_paths = Vec::new();
-    let mut queue = VecDeque::new();
-
-    // Find start node(s)
-    for (idx, pred) in predecessors.iter().enumerate() {
-        if pred.is_none() {
-            queue.push_back((vec![NodeIndex::new(idx)], 0.0));
-        }
-    }
-
-    while let Some((path, current_distance)) = queue.pop_front() {
-        let current = *path.last().unwrap();
-
-        if current == end && current_distance == target_distance {
-            all_paths.push(path);
-            continue;
-        }
-
-        if current_distance > target_distance {
-            continue;
-        }
-
-        let current_dist = distances[current.index()];
-        for (idx, &pred) in predecessors.iter().enumerate() {
-            if let Some(pred_node) = pred {
-                if pred_node == current {
-                    let mut new_path = path.clone();
-                    new_path.push(NodeIndex::new(idx));
-                    let step = distances[idx] - current_dist;
-                    queue.push_back((new_path, current_distance + step));
-                }
-            }
-        }
-    }
-
-    all_paths
-}
-
 fn print_maze(maze: &HashMap<(isize, isize), char>) {
     let max_x = maze.keys().map(|(x, _)| *x).max().unwrap();
     let max_y = maze.keys().map(|(_, y)| *y).max().unwrap();
@@ -94,25 +50,7 @@ fn print_maze(maze: &HashMap<(isize, isize), char>) {
     }
 }
 
-fn get_lowest_score(input_file: &str) -> (usize, usize) {
-    let input = parse_input(input_file);
-
-    print_maze(&input.maze);
-
-    // Find start and end points
-    let (start_x, start_y) = input
-        .maze
-        .iter()
-        .find(|(_, c)| **c == 'S')
-        .map(|(&pos, _)| pos)
-        .unwrap();
-    let (end_x, end_y) = input
-        .maze
-        .iter()
-        .find(|(_, c)| **c == 'E')
-        .map(|(&pos, _)| pos)
-        .unwrap();
-
+fn build_graph(input: &Input) -> (DiGraph<Move, f64>, HashMap<Move, NodeIndex>) {
     // Create directed graph
     let mut graph = DiGraph::<Move, f64>::new();
     let mut node_indices: HashMap<Move, NodeIndex> = HashMap::new();
@@ -183,6 +121,71 @@ fn get_lowest_score(input_file: &str) -> (usize, usize) {
             }
         }
     }
+    (graph, node_indices)
+}
+
+fn build_paths_from_predecessors(
+    end: NodeIndex,
+    target_distance: f64,
+    distances: &[f64],
+    predecessors: &[Option<NodeIndex>],
+) -> Vec<Vec<NodeIndex>> {
+    let mut all_paths = Vec::new();
+    let mut queue = VecDeque::new();
+
+    // Find start node(s)
+    for (idx, pred) in predecessors.iter().enumerate() {
+        if pred.is_none() {
+            queue.push_back((vec![NodeIndex::new(idx)], 0.0));
+        }
+    }
+
+    while let Some((path, current_distance)) = queue.pop_front() {
+        let current = *path.last().unwrap();
+
+        if current == end && current_distance == target_distance {
+            all_paths.push(path);
+            continue;
+        }
+
+        if current_distance > target_distance {
+            continue;
+        }
+
+        let current_dist = distances[current.index()];
+        for (idx, &pred) in predecessors.iter().enumerate() {
+            if let Some(pred_node) = pred {
+                if pred_node == current {
+                    let mut new_path = path.clone();
+                    new_path.push(NodeIndex::new(idx));
+                    let step = distances[idx] - current_dist;
+                    queue.push_back((new_path, current_distance + step));
+                }
+            }
+        }
+    }
+
+    all_paths
+}
+
+fn get_lowest_score(input_file: &str) -> (usize, usize) {
+    let input = parse_input(input_file);
+
+    print_maze(&input.maze);
+
+    // Find start and end points
+    let (start_x, start_y) = input
+        .maze
+        .iter()
+        .find(|(_, c)| **c == 'S')
+        .map(|(&pos, _)| pos)
+        .unwrap();
+    let (end_x, end_y) = input
+        .maze
+        .iter()
+        .find(|(_, c)| **c == 'E')
+        .map(|(&pos, _)| pos)
+        .unwrap();
 
     let mut min_length = isize::MAX;
 
@@ -192,6 +195,8 @@ fn get_lowest_score(input_file: &str) -> (usize, usize) {
         pos: (start_x, start_y),
         dir: Direction::E,
     };
+
+    let (graph, node_indices) = build_graph(&input);
 
     if let Some(&start_idx) = node_indices.get(&start_move)
         && let Ok(paths) = algo::bellman_ford(&graph, start_idx)
