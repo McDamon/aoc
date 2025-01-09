@@ -63,7 +63,9 @@ impl Direction {
     }
 
     pub fn all() -> impl Iterator<Item = Direction> {
-        [Direction::E, Direction::S, Direction::W, Direction::N].iter().copied()
+        [Direction::E, Direction::S, Direction::W, Direction::N]
+            .iter()
+            .copied()
     }
 }
 

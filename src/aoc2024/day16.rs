@@ -1,13 +1,14 @@
 // https://adventofcode.com/2024/day/16
 
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, HashSet};
 
 use petgraph::{
     algo,
     graph::{DiGraph, NodeIndex},
+    Graph,
 };
 
-use crate::utils::{Direction, get_lines};
+use crate::utils::{get_lines, Direction};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct Move {
@@ -50,7 +51,7 @@ fn print_maze(maze: &HashMap<(isize, isize), char>) {
     }
 }
 
-fn build_graph(input: &Input) -> (DiGraph<Move, f64>, HashMap<Move, NodeIndex>) {
+fn build_graph(input: &Input) -> (Graph<Move, f64>, HashMap<Move, NodeIndex>) {
     // Create directed graph
     let mut graph = DiGraph::<Move, f64>::new();
     let mut node_indices: HashMap<Move, NodeIndex> = HashMap::new();
@@ -124,54 +125,10 @@ fn build_graph(input: &Input) -> (DiGraph<Move, f64>, HashMap<Move, NodeIndex>) 
     (graph, node_indices)
 }
 
-fn build_paths_from_predecessors(
-    end: NodeIndex,
-    target_distance: f64,
-    distances: &[f64],
-    predecessors: &[Option<NodeIndex>],
-) -> Vec<Vec<NodeIndex>> {
-    let mut all_paths = Vec::new();
-    let mut queue = VecDeque::new();
-
-    // Find start node(s)
-    for (idx, pred) in predecessors.iter().enumerate() {
-        if pred.is_none() {
-            queue.push_back((vec![NodeIndex::new(idx)], 0.0));
-        }
-    }
-
-    while let Some((path, current_distance)) = queue.pop_front() {
-        let current = *path.last().unwrap();
-
-        if current == end && current_distance == target_distance {
-            all_paths.push(path);
-            continue;
-        }
-
-        if current_distance > target_distance {
-            continue;
-        }
-
-        let current_dist = distances[current.index()];
-        for (idx, &pred) in predecessors.iter().enumerate() {
-            if let Some(pred_node) = pred {
-                if pred_node == current {
-                    let mut new_path = path.clone();
-                    new_path.push(NodeIndex::new(idx));
-                    let step = distances[idx] - current_dist;
-                    queue.push_back((new_path, current_distance + step));
-                }
-            }
-        }
-    }
-
-    all_paths
-}
-
 fn get_lowest_score(input_file: &str) -> (usize, usize) {
     let input = parse_input(input_file);
 
-    print_maze(&input.maze);
+    //print_maze(&input.maze);
 
     // Find start and end points
     let (start_x, start_y) = input
@@ -187,8 +144,6 @@ fn get_lowest_score(input_file: &str) -> (usize, usize) {
         .map(|(&pos, _)| pos)
         .unwrap();
 
-    let mut min_length = isize::MAX;
-
     let mut tiles: HashSet<(isize, isize)> = HashSet::new();
 
     let start_move = Move {
@@ -198,9 +153,11 @@ fn get_lowest_score(input_file: &str) -> (usize, usize) {
 
     let (graph, node_indices) = build_graph(&input);
 
-    if let Some(&start_idx) = node_indices.get(&start_move)
-        && let Ok(paths) = algo::bellman_ford(&graph, start_idx)
-    {
+    let mut min_length = isize::MAX;
+
+    if let Some(&start_idx) = node_indices.get(&start_move) {
+        let mut node_costs: HashMap<NodeIndex, f64> = HashMap::new();
+
         for end_dir in Direction::all() {
             let end_move = Move {
                 pos: (end_x, end_y),
@@ -208,8 +165,10 @@ fn get_lowest_score(input_file: &str) -> (usize, usize) {
             };
 
             if let Some(&end_idx) = node_indices.get(&end_move) {
-                let distance = paths.distances[end_idx.index()];
-                let new_min_length = min_length.min(distance as isize);
+                node_costs = algo::dijkstra(&graph, start_idx, Some(end_idx), |e| *e.weight());
+
+                let new_min_length = node_costs[&end_idx] as isize;
+
                 if new_min_length < min_length {
                     min_length = new_min_length;
                 }
@@ -222,33 +181,59 @@ fn get_lowest_score(input_file: &str) -> (usize, usize) {
                 dir: end_dir,
             };
 
+            /*println!(
+                "*** Checking Dir {:?}, Target Distance: {:?}, End Move: {:?}",
+                end_dir, min_length, end_move
+            );*/
+
             if let Some(&end_idx) = node_indices.get(&end_move) {
-                let distance = paths.distances[end_idx.index()];
-                if distance == min_length as f64 {
-                    let all_paths = build_paths_from_predecessors(
-                        end_idx,
-                        distance,
-                        &paths.distances,
-                        &paths.predecessors,
-                    );
+                let all_paths: Vec<Vec<NodeIndex>> =
+                    get_all_paths(&graph, &node_costs, start_idx, end_idx);
 
-                    for path in all_paths.iter() {
-                        println!("*** Path: ***");
-                        for path_entry in path {
-                            println!(
-                                "Path entry: {:?} -> {:?}",
-                                graph[*path_entry].pos, graph[*path_entry].dir
-                            )
-                        }
-                    }
-
-                    tiles.extend(all_paths.into_iter().flatten().map(|idx| graph[idx].pos));
-                }
+                tiles.extend(all_paths.into_iter().flatten().map(|idx| graph[idx].pos));
             }
         }
     }
 
     (min_length as usize, tiles.len())
+}
+
+fn get_all_paths(
+    graph: &petgraph::Graph<Move, f64>,
+    node_costs: &HashMap<NodeIndex, f64>,
+    start_idx: NodeIndex,
+    end_idx: NodeIndex,
+) -> Vec<Vec<NodeIndex>> {
+    let mut parents: HashMap<NodeIndex, Vec<NodeIndex>> = HashMap::new();
+    for node in graph.node_indices() {
+        parents.insert(node, vec![]);
+    }
+
+    for edge in graph.edge_indices() {
+        let (source, target) = graph.edge_endpoints(edge).unwrap();
+        let weight = graph.edge_weight(edge).unwrap();
+
+        if let Some(&source_cost) = node_costs.get(&source) && let Some(&target_cost) = node_costs.get(&target) && target_cost == source_cost + weight {
+            parents.get_mut(&target).unwrap().push(source);
+        }
+    }
+
+    let mut all_paths = vec![];
+    let mut stack = vec![(end_idx, vec![end_idx])];
+
+    while let Some((node, path)) = stack.pop() {
+        if node == start_idx {
+            all_paths.push(path);
+        } else {
+            for &parent in &parents[&node] {
+                let mut new_path = path.clone();
+                new_path.push(parent);
+                stack.push((parent, new_path));
+            }
+        }
+    }
+
+    all_paths
 }
 
 #[cfg(test)]
@@ -332,6 +317,6 @@ mod tests {
 
     #[test]
     fn test_get_num_tiles() {
-        assert_eq!(0, get_lowest_score("input/2024/day16.txt").1);
+        assert_eq!(451, get_lowest_score("input/2024/day16.txt").1);
     }
 }
