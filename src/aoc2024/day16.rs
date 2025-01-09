@@ -213,7 +213,10 @@ fn get_all_paths(
         let (source, target) = graph.edge_endpoints(edge).unwrap();
         let weight = graph.edge_weight(edge).unwrap();
 
-        if let Some(&source_cost) = node_costs.get(&source) && let Some(&target_cost) = node_costs.get(&target) && target_cost == source_cost + weight {
+        if let Some(&source_cost) = node_costs.get(&source)
+            && let Some(&target_cost) = node_costs.get(&target)
+            && target_cost == source_cost + weight
+        {
             parents.get_mut(&target).unwrap().push(source);
         }
     }
