@@ -1,13 +1,14 @@
 // https://adventofcode.com/2024/day/17
 
-use std::panic;
+use std::{collections::HashSet, panic};
 
 use crate::utils::get_lines;
 
+#[derive(Clone, Copy, Debug)]
 struct Registers {
-    reg_a: u32,
-    reg_b: u32,
-    reg_c: u32,
+    reg_a: u64,
+    reg_b: u64,
+    reg_c: u64,
 }
 
 impl Registers {
@@ -22,7 +23,7 @@ impl Registers {
 
 struct Input {
     registers: Registers,
-    program: Vec<u8>,
+    program: Vec<u64>,
 }
 
 fn parse_input(input_file: &str) -> Input {
@@ -43,7 +44,10 @@ fn parse_input(input_file: &str) -> Input {
                     _ => {}
                 }
             } else {
-                program = part_b.split(",").map(|o| o.trim().parse().unwrap_or(0)).collect();
+                program = part_b
+                    .split(",")
+                    .map(|o| o.trim().parse().unwrap_or(0))
+                    .collect();
             }
         }
     }
@@ -51,31 +55,18 @@ fn parse_input(input_file: &str) -> Input {
     Input { registers, program }
 }
 
-fn get_combo_operand_val(registers: &Registers, combo: u8) -> u32 {
+fn get_combo_operand_val(registers: &Registers, combo: u64) -> Option<u64> {
     match combo {
-        0_u8..=3_u8 => combo as u32,
-        4 => registers.reg_a,
-        5 => registers.reg_b,
-        6 => registers.reg_c,
-        _ => panic!("unknown combo operand {}", combo),
+        0_u64..=3_u64 => Some(combo),
+        4 => Some(registers.reg_a),
+        5 => Some(registers.reg_b),
+        6 => Some(registers.reg_c),
+        _ => None,
     }
 }
 
-fn get_joined_vals(input_file: &str) -> (Registers, String) {
-    let input = parse_input(input_file);
-
-    let mut registers = input.registers;
-
-    println!(
-        "Reg A: {:?}, B: {:?}, C: {:?}",
-        registers.reg_a, registers.reg_b, registers.reg_c
-    );
-
-    let program = input.program;
-
-    println!("program {:?}", program);
-
-    let mut out_vals: Vec<u32> = vec![];
+fn run_program(registers: &mut Registers, program: &[u64]) -> (Registers, Vec<u64>) {
+    let mut out_vals: Vec<u64> = vec![];
 
     let mut ins_ptr = 0usize;
 
@@ -88,11 +79,13 @@ fn get_joined_vals(input_file: &str) -> (Registers, String) {
                 // adv does division
                 // numerator is the value in reg_a
                 // denominator is the 2** the combo operand
-                let denom = 2.0f32.powf(get_combo_operand_val(&registers, *operand) as f32);
-                let div_res = registers.reg_a as f32 / denom;
-                registers.reg_a = div_res as u32;
+                let combo = get_combo_operand_val(registers, *operand).unwrap() as f32;
+                let numer = registers.reg_a as f32;
+                let denom = 2.0f32.powf(combo);
+                let div_res = numer / denom;
+                registers.reg_a = div_res as u64;
 
-                println!("adv, denom: {:?}, reg_a: {:?}", denom, registers.reg_a);
+                //println!("adv, reg_a: {:?}", registers.reg_a);
 
                 // increment ins_ptr by 2
                 ins_ptr += 2;
@@ -100,9 +93,9 @@ fn get_joined_vals(input_file: &str) -> (Registers, String) {
             // bxl
             1 => {
                 // bxl does bitwise xor of reg_b and the literal operand
-                registers.reg_b = registers.reg_b ^ *operand as u32;
+                registers.reg_b ^= *operand;
 
-                println!("bxl, reg_b: {:?}", registers.reg_b);
+                //println!("bxl, reg_b: {:?}", registers.reg_b);
 
                 // increment ins_ptr by 2
                 ins_ptr += 2;
@@ -110,9 +103,9 @@ fn get_joined_vals(input_file: &str) -> (Registers, String) {
             // bst
             2 => {
                 // bst does combo operand modulo 8
-                registers.reg_b = get_combo_operand_val(&registers, *operand) % 8;
+                registers.reg_b = get_combo_operand_val(registers, *operand).unwrap() % 8;
 
-                println!("bst, reg_b: {:?}", registers.reg_b);
+                //println!("bst, reg_b: {:?}", registers.reg_b);
 
                 // increment ins_ptr by 2
                 ins_ptr += 2;
@@ -123,9 +116,10 @@ fn get_joined_vals(input_file: &str) -> (Registers, String) {
                 // If reg_a is not 0, then it jumps ins_ptr to the value of the literal operand
                 if registers.reg_a != 0 {
                     ins_ptr = *operand as usize;
-                    println!("jnz, ins_ptr: {:?}", ins_ptr);
-                }
-                else {
+                    //println!("jnz, ins_ptr: {:?}", ins_ptr);
+                } else {
+                    //println!("ignoring jnz, ins_ptr: {:?}", ins_ptr);
+
                     // increment ins_ptr by 2
                     ins_ptr += 2;
                 }
@@ -133,9 +127,9 @@ fn get_joined_vals(input_file: &str) -> (Registers, String) {
             // bxc
             4 => {
                 // bxc does bitwise xor of reg_b and reg_c
-                registers.reg_b = registers.reg_b ^ registers.reg_c;
+                registers.reg_b ^= registers.reg_c;
 
-                println!("bxc, reg_b: {:?}", registers.reg_b);
+                //println!("bxc, reg_b: {:?}", registers.reg_b);
 
                 // increment ins_ptr by 2
                 ins_ptr += 2;
@@ -143,10 +137,10 @@ fn get_joined_vals(input_file: &str) -> (Registers, String) {
             // out
             5 => {
                 // out does combo operand modulo 8, and outputs the result
-                let out_val = get_combo_operand_val(&registers, *operand) % 8;
+                let out_val = get_combo_operand_val(registers, *operand).unwrap() % 8;
                 out_vals.push(out_val);
 
-                println!("out, out_val: {:?}", out_val);
+                //println!("out, out_val: {:?}", out_val);
 
                 // increment ins_ptr by 2
                 ins_ptr += 2;
@@ -154,10 +148,10 @@ fn get_joined_vals(input_file: &str) -> (Registers, String) {
             // bdv
             6 => {
                 // bdv works like adv, but result is stored in reg_b
-                registers.reg_b =
-                    registers.reg_a / 2_u32.pow(get_combo_operand_val(&registers, *operand) as u32);
+                registers.reg_b = registers.reg_a
+                    / 2_u64.pow(get_combo_operand_val(registers, *operand).unwrap() as u32);
 
-                println!("bdv, reg_b: {:?}", registers.reg_b);
+                //println!("bdv, reg_b: {:?}", registers.reg_b);
 
                 // increment ins_ptr by 2
                 ins_ptr += 2;
@@ -165,10 +159,10 @@ fn get_joined_vals(input_file: &str) -> (Registers, String) {
             // cdv
             7 => {
                 // cdv works like adv, but result is stored in reg_c
-                registers.reg_c =
-                    registers.reg_a / 2_u32.pow(get_combo_operand_val(&registers, *operand) as u32);
+                registers.reg_c = registers.reg_a
+                    / 2_u64.pow(get_combo_operand_val(registers, *operand).unwrap() as u32);
 
-                println!("cdv, reg_c: {:?}", registers.reg_c);
+                //println!("cdv, reg_c: {:?}", registers.reg_c);
 
                 // increment ins_ptr by 2
                 ins_ptr += 2;
@@ -177,21 +171,68 @@ fn get_joined_vals(input_file: &str) -> (Registers, String) {
                 panic!("unknown opcode {}", opcode);
             }
         }
-
-        println!(
-            "Reg A: {:?}, B: {:?}, C: {:?}, ins_ptr: {:?}",
-            registers.reg_a, registers.reg_b, registers.reg_c, ins_ptr
-        );
     }
 
-    (
-        registers,
-        out_vals
-            .iter()
-            .map(|v| v.to_string())
-            .collect::<Vec<String>>()
-            .join(","),
-    )
+    (*registers, out_vals)
+}
+
+fn out_vals_to_str(out_vals: &[u64]) -> String {
+    out_vals
+        .iter()
+        .map(|v| v.to_string())
+        .collect::<Vec<String>>()
+        .join(",")
+}
+
+fn get_joined_vals(input_file: &str) -> (Registers, String) {
+    let input = parse_input(input_file);
+
+    let mut registers = input.registers;
+
+    let program = input.program;
+
+    println!("program {:?}", program);
+
+    let (out_registers, out_vals) = run_program(&mut registers, &program);
+
+    (out_registers, out_vals_to_str(&out_vals))
+}
+
+fn get_lowest_positive_reg_a(input_file: &str) -> u64 {
+    let input = parse_input(input_file);
+
+    let mut poss_reg_a_vals: HashSet<u64> = HashSet::new();
+
+    poss_reg_a_vals.insert(0);
+
+    for num in input.program.iter().rev() {
+        let mut new_poss_reg_a_vals = HashSet::new();
+
+        for poss_reg_a in &poss_reg_a_vals {
+            for opt in 0..8_u64 {
+                let poss_reg_a = (poss_reg_a << 3) + opt;
+                //println!("poss_reg_a: {:#b}", poss_reg_a);
+
+                let mut registers = input.registers;
+                registers.reg_a = poss_reg_a;
+                registers.reg_b = 0;
+                registers.reg_c = 0;
+
+                let (_out_registers, out_vals) = run_program(&mut registers, &input.program);
+                //println!("out_registers: {:?}", out_registers);
+                //println!("out_vals: {:?}", out_vals);
+
+                if let Some(first_out_vals) = out_vals.first() {
+                    if num == first_out_vals {
+                        new_poss_reg_a_vals.insert(poss_reg_a);
+                    }
+                }
+            }
+        }
+        poss_reg_a_vals = new_poss_reg_a_vals;
+    }
+
+    *poss_reg_a_vals.iter().min().unwrap_or(&0)
 }
 
 #[cfg(test)]
@@ -239,5 +280,21 @@ mod tests {
     fn test_get_joined_vals() {
         let (_, joined_vals) = get_joined_vals("input/2024/day17.txt");
         assert_eq!("2,3,4,7,5,7,3,0,7", joined_vals);
+    }
+
+    #[test]
+    fn test_get_lowest_positive_reg_a_test01() {
+        assert_eq!(
+            117440,
+            get_lowest_positive_reg_a("input/2024/day17_test07.txt")
+        );
+    }
+
+    #[test]
+    fn test_get_lowest_positive_reg_a() {
+        assert_eq!(
+            190384609508367,
+            get_lowest_positive_reg_a("input/2024/day17.txt")
+        );
     }
 }
