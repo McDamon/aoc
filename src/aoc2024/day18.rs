@@ -109,7 +109,7 @@ fn build_mem_map(
     }
 
     for (count, (x, y)) in corrupt_mem.iter().enumerate() {
-        if count < bytes {
+        if count <= bytes {
             mem_map.insert((*x, *y), '#');
         } else {
             break;
@@ -159,17 +159,69 @@ fn get_min_steps(input_file: &str, x_len: isize, y_len: isize, bytes: usize) -> 
     panic!("did not find path")
 }
 
+fn get_coords_first_byte_to_prevent_exit(input_file: &str, x_len: isize, y_len: isize) -> (isize, isize) {
+    let input = parse_input(input_file);
+
+    for (byte, byte_pos) in input.corrupt_mem.iter().enumerate() {
+        //println!("Testing byte {:?} at index {:?}", byte_pos, byte);
+
+        let mem_map: HashMap<(isize, isize), char> =
+            build_mem_map(&input.corrupt_mem, x_len, y_len, byte);
+
+        //print_mem_map(&mem_map);
+
+        let (graph, node_indices) = build_graph(&mem_map);
+
+        let start = Move { pos: (0, 0) };
+        let start_idx = node_indices[&start];
+
+        let end = Move {
+            pos: (x_len - 1, y_len - 1),
+        };
+        let end_idx = node_indices[&end];
+
+        if let Some((_distance, _path)) = algo::astar(
+            &graph,
+            start_idx,
+            |finish| finish == end_idx,
+            |e| *e.weight() as usize,
+            |_| 0,
+        ) {
+            /*println!(
+                "Found path from {:?} to {:?} with distance {}",
+                start, end, distance
+            );*/
+        }
+        else {
+            //println!("Found blocking byte {:?} at index {:?}", *byte_pos, byte);
+            return *byte_pos;
+        }
+    }
+
+    panic!("did not find byte to prevent exit")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn test_get_min_steps_test01() {
-        assert_eq!(22, get_min_steps("input/2024/day18_test01.txt", 7, 7, 12));
+        assert_eq!(22, get_min_steps("input/2024/day18_test01.txt", 7, 7, 11));
     }
 
     #[test]
     fn test_get_min_steps() {
-        assert_eq!(302, get_min_steps("input/2024/day18.txt", 71, 71, 1024));
+        assert_eq!(302, get_min_steps("input/2024/day18.txt", 71, 71, 1023));
+    }
+
+    #[test]
+    fn test_get_coords_first_byte_to_prevent_exit_test01() {
+        assert_eq!((6, 1), get_coords_first_byte_to_prevent_exit("input/2024/day18_test01.txt", 7, 7));
+    }
+
+    #[test]
+    fn test_get_coords_first_byte_to_prevent_exit() {
+        assert_eq!((24, 32), get_coords_first_byte_to_prevent_exit("input/2024/day18.txt", 71, 71));
     }
 }
