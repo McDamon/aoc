@@ -3,11 +3,12 @@
 use std::collections::HashMap;
 
 use petgraph::{
-    Graph, algo,
+    algo,
     graph::{DiGraph, NodeIndex},
+    Graph,
 };
 
-use crate::utils::{Direction, get_lines};
+use crate::utils::{get_lines, Direction};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct Move {
@@ -159,7 +160,11 @@ fn get_min_steps(input_file: &str, x_len: isize, y_len: isize, bytes: usize) -> 
     panic!("did not find path")
 }
 
-fn get_coords_first_byte_to_prevent_exit(input_file: &str, x_len: isize, y_len: isize) -> (isize, isize) {
+fn get_coords_first_byte_to_prevent_exit(
+    input_file: &str,
+    x_len: isize,
+    y_len: isize,
+) -> (isize, isize) {
     let input = parse_input(input_file);
 
     for (byte, byte_pos) in input.corrupt_mem.iter().enumerate() {
@@ -191,8 +196,7 @@ fn get_coords_first_byte_to_prevent_exit(input_file: &str, x_len: isize, y_len: 
                 "Found path from {:?} to {:?} with distance {}",
                 start, end, distance
             );*/
-        }
-        else {
+        } else {
             //println!("Found blocking byte {:?} at index {:?}", *byte_pos, byte);
             return *byte_pos;
         }
@@ -217,11 +221,17 @@ mod tests {
 
     #[test]
     fn test_get_coords_first_byte_to_prevent_exit_test01() {
-        assert_eq!((6, 1), get_coords_first_byte_to_prevent_exit("input/2024/day18_test01.txt", 7, 7));
+        assert_eq!(
+            (6, 1),
+            get_coords_first_byte_to_prevent_exit("input/2024/day18_test01.txt", 7, 7)
+        );
     }
 
     #[test]
     fn test_get_coords_first_byte_to_prevent_exit() {
-        assert_eq!((24, 32), get_coords_first_byte_to_prevent_exit("input/2024/day18.txt", 71, 71));
+        assert_eq!(
+            (24, 32),
+            get_coords_first_byte_to_prevent_exit("input/2024/day18.txt", 71, 71)
+        );
     }
 }
