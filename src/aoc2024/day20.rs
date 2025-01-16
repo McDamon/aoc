@@ -6,11 +6,12 @@ use std::{
 };
 
 use petgraph::{
-    Graph, algo,
+    algo,
     graph::{DiGraph, NodeIndex},
+    Graph,
 };
 
-use crate::utils::{Direction, get_lines};
+use crate::utils::{get_lines, Direction};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct Move {
@@ -106,10 +107,10 @@ fn get_cheats(track: &HashMap<(isize, isize), char>) -> HashSet<(isize, isize)> 
                 let (next_x2, next_y2) = (next_x + dx, next_y + dy);
                 if let Some(&next_c) = track.get(&(next_x, next_y))
                     && let Some(&next_c2) = track.get(&(next_x2, next_y2))
+                    && next_c == '#'
+                    && next_c2 == '.'
                 {
-                    if next_c == '#' && next_c2 == '.' {
-                        cheats.insert((next_x, next_y));
-                    }
+                    cheats.insert((next_x, next_y));
                 }
             }
         }
