@@ -6,12 +6,11 @@ use std::{
 };
 
 use petgraph::{
-    algo,
+    Graph, algo,
     graph::{DiGraph, NodeIndex},
-    Graph,
 };
 
-use crate::utils::{get_lines, Direction};
+use crate::utils::{Direction, get_lines};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct Move {
@@ -124,7 +123,13 @@ fn build_graph(
     (graph, node_indices)
 }
 
-fn get_cheats(track: &HashMap<(usize, usize), char>) -> HashSet<Cheat> {
+fn manhattan_distance(from: (usize, usize), to: (usize, usize)) -> usize {
+    let (from_x, from_y) = from;
+    let (to_x, to_y) = to;
+    ((from_x as isize - to_x as isize).abs() + (from_y as isize - to_y as isize).abs()) as usize
+}
+
+fn get_cheats_part_one(track: &HashMap<(usize, usize), char>) -> HashSet<Cheat> {
     let mut cheats = HashSet::new();
     for ((track_x, track_y), track_entry) in track.iter() {
         if *track_entry != '#' {
@@ -132,17 +137,40 @@ fn get_cheats(track: &HashMap<(usize, usize), char>) -> HashSet<Cheat> {
                 let (dx, dy) = dir.to_delta();
                 let (next_x, next_y) = (*track_x as isize + dx, *track_y as isize + dy);
                 let (next_x2, next_y2) = (next_x + dx, next_y + dy);
-                if let Some(&next_c) = track.get(&(next_x as usize, next_y as usize))
-                    && let Some(&next_c2) = track.get(&(next_x2 as usize, next_y2 as usize))
-                    && next_c == '#'
-                    && (next_c2 == '.' || next_c2 == 'S' || next_c2 == 'E')
+                if let Some(&next_track_entry) = track.get(&(next_x as usize, next_y as usize))
+                    && let Some(&next_track_entry2) =
+                        track.get(&(next_x2 as usize, next_y2 as usize))
+                    && next_track_entry == '#'
+                    && next_track_entry2 != '#'
                 {
+                    let distance = manhattan_distance(
+                        (*track_x, *track_y),
+                        (next_x2 as usize, next_y2 as usize),
+                    );
                     cheats.insert(Cheat {
                         from: (*track_x, *track_y),
                         to: (next_x2 as usize, next_y2 as usize),
-                        distance: ((*track_x as isize - next_x2 as isize).pow(2)
-                            + (*track_y as isize - next_y2 as isize).pow(2))
-                        .isqrt() as usize,
+                        distance,
+                    });
+                }
+            }
+        }
+    }
+    cheats
+}
+
+fn get_cheats_part_two(track: &HashMap<(usize, usize), char>) -> HashSet<Cheat> {
+    let mut cheats = HashSet::new();
+    for ((track_x, track_y), track_entry) in track.iter() {
+        for ((next_track_y, next_track_x), next_track_entry) in track.iter() {
+            if *track_entry != '#' && *next_track_entry != '#' {
+                let distance =
+                    manhattan_distance((*track_x, *track_y), (*next_track_x, *next_track_y));
+                if distance <= 20 {
+                    cheats.insert(Cheat {
+                        from: (*track_x, *track_y),
+                        to: (*next_track_x, *next_track_y),
+                        distance,
                     });
                 }
             }
@@ -170,7 +198,7 @@ fn get_distance(
         start_idx,
         |finish| finish == end_idx,
         |e| *e.weight() as usize,
-        |_| 1,
+        |_| 0,
     ) {
         Some(distance)
     } else {
@@ -193,7 +221,12 @@ fn get_cheat_saving(
     }
 }
 
-fn get_num_cheats(input_file: &str, required_savings: usize, is_at_least: bool) -> usize {
+fn get_num_cheats(
+    input_file: &str,
+    required_savings: usize,
+    is_at_least: bool,
+    is_part_two: bool,
+) -> usize {
     let input = parse_input(input_file);
 
     // Find start and end points
@@ -210,7 +243,12 @@ fn get_num_cheats(input_file: &str, required_savings: usize, is_at_least: bool) 
         .map(|(&pos, _)| pos)
         .unwrap();
 
-    let cheats = get_cheats(&input.track);
+    let cheats: HashSet<Cheat> = if is_part_two {
+        get_cheats_part_two(&input.track)
+    } else {
+        get_cheats_part_one(&input.track)
+    };
+
     //println!("Cheats: {:?}", cheats);
 
     let no_cheat_distance = if let Some(distance) = get_distance(start, end, &input.track, None) {
@@ -225,7 +263,7 @@ fn get_num_cheats(input_file: &str, required_savings: usize, is_at_least: bool) 
         if let Some(cheat_saving) =
             get_cheat_saving(start, end, &input.track, cheat, no_cheat_distance)
         {
-            //println!("Cheat {:?} saving: {:?}", cheat, cheat_saving);
+            println!("{:?} saving: {:?}", cheat, cheat_saving);
             cheat_savings.insert(cheat, cheat_saving);
         }
     }
@@ -248,137 +286,215 @@ mod tests {
 
     #[test]
     fn test_get_num_cheats_test01() {
-        assert_eq!(14, get_num_cheats("input/2024/day20_test01.txt", 2, false));
+        assert_eq!(
+            14,
+            get_num_cheats("input/2024/day20_test01.txt", 2, false, false)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_test02() {
-        assert_eq!(14, get_num_cheats("input/2024/day20_test01.txt", 4, false));
+        assert_eq!(
+            14,
+            get_num_cheats("input/2024/day20_test01.txt", 4, false, false)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_test03() {
-        assert_eq!(2, get_num_cheats("input/2024/day20_test01.txt", 6, false));
+        assert_eq!(
+            2,
+            get_num_cheats("input/2024/day20_test01.txt", 6, false, false)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_test04() {
-        assert_eq!(4, get_num_cheats("input/2024/day20_test01.txt", 8, false));
+        assert_eq!(
+            4,
+            get_num_cheats("input/2024/day20_test01.txt", 8, false, false)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_test05() {
-        assert_eq!(2, get_num_cheats("input/2024/day20_test01.txt", 10, false));
+        assert_eq!(
+            2,
+            get_num_cheats("input/2024/day20_test01.txt", 10, false, false)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_test06() {
-        assert_eq!(3, get_num_cheats("input/2024/day20_test01.txt", 12, false));
+        assert_eq!(
+            3,
+            get_num_cheats("input/2024/day20_test01.txt", 12, false, false)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_test07() {
-        assert_eq!(1, get_num_cheats("input/2024/day20_test01.txt", 20, false));
+        assert_eq!(
+            1,
+            get_num_cheats("input/2024/day20_test01.txt", 20, false, false)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_test08() {
-        assert_eq!(1, get_num_cheats("input/2024/day20_test01.txt", 36, false));
+        assert_eq!(
+            1,
+            get_num_cheats("input/2024/day20_test01.txt", 36, false, false)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_test09() {
-        assert_eq!(1, get_num_cheats("input/2024/day20_test01.txt", 38, false));
+        assert_eq!(
+            1,
+            get_num_cheats("input/2024/day20_test01.txt", 38, false, false)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_test10() {
-        assert_eq!(1, get_num_cheats("input/2024/day20_test01.txt", 40, false));
+        assert_eq!(
+            1,
+            get_num_cheats("input/2024/day20_test01.txt", 40, false, false)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_test11() {
-        assert_eq!(1, get_num_cheats("input/2024/day20_test01.txt", 64, false));
+        assert_eq!(
+            1,
+            get_num_cheats("input/2024/day20_test01.txt", 64, false, false)
+        );
     }
 
     #[ignore]
     #[test]
     fn test_get_num_cheats() {
-        assert_eq!(1399, get_num_cheats("input/2024/day20.txt", 100, true));
+        assert_eq!(
+            1399,
+            get_num_cheats("input/2024/day20.txt", 100, true, false)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_new_rules_test01() {
-        assert_eq!(32, get_num_cheats("input/2024/day20_test01.txt", 50, false));
+        assert_eq!(
+            32,
+            get_num_cheats("input/2024/day20_test01.txt", 50, false, true)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_new_rules_test02() {
-        assert_eq!(31, get_num_cheats("input/2024/day20_test01.txt", 52, false));
+        assert_eq!(
+            31,
+            get_num_cheats("input/2024/day20_test01.txt", 52, false, true)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_new_rules_test03() {
-        assert_eq!(29, get_num_cheats("input/2024/day20_test01.txt", 54, false));
+        assert_eq!(
+            29,
+            get_num_cheats("input/2024/day20_test01.txt", 54, false, true)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_new_rules_test04() {
-        assert_eq!(39, get_num_cheats("input/2024/day20_test01.txt", 56, false));
+        assert_eq!(
+            39,
+            get_num_cheats("input/2024/day20_test01.txt", 56, false, true)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_new_rules_test05() {
-        assert_eq!(25, get_num_cheats("input/2024/day20_test01.txt", 58, false));
+        assert_eq!(
+            25,
+            get_num_cheats("input/2024/day20_test01.txt", 58, false, true)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_new_rules_test06() {
-        assert_eq!(23, get_num_cheats("input/2024/day20_test01.txt", 60, false));
+        assert_eq!(
+            23,
+            get_num_cheats("input/2024/day20_test01.txt", 60, false, true)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_new_rules_test07() {
-        assert_eq!(20, get_num_cheats("input/2024/day20_test01.txt", 62, false));
+        assert_eq!(
+            20,
+            get_num_cheats("input/2024/day20_test01.txt", 62, false, true)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_new_rules_test08() {
-        assert_eq!(19, get_num_cheats("input/2024/day20_test01.txt", 64, false));
+        assert_eq!(
+            19,
+            get_num_cheats("input/2024/day20_test01.txt", 64, false, true)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_new_rules_test09() {
-        assert_eq!(12, get_num_cheats("input/2024/day20_test01.txt", 66, false));
+        assert_eq!(
+            12,
+            get_num_cheats("input/2024/day20_test01.txt", 66, false, true)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_new_rules_test10() {
-        assert_eq!(14, get_num_cheats("input/2024/day20_test01.txt", 68, false));
+        assert_eq!(
+            14,
+            get_num_cheats("input/2024/day20_test01.txt", 68, false, true)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_new_rules_test11() {
-        assert_eq!(12, get_num_cheats("input/2024/day20_test01.txt", 70, false));
+        assert_eq!(
+            12,
+            get_num_cheats("input/2024/day20_test01.txt", 70, false, true)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_new_rules_test12() {
-        assert_eq!(22, get_num_cheats("input/2024/day20_test01.txt", 72, false));
+        assert_eq!(
+            22,
+            get_num_cheats("input/2024/day20_test01.txt", 72, false, true)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_new_rules_test13() {
-        assert_eq!(4, get_num_cheats("input/2024/day20_test01.txt", 74, false));
+        assert_eq!(
+            4,
+            get_num_cheats("input/2024/day20_test01.txt", 74, false, true)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_new_rules_test14() {
-        assert_eq!(3, get_num_cheats("input/2024/day20_test01.txt", 76, false));
+        assert_eq!(
+            3,
+            get_num_cheats("input/2024/day20_test01.txt", 76, false, true)
+        );
     }
 
     #[test]
     fn test_get_num_cheats_new_rules() {
-        assert_eq!(0, get_num_cheats("input/2024/day20.txt", 100, true));
+        assert_eq!(0, get_num_cheats("input/2024/day20.txt", 100, true, true));
     }
 }
