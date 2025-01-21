@@ -6,11 +6,12 @@ use std::{
 };
 
 use petgraph::{
-    Graph, algo,
+    algo,
     graph::{DiGraph, NodeIndex},
+    Graph,
 };
 
-use crate::utils::{Direction, get_lines};
+use crate::utils::{get_lines, Direction};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct Move {
@@ -36,7 +37,7 @@ fn parse_input(input_file: &str) -> Input {
 
     for (y, line) in lines.into_iter().enumerate() {
         for (x, c) in line.chars().enumerate() {
-            track.insert((x as usize, y as usize), c);
+            track.insert((x, y), c);
         }
     }
 
@@ -72,7 +73,7 @@ fn build_graph(
     for (&(x, y), &c) in track.iter() {
         if c != '#' {
             let point = Move {
-                pos: (x as usize, y as usize),
+                pos: (x, y),
             };
             let node_idx = graph.add_node(point);
             node_indices.insert(point, node_idx);
@@ -85,7 +86,7 @@ fn build_graph(
         if c != '#' {
             for dir in Direction::all() {
                 let point = Move {
-                    pos: (x as usize, y as usize),
+                    pos: (x, y),
                 };
                 let node_idx = node_indices[&point];
 
@@ -133,25 +134,23 @@ fn get_cheats(track: &HashMap<(usize, usize), char>, max_distance: usize) -> Has
     let mut cheats = HashSet::new();
     for ((track_x, track_y), track_entry) in track.iter() {
         for ((next_track_x, next_track_y), next_track_entry) in track.iter() {
-            if (track_x, track_y) != (next_track_x, next_track_y) {
-                if *track_entry != '#' && *next_track_entry != '#' {
-                    let distance =
-                        manhattan_distance((*track_x, *track_y), (*next_track_x, *next_track_y));
-                    if distance <= max_distance {
-                        /*println!(
-                            "Adding cheat from {:?}:{:?} to {:?}:{:?} with distance {}",
-                            (*track_x, *track_y),
-                            track_entry,
-                            (*next_track_x, *next_track_y),
-                            next_track_entry,
-                            distance
-                        );*/
-                        cheats.insert(Cheat {
-                            from: (*track_x, *track_y),
-                            to: (*next_track_x, *next_track_y),
-                            distance,
-                        });
-                    }
+            if (track_x, track_y) != (next_track_x, next_track_y) && *track_entry != '#' && *next_track_entry != '#' {
+                let distance =
+                    manhattan_distance((*track_x, *track_y), (*next_track_x, *next_track_y));
+                if distance <= max_distance {
+                    /*println!(
+                        "Adding cheat from {:?}:{:?} to {:?}:{:?} with distance {}",
+                        (*track_x, *track_y),
+                        track_entry,
+                        (*next_track_x, *next_track_y),
+                        next_track_entry,
+                        distance
+                    );*/
+                    cheats.insert(Cheat {
+                        from: (*track_x, *track_y),
+                        to: (*next_track_x, *next_track_y),
+                        distance,
+                    });
                 }
             }
         }
