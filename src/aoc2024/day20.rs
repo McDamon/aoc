@@ -163,7 +163,7 @@ fn get_distance(
 
 fn get_cheats(
     track: &HashMap<(usize, usize), char>,
-    no_cheat_path: &Vec<(usize, usize)>,
+    no_cheat_path: &[(usize, usize)],
     max_distance: usize,
 ) -> HashSet<(Cheat, usize)> {
     let mut cheats = HashSet::new();
