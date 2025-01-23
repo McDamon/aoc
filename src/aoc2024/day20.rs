@@ -72,9 +72,7 @@ fn build_graph(
     // First create all nodes
     for (&(x, y), &c) in track.iter() {
         if c != '#' {
-            let point = Move {
-                pos: (x, y),
-            };
+            let point = Move { pos: (x, y) };
             let node_idx = graph.add_node(point);
             node_indices.insert(point, node_idx);
             //println!("Added node {:?}", graph[node_idx]);
@@ -85,9 +83,7 @@ fn build_graph(
     for (&(x, y), &c) in track.iter() {
         if c != '#' {
             for dir in Direction::all() {
-                let point = Move {
-                    pos: (x, y),
-                };
+                let point = Move { pos: (x, y) };
                 let node_idx = node_indices[&point];
 
                 // Forward movement
@@ -130,40 +126,12 @@ fn manhattan_distance(from: (usize, usize), to: (usize, usize)) -> usize {
     ((from_x as isize - to_x as isize).abs() + (from_y as isize - to_y as isize).abs()) as usize
 }
 
-fn get_cheats(track: &HashMap<(usize, usize), char>, max_distance: usize) -> HashSet<Cheat> {
-    let mut cheats = HashSet::new();
-    for ((track_x, track_y), track_entry) in track.iter() {
-        for ((next_track_x, next_track_y), next_track_entry) in track.iter() {
-            if (track_x, track_y) != (next_track_x, next_track_y) && *track_entry != '#' && *next_track_entry != '#' {
-                let distance =
-                    manhattan_distance((*track_x, *track_y), (*next_track_x, *next_track_y));
-                if distance <= max_distance {
-                    /*println!(
-                        "Adding cheat from {:?}:{:?} to {:?}:{:?} with distance {}",
-                        (*track_x, *track_y),
-                        track_entry,
-                        (*next_track_x, *next_track_y),
-                        next_track_entry,
-                        distance
-                    );*/
-                    cheats.insert(Cheat {
-                        from: (*track_x, *track_y),
-                        to: (*next_track_x, *next_track_y),
-                        distance,
-                    });
-                }
-            }
-        }
-    }
-    cheats
-}
-
 fn get_distance(
     start: (usize, usize),
     end: (usize, usize),
     track: &HashMap<(usize, usize), char>,
     maybe_cheat: Option<Cheat>,
-) -> Option<usize> {
+) -> Option<Vec<(usize, usize)>> {
     let (graph, node_indices) = build_graph(track, maybe_cheat);
 
     let start_move = Move { pos: start };
@@ -172,32 +140,79 @@ fn get_distance(
     let start_idx = node_indices[&start_move];
     let end_idx = node_indices[&end_move];
 
-    if let Some((distance, _path)) = algo::astar(
+    if let Some((_distance, path)) = algo::astar(
         &graph,
         start_idx,
         |finish| finish == end_idx,
         |e| *e.weight() as usize,
-        |_| 0,
+        |_| 1,
     ) {
-        Some(distance)
+        let path_pos = path
+            .iter()
+            .map(|idx| {
+                let node = &graph[*idx];
+                node.pos
+            })
+            .collect::<Vec<_>>();
+
+        Some(path_pos)
     } else {
         None
     }
 }
 
-fn get_cheat_saving(
-    start: (usize, usize),
-    end: (usize, usize),
+fn get_cheats(
     track: &HashMap<(usize, usize), char>,
-    cheat: Cheat,
-    no_cheat_distance: usize,
-) -> Option<usize> {
-    if let Some(distance) = get_distance(start, end, track, Some(cheat)) {
-        let cheat_saving = no_cheat_distance - distance;
-        Some(cheat_saving)
-    } else {
-        None
+    no_cheat_path: &Vec<(usize, usize)>,
+    max_distance: usize,
+) -> HashSet<(Cheat, usize)> {
+    let mut cheats = HashSet::new();
+    let path_lens: HashMap<(usize, usize), usize> = no_cheat_path
+        .iter()
+        .rev()
+        .enumerate()
+        .map(|(i, &pos)| (pos, i))
+        .collect();
+    for (track_x, track_y) in no_cheat_path.iter() {
+        let track_entry = track[&(*track_x, *track_y)];
+        for ((next_track_x, next_track_y), next_track_entry) in track.iter() {
+            if (track_x, track_y) != (next_track_x, next_track_y)
+                && track_entry != '#'
+                && *next_track_entry != '#'
+            {
+                let distance =
+                    manhattan_distance((*track_x, *track_y), (*next_track_x, *next_track_y));
+                if distance <= max_distance {
+                    let curr_path_len = path_lens[&(*track_x, *track_y)];
+                    let rem_path_len = path_lens[&(*next_track_x, *next_track_y)];
+
+                    if rem_path_len < curr_path_len {
+                        let cheat_saving = curr_path_len - rem_path_len - distance;
+                        if cheat_saving > 0 {
+                            /*println!(
+                                "Adding cheat from {:?}:{:?} to {:?}:{:?} with distance/saving {}/{}",
+                                (*track_x, *track_y),
+                                track_entry,
+                                (*next_track_x, *next_track_y),
+                                next_track_entry,
+                                distance,
+                                cheat_saving
+                            );*/
+                            cheats.insert((
+                                Cheat {
+                                    from: (*track_x, *track_y),
+                                    to: (*next_track_x, *next_track_y),
+                                    distance,
+                                },
+                                cheat_saving,
+                            ));
+                        }
+                    }
+                }
+            }
+        }
     }
+    cheats
 }
 
 fn get_num_cheats(
@@ -224,23 +239,13 @@ fn get_num_cheats(
         .map(|(&pos, _)| pos)
         .unwrap();
 
-    let cheats: HashSet<Cheat> = get_cheats(&input.track, max_distance);
-
-    let no_cheat_distance = if let Some(distance) = get_distance(start, end, &input.track, None) {
+    let no_cheat_path = if let Some(distance) = get_distance(start, end, &input.track, None) {
         distance
     } else {
         return 0;
     };
 
-    let mut cheat_savings: HashMap<Cheat, usize> = HashMap::new();
-
-    for cheat in cheats {
-        if let Some(cheat_saving) =
-            get_cheat_saving(start, end, &input.track, cheat, no_cheat_distance)
-        {
-            cheat_savings.insert(cheat, cheat_saving);
-        }
-    }
+    let cheat_savings = get_cheats(&input.track, &no_cheat_path, max_distance);
 
     let filtered_cheat_savings = cheat_savings
         .iter()
@@ -474,6 +479,9 @@ mod tests {
     #[ignore]
     #[test]
     fn test_get_num_cheats_new_rules() {
-        assert_eq!(0, get_num_cheats("input/2024/day20.txt", 100, true, 20));
+        assert_eq!(
+            994807,
+            get_num_cheats("input/2024/day20.txt", 100, true, 20)
+        );
     }
 }
