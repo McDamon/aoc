@@ -1,9 +1,8 @@
 use std::{
-    error::Error,
-    fs::File,
-    io::{BufRead, BufReader},
-    path::Path,
+    collections::HashMap, error::Error, fs::File, io::{BufRead, BufReader}, path::Path
 };
+
+use petgraph::graph::NodeIndex;
 
 pub fn get_lines(input_file: &str) -> Vec<String> {
     let path = Path::new(input_file);
@@ -176,6 +175,47 @@ where
             None => 0,
         }
     }
+}
+
+pub fn get_all_paths<T>(
+    graph: &petgraph::Graph<T, f64>,
+    node_costs: &HashMap<NodeIndex, f64>,
+    start_idx: NodeIndex,
+    end_idx: NodeIndex,
+) -> Vec<Vec<NodeIndex>> {
+    let mut parents: HashMap<NodeIndex, Vec<NodeIndex>> = HashMap::new();
+    for node in graph.node_indices() {
+        parents.insert(node, vec![]);
+    }
+
+    for edge in graph.edge_indices() {
+        let (source, target) = graph.edge_endpoints(edge).unwrap();
+        let weight = graph.edge_weight(edge).unwrap();
+
+        if let Some(&source_cost) = node_costs.get(&source)
+            && let Some(&target_cost) = node_costs.get(&target)
+            && target_cost == source_cost + weight
+        {
+            parents.get_mut(&target).unwrap().push(source);
+        }
+    }
+
+    let mut all_paths = vec![];
+    let mut stack = vec![(end_idx, vec![end_idx])];
+
+    while let Some((node, path)) = stack.pop() {
+        if node == start_idx {
+            all_paths.push(path);
+        } else {
+            for &parent in &parents[&node] {
+                let mut new_path = path.clone();
+                new_path.push(parent);
+                stack.push((parent, new_path));
+            }
+        }
+    }
+
+    all_paths
 }
 
 #[cfg(test)]

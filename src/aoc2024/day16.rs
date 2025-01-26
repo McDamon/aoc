@@ -8,7 +8,7 @@ use petgraph::{
     Graph,
 };
 
-use crate::utils::{get_lines, Direction};
+use crate::utils::{get_all_paths, get_lines, Direction};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct Move {
@@ -196,47 +196,6 @@ fn get_lowest_score(input_file: &str) -> (usize, usize) {
     }
 
     (min_length as usize, tiles.len())
-}
-
-fn get_all_paths(
-    graph: &petgraph::Graph<Move, f64>,
-    node_costs: &HashMap<NodeIndex, f64>,
-    start_idx: NodeIndex,
-    end_idx: NodeIndex,
-) -> Vec<Vec<NodeIndex>> {
-    let mut parents: HashMap<NodeIndex, Vec<NodeIndex>> = HashMap::new();
-    for node in graph.node_indices() {
-        parents.insert(node, vec![]);
-    }
-
-    for edge in graph.edge_indices() {
-        let (source, target) = graph.edge_endpoints(edge).unwrap();
-        let weight = graph.edge_weight(edge).unwrap();
-
-        if let Some(&source_cost) = node_costs.get(&source)
-            && let Some(&target_cost) = node_costs.get(&target)
-            && target_cost == source_cost + weight
-        {
-            parents.get_mut(&target).unwrap().push(source);
-        }
-    }
-
-    let mut all_paths = vec![];
-    let mut stack = vec![(end_idx, vec![end_idx])];
-
-    while let Some((node, path)) = stack.pop() {
-        if node == start_idx {
-            all_paths.push(path);
-        } else {
-            for &parent in &parents[&node] {
-                let mut new_path = path.clone();
-                new_path.push(parent);
-                stack.push((parent, new_path));
-            }
-        }
-    }
-
-    all_paths
 }
 
 #[cfg(test)]
