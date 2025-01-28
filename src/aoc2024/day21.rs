@@ -314,6 +314,13 @@ fn get_shortest_dir_paths_from_dir_path(
     result
 }
 
+fn print_keypad_path(path: &VecDeque<Move>) {
+    for m in path {
+        print!("{} ", m.button);
+    }
+    println!();
+}
+
 fn get_shortest_sequence_len(
     code: &str,
     num_keypad_graph_data: &GraphData,
@@ -349,6 +356,10 @@ fn get_shortest_sequence_len(
         all_num_keypad_paths = new_paths;
     }
 
+    for num_keypad_path in &all_num_keypad_paths {
+        print_keypad_path(&num_keypad_path);
+    }
+
     // Find shortest path from all possibilities
     let shortest_num_path = all_num_keypad_paths
         .iter()
@@ -363,9 +374,6 @@ fn get_shortest_sequence_len(
         dir_keypad_path.len(),
         code
     );
-    for dir_keyboard_move in &dir_keypad_path {
-        println!("{:?}", dir_keyboard_move);
-    }
     let mut next_dir_keypad_path = dir_keypad_path.clone();
     for i in 0..num_dir_keypads {
         let shortest_dir_keypad_paths = get_shortest_dir_paths_from_dir_path(
@@ -380,9 +388,6 @@ fn get_shortest_sequence_len(
             next_dir_keypad_path.len(),
             code
         );
-        for next_dir_keyboard_move in &next_dir_keypad_path {
-            println!("{:?}", next_dir_keyboard_move);
-        }
     }
     next_dir_keypad_path.len()
 }
