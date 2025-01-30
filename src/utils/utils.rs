@@ -1,5 +1,9 @@
 use std::{
-    collections::HashMap, error::Error, fs::File, io::{BufRead, BufReader}, path::Path
+    collections::HashMap,
+    error::Error,
+    fs::File,
+    io::{BufRead, BufReader},
+    path::Path,
 };
 
 use petgraph::graph::NodeIndex;
@@ -205,7 +209,9 @@ pub fn get_all_paths<T>(
 
     while let Some((node, path)) = stack.pop() {
         if node == start_idx {
-            all_paths.push(path);
+            let mut correct_order_path = path.clone();
+            correct_order_path.reverse();
+            all_paths.push(correct_order_path);
         } else {
             for &parent in &parents[&node] {
                 let mut new_path = path.clone();
@@ -220,6 +226,8 @@ pub fn get_all_paths<T>(
 
 #[cfg(test)]
 mod tests {
+    use petgraph::Graph;
+
     use super::*;
 
     #[test]
@@ -244,5 +252,71 @@ mod tests {
         assert_eq!(tree.size(), 5);
         assert_eq!(tree.edges(), 4);
         assert_eq!(tree.depth(tree_node_5), 4);
+    }
+
+    fn build_test_graph() -> (Graph<(), f64>, HashMap<NodeIndex, f64>) {
+        let mut graph = Graph::<(), f64>::new();
+        let mut costs = HashMap::new();
+        
+        // Create a simple graph:
+        // A(0) -> B(1) -> C(2)
+        //    \-----------> D(3)
+        let a = graph.add_node(());
+        let b = graph.add_node(());
+        let c = graph.add_node(());
+        let d = graph.add_node(());
+
+        graph.add_edge(a, b, 1.0);
+        graph.add_edge(b, c, 1.0);
+        graph.add_edge(a, d, 2.0);
+
+        costs.insert(a, 0.0);
+        costs.insert(b, 1.0);
+        costs.insert(c, 2.0);
+        costs.insert(d, 2.0);
+
+        (graph, costs)
+    }
+
+    #[test]
+    fn test_single_path() {
+        let (graph, costs) = build_test_graph();
+        let a = NodeIndex::new(0);
+        let b = NodeIndex::new(1);
+        
+        let paths = get_all_paths(&graph, &costs, a, b);
+        assert_eq!(paths.len(), 1);
+        assert_eq!(paths[0], vec![a, b]);
+    }
+
+    #[test]
+    fn test_multiple_paths() {
+        let (graph, costs) = build_test_graph();
+        let a = NodeIndex::new(0);
+        let d = NodeIndex::new(3);
+        
+        let paths = get_all_paths(&graph, &costs, a, d);
+        assert_eq!(paths.len(), 1);
+        assert_eq!(paths[0], vec![a, d]);
+    }
+
+    #[test]
+    fn test_no_path() {
+        let (graph, costs) = build_test_graph();
+        let c = NodeIndex::new(2);
+        let a = NodeIndex::new(0);
+        
+        let paths = get_all_paths(&graph, &costs, c, a);
+        assert_eq!(paths.len(), 0);
+    }
+
+    #[test]
+    fn test_same_node() {
+        let (graph, costs) = build_test_graph();
+        let a = NodeIndex::new(0);
+        
+        let paths = get_all_paths(&graph, &costs, a, a);
+        assert_eq!(paths.len(), 1);
+        assert_eq!(paths[0], vec![a]);
     }
 }

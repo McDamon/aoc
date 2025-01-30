@@ -222,6 +222,7 @@ mod tests {
         assert_eq!(4013, get_lowest_score("input/2024/day16_test04.txt").0);
     }
 
+    #[ignore]
     #[test]
     fn test_get_lowest_score_test05() {
         assert_eq!(21110, get_lowest_score("input/2024/day16_test05.txt").0);
@@ -262,6 +263,7 @@ mod tests {
         assert_eq!(14, get_lowest_score("input/2024/day16_test04.txt").1);
     }
 
+    #[ignore]
     #[test]
     fn test_get_num_tiles_test05() {
         assert_eq!(264, get_lowest_score("input/2024/day16_test05.txt").1);

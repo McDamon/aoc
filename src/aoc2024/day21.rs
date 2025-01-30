@@ -4,8 +4,9 @@ use std::collections::{HashMap, VecDeque};
 
 use itertools::Itertools;
 use petgraph::{
-    Graph, algo,
+    algo,
     graph::{DiGraph, NodeIndex},
+    Graph,
 };
 
 use crate::utils::{get_all_paths, get_lines, Direction};
@@ -169,6 +170,10 @@ fn get_shortest_keypad_paths(
     end_move: &Move,
     keypad_graph_data: &GraphData,
 ) -> Vec<Vec<Move>> {
+    /*println!(
+        "Finding shortest path from {:?} to {:?}",
+        start_move, end_move
+    );*/
     let start_idx = keypad_graph_data.node_indices[start_move];
     let end_idx = keypad_graph_data.node_indices[end_move];
 
@@ -176,9 +181,19 @@ fn get_shortest_keypad_paths(
         *e.weight()
     });
     let all_paths = get_all_paths(&keypad_graph_data.graph, &keypad_costs, start_idx, end_idx);
+    /*for path in &all_paths {
+        println!("Path:");
+        for node_index in path.iter() {
+            println!("{:?}", keypad_graph_data.graph[*node_index]);
+        }
+    }*/
     all_paths
         .iter()
-        .map(|path| path.iter().map(|&idx| keypad_graph_data.graph[idx]).collect())
+        .map(|path| {
+            path.iter()
+                .map(|&idx| keypad_graph_data.graph[idx])
+                .collect()
+        })
         .collect()
 }
 
@@ -356,8 +371,8 @@ fn get_shortest_sequence_len(
         all_num_keypad_paths = new_paths;
     }
 
-    for num_keypad_path in &all_num_keypad_paths {
-        print_keypad_path(&num_keypad_path);
+    for keypad_path in all_num_keypad_paths.iter() {
+        print_keypad_path(keypad_path);
     }
 
     // Find shortest path from all possibilities
@@ -380,8 +395,10 @@ fn get_shortest_sequence_len(
             &next_dir_keypad_path,
             dir_keypad_cache_graph_data,
         );
-        next_dir_keypad_path =
-            get_dir_path_from_dir_paths(&shortest_dir_keypad_paths, &dir_keypad_cache_graph_data.cache);
+        next_dir_keypad_path = get_dir_path_from_dir_paths(
+            &shortest_dir_keypad_paths,
+            &dir_keypad_cache_graph_data.cache,
+        );
         println!(
             "Dir keypad {:?} path len {:?} for code: {:?}",
             i,
