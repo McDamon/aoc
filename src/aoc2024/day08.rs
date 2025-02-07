@@ -27,16 +27,6 @@ struct Node {
     val: char,
 }
 
-fn print_map(map: &[Vec<char>]) {
-    println!("Grid:");
-    for map_row in map.iter() {
-        for map_entry in map_row {
-            print!("{:#}", *map_entry);
-        }
-        println!();
-    }
-}
-
 fn get_node_map(map: &[Vec<char>]) -> HashMap<char, Vec<Node>> {
     map.iter()
         .enumerate()
@@ -96,7 +86,7 @@ fn get_antinode_pos(
     }
 }
 
-fn get_unique_antinodes(input_file: &str) -> u32 {
+pub fn get_unique_antinodes(input_file: &str) -> u32 {
     let input = parse_input(input_file);
 
     let node_map: HashMap<char, Vec<Node>> = get_node_map(&input.map);
@@ -201,7 +191,7 @@ fn get_antinode_pos_vec(
     antinode_pos_vec
 }
 
-fn get_unique_antinodes_with_hr(input_file: &str) -> u32 {
+pub fn get_unique_antinodes_with_hr(input_file: &str) -> u32 {
     let input = parse_input(input_file);
 
     let node_map: HashMap<char, Vec<Node>> = get_node_map(&input.map);

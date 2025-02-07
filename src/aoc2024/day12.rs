@@ -21,14 +21,14 @@ fn parse_input(input_file: &str) -> Input {
     Input { plants }
 }
 
-fn print_plants(plants: &Vec<Vec<char>>) {
+/*fn print_plants(plants: &Vec<Vec<char>>) {
     for row in plants {
         for level in row {
             print!("{}", level);
         }
         println!();
     }
-}
+}*/
 
 #[derive(Debug)]
 struct Region {
@@ -188,7 +188,7 @@ fn flood_fill(
     }
 }
 
-fn get_price_fencing_all_regions(input_file: &str, apply_discount: bool) -> usize {
+pub fn get_price_fencing_all_regions(input_file: &str, apply_discount: bool) -> usize {
     let input = parse_input(input_file);
 
     //print_plants(&input.plants);

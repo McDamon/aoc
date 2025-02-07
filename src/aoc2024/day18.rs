@@ -36,7 +36,7 @@ fn parse_input(input_file: &str) -> Input {
     Input { corrupt_mem }
 }
 
-fn print_mem_map(mem_map: &HashMap<(isize, isize), char>) {
+/*fn print_mem_map(mem_map: &HashMap<(isize, isize), char>) {
     let max_x = mem_map.keys().map(|(x, _)| *x).max().unwrap();
     let max_y = mem_map.keys().map(|(_, y)| *y).max().unwrap();
 
@@ -50,7 +50,7 @@ fn print_mem_map(mem_map: &HashMap<(isize, isize), char>) {
         }
         println!();
     }
-}
+}*/
 
 fn build_graph(
     mem_map: &HashMap<(isize, isize), char>,
@@ -120,7 +120,7 @@ fn build_mem_map(
     mem_map
 }
 
-fn get_min_steps(input_file: &str, x_len: isize, y_len: isize, bytes: usize) -> usize {
+pub fn get_min_steps(input_file: &str, x_len: isize, y_len: isize, bytes: usize) -> usize {
     let input = parse_input(input_file);
 
     //println!("Corrupt mem: {:?}", input.corrupt_mem);
@@ -160,7 +160,7 @@ fn get_min_steps(input_file: &str, x_len: isize, y_len: isize, bytes: usize) -> 
     panic!("did not find path")
 }
 
-fn get_coords_first_byte_to_prevent_exit(
+pub fn get_coords_first_byte_to_prevent_exit(
     input_file: &str,
     x_len: isize,
     y_len: isize,

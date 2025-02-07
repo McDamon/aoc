@@ -57,18 +57,7 @@ fn parse_map(map_lines: Vec<String>) -> Vec<Vec<MapEntry>> {
     map
 }
 
-fn print_map(map: &[Vec<MapEntry>]) {
-    println!("Grid:");
-    for map_row in map.iter() {
-        for map_entry in map_row {
-            print!("{:#}", *map_entry as u8 as char);
-        }
-        println!();
-    }
-}
-
 struct ListNodeEntry {
-    map_entry: MapEntry,
     pos: (usize, usize),
     direction: Direction,
 }
@@ -104,7 +93,6 @@ fn process_list_entry(
             (curr_row, curr_col)
         );*/
         list_node.next = Some(Box::new(ListNode::new(ListNodeEntry {
-            map_entry: MapEntry::Clear,
             pos: (curr_row, curr_col),
             direction: list_node_pos.alternate_dir,
         })));
@@ -121,7 +109,6 @@ fn process_list_entry(
             (next_pos_row, next_pos_col)
         );*/
         list_node.next = Some(Box::new(ListNode::new(ListNodeEntry {
-            map_entry: next_pri_map_entry,
             pos: (next_pos_row, next_pos_col),
             direction: list_node_pos.next_dir,
         })));
@@ -241,7 +228,6 @@ fn get_distinct_pos_vec(
     (start_row, start_col): (usize, usize),
 ) -> (HashSet<(usize, usize)>, bool) {
     let mut list_root = ListNode::new(ListNodeEntry {
-        map_entry: map[start_row][start_col],
         pos: (start_row, start_col),
         direction: Direction::N,
     });
@@ -259,7 +245,7 @@ fn get_distinct_pos_vec(
     (unique_visited_nodes, has_loop)
 }
 
-fn get_distinct_pos(input_file: &str) -> usize {
+pub fn get_distinct_pos(input_file: &str) -> usize {
     let input = parse_input(input_file);
 
     if let Some((start_row, start_col)) = get_start_pos(&input.map) {
@@ -296,7 +282,7 @@ fn detect_loop(visited_nodes: &mut [VisitedNodeEntry]) -> bool {
     false
 }
 
-fn get_sum_time_loop_pos(input_file: &str) -> usize {
+pub fn get_sum_time_loop_pos(input_file: &str) -> usize {
     let input = parse_input(input_file);
 
     let mut sum_time_loop_pos = 0usize;

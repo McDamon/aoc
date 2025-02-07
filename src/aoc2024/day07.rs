@@ -80,7 +80,7 @@ fn is_valid_calibration_result(equation: &CalibrationEquation) -> bool {
     false
 }
 
-fn get_total_calibration_result(input_file: &str) -> u64 {
+pub fn get_total_calibration_result(input_file: &str) -> u64 {
     let input = parse_input(input_file);
 
     let mut total_calibration_result = 0;
@@ -149,7 +149,7 @@ fn is_valid_calibration_result_concat(equation: &CalibrationEquation) -> bool {
     false
 }
 
-fn get_total_calibration_result_with_concat(input_file: &str) -> u64 {
+pub fn get_total_calibration_result_with_concat(input_file: &str) -> u64 {
     let input = parse_input(input_file);
 
     let mut total_calibration_result = 0;

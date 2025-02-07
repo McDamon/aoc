@@ -257,7 +257,7 @@ mod tests {
     fn build_test_graph() -> (Graph<(), f64>, HashMap<NodeIndex, f64>) {
         let mut graph = Graph::<(), f64>::new();
         let mut costs = HashMap::new();
-        
+
         // Create a simple graph:
         // A(0) -> B(1) -> C(2)
         //    \-----------> D(3)
@@ -283,7 +283,7 @@ mod tests {
         let (graph, costs) = build_test_graph();
         let a = NodeIndex::new(0);
         let b = NodeIndex::new(1);
-        
+
         let paths = get_all_paths(&graph, &costs, a, b);
         assert_eq!(paths.len(), 1);
         assert_eq!(paths[0], vec![a, b]);
@@ -294,7 +294,7 @@ mod tests {
         let (graph, costs) = build_test_graph();
         let a = NodeIndex::new(0);
         let d = NodeIndex::new(3);
-        
+
         let paths = get_all_paths(&graph, &costs, a, d);
         assert_eq!(paths.len(), 1);
         assert_eq!(paths[0], vec![a, d]);
@@ -305,7 +305,7 @@ mod tests {
         let (graph, costs) = build_test_graph();
         let c = NodeIndex::new(2);
         let a = NodeIndex::new(0);
-        
+
         let paths = get_all_paths(&graph, &costs, c, a);
         assert_eq!(paths.len(), 0);
     }
@@ -314,7 +314,7 @@ mod tests {
     fn test_same_node() {
         let (graph, costs) = build_test_graph();
         let a = NodeIndex::new(0);
-        
+
         let paths = get_all_paths(&graph, &costs, a, a);
         assert_eq!(paths.len(), 1);
         assert_eq!(paths[0], vec![a]);

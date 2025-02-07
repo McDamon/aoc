@@ -50,7 +50,7 @@ fn poss_design_combos(
     num_combos
 }
 
-fn get_poss_designs(input_file: &str) -> (usize, usize) {
+pub fn get_poss_designs(input_file: &str) -> (usize, usize) {
     let input = parse_input(input_file);
 
     //println!("towels: {:?}", input.towels);

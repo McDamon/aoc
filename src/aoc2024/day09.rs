@@ -130,7 +130,7 @@ fn calc_checksum(blocks: &[DiskEntry]) -> usize {
         .sum()
 }
 
-fn get_checksum(input_file: &str) -> usize {
+pub fn get_checksum(input_file: &str) -> usize {
     let input = parse_input_part_one(input_file);
 
     let mut blocks = input.disk.clone();
@@ -156,7 +156,7 @@ fn get_checksum(input_file: &str) -> usize {
     calc_checksum(&blocks)
 }
 
-fn print_blocks(blocks: &Vec<DiskEntryWithLen>) {
+/*fn print_blocks(blocks: &Vec<DiskEntryWithLen>) {
     for block in blocks {
         match block {
             DiskEntryWithLen {
@@ -173,7 +173,7 @@ fn print_blocks(blocks: &Vec<DiskEntryWithLen>) {
         }
     }
     println!()
-}
+}*/
 
 fn find_first_whole_free_space(
     blocks: &[DiskEntryWithLen],
@@ -210,7 +210,7 @@ fn calc_checksum_whole_files(blocks: &[DiskEntryWithLen]) -> usize {
     checksum
 }
 
-fn get_checksum_whole_files(input_file: &str) -> usize {
+pub fn get_checksum_whole_files(input_file: &str) -> usize {
     let input = parse_input_part_two(input_file);
 
     let mut blocks = input.disk.clone();

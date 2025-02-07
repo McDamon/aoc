@@ -5,7 +5,7 @@ use std::{collections::HashSet, panic};
 use crate::utils::get_lines;
 
 #[derive(Clone, Copy, Debug)]
-struct Registers {
+pub struct Registers {
     reg_a: u64,
     reg_b: u64,
     reg_c: u64,
@@ -184,7 +184,7 @@ fn out_vals_to_str(out_vals: &[u64]) -> String {
         .join(",")
 }
 
-fn get_joined_vals(input_file: &str) -> (Registers, String) {
+pub fn get_joined_vals(input_file: &str) -> (Registers, String) {
     let input = parse_input(input_file);
 
     let mut registers = input.registers;
@@ -198,7 +198,7 @@ fn get_joined_vals(input_file: &str) -> (Registers, String) {
     (out_registers, out_vals_to_str(&out_vals))
 }
 
-fn get_lowest_positive_reg_a(input_file: &str) -> u64 {
+pub fn get_lowest_positive_reg_a(input_file: &str) -> u64 {
     let input = parse_input(input_file);
 
     let mut poss_reg_a_vals: HashSet<u64> = HashSet::new();

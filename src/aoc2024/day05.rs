@@ -53,7 +53,7 @@ fn check_update_order(update: &[u32], page_order_rules: &Vec<(u32, u32)>) -> boo
     true
 }
 
-fn get_sum_middle_page_num(input_file: &str) -> u32 {
+pub fn get_sum_middle_page_num(input_file: &str) -> u32 {
     let input = parse_input(input_file);
 
     let mut sum_middle_page_num = 0;
@@ -84,7 +84,7 @@ fn correct_update(update: &mut [u32], page_order_rules: &Vec<(u32, u32)>) {
     }
 }
 
-fn get_sum_corrected_middle_page_num(input_file: &str) -> u32 {
+pub fn get_sum_corrected_middle_page_num(input_file: &str) -> u32 {
     let input = parse_input(input_file);
 
     let mut sum_middle_page_num = 0;

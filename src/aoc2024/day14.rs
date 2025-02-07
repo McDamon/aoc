@@ -57,7 +57,7 @@ fn print_robots(width: i32, height: i32, robot_map: &HashMap<(i32, i32), Vec<Rob
     }
 }
 
-fn get_safety_factor(input_file: &str, width: i32, height: i32, num_secs: usize) -> usize {
+pub fn get_safety_factor(input_file: &str, width: i32, height: i32, num_secs: usize) -> usize {
     let input = parse_input(input_file);
 
     let mut robots = input.robots.clone();
@@ -133,7 +133,7 @@ fn get_safety_factor(input_file: &str, width: i32, height: i32, num_secs: usize)
     ne_robots * nw_robots * se_robots * sw_robots
 }
 
-fn check_xmas_tree(input_file: &str, width: i32, height: i32, max_secs: usize) -> usize {
+pub fn check_xmas_tree(input_file: &str, width: i32, height: i32, max_secs: usize) -> usize {
     let input = parse_input(input_file);
 
     let mut robots = input.robots.clone();

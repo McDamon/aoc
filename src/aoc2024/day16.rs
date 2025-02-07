@@ -35,7 +35,7 @@ fn parse_input(input_file: &str) -> Input {
     Input { maze }
 }
 
-fn print_maze(maze: &HashMap<(isize, isize), char>) {
+/*fn print_maze(maze: &HashMap<(isize, isize), char>) {
     let max_x = maze.keys().map(|(x, _)| *x).max().unwrap();
     let max_y = maze.keys().map(|(_, y)| *y).max().unwrap();
 
@@ -49,7 +49,7 @@ fn print_maze(maze: &HashMap<(isize, isize), char>) {
         }
         println!();
     }
-}
+}*/
 
 fn build_graph(input: &Input) -> (Graph<Move, f64>, HashMap<Move, NodeIndex>) {
     // Create directed graph
@@ -125,7 +125,7 @@ fn build_graph(input: &Input) -> (Graph<Move, f64>, HashMap<Move, NodeIndex>) {
     (graph, node_indices)
 }
 
-fn get_lowest_score(input_file: &str) -> (usize, usize) {
+pub fn get_lowest_score(input_file: &str) -> (usize, usize) {
     let input = parse_input(input_file);
 
     //print_maze(&input.maze);

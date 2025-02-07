@@ -1,23 +1,14 @@
 // https://adventofcode.com/2024/day/21
 
-use std::collections::{HashMap, VecDeque};
+use std::{collections::{HashMap, VecDeque}, vec};
 
 use itertools::Itertools;
 use petgraph::{
-    algo,
+    Graph, algo,
     graph::{DiGraph, NodeIndex},
-    Graph,
 };
 
-use crate::utils::{get_all_paths, get_lines, Direction};
-
-enum ButtonPress {
-    Up,
-    Down,
-    Left,
-    Right,
-    Activate,
-}
+use crate::utils::{Direction, get_all_paths, get_lines};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct Move {
@@ -165,7 +156,64 @@ fn print_keypad(keypad: &HashMap<(usize, usize), Option<char>>) {
     }
 }
 
-fn get_shortest_keypad_paths(
+fn print_keypad_path(path: &VecDeque<Move>) {
+    for m in path {
+        print!("{} ", m.button);
+    }
+    println!();
+}
+
+fn get_move_direction(start: Move, end: Move) -> Option<Direction> {
+    let (start_x, start_y) = start.pos;
+    let (end_x, end_y) = end.pos;
+    if start == end {
+        None
+    } else if end_x > start_x {
+        Some(Direction::E)
+    } else if end_x < start_x {
+        Some(Direction::W)
+    } else if end_y > start_y {
+        Some(Direction::S)
+    } else {
+        Some(Direction::N)
+    }
+}
+
+fn get_dir_move_entry(direction: Direction) -> char {
+    match direction {
+        Direction::N => '^',
+        Direction::S => 'v',
+        Direction::E => '>',
+        Direction::W => '<',
+    }
+}
+
+fn get_dir_path_from_keypad_path(
+    keypad_path: &VecDeque<Move>,
+    dir_keypad_cache: &HashMap<Option<char>, (usize, usize)>,
+) -> VecDeque<Move> {
+    let mut new_dir_keypad_path: VecDeque<Move> = VecDeque::new();
+    for (start_num_move, end_num_move) in keypad_path.iter().tuple_windows() {
+        if let Some(move_direction) = get_move_direction(*start_num_move, *end_num_move) {
+            new_dir_keypad_path.push_back(Move {
+                pos: dir_keypad_cache[&Some(get_dir_move_entry(move_direction))],
+                button: get_dir_move_entry(move_direction),
+            });
+        } else {
+            new_dir_keypad_path.push_back(Move {
+                pos: dir_keypad_cache[&Some('A')],
+                button: 'A',
+            });
+        }
+    }
+    new_dir_keypad_path.push_back(Move {
+        pos: dir_keypad_cache[&Some('A')],
+        button: 'A',
+    });
+    new_dir_keypad_path
+}
+
+fn get_shortest_paths_for_move(
     start_move: &Move,
     end_move: &Move,
     keypad_graph_data: &GraphData,
@@ -197,168 +245,31 @@ fn get_shortest_keypad_paths(
         .collect()
 }
 
-fn get_move_direction(start: Move, end: Move) -> Option<Direction> {
-    let (start_x, start_y) = start.pos;
-    let (end_x, end_y) = end.pos;
-    if start == end {
-        None
-    } else if end_x > start_x {
-        Some(Direction::E)
-    } else if end_x < start_x {
-        Some(Direction::W)
-    } else if end_y > start_y {
-        Some(Direction::S)
-    } else {
-        Some(Direction::N)
-    }
-}
-
-fn get_dir_move_entry(direction: Direction) -> char {
-    match direction {
-        Direction::N => '^',
-        Direction::S => 'v',
-        Direction::E => '>',
-        Direction::W => '<',
-    }
-}
-
-fn get_dir_path_from_num_path(
-    num_keypad_path: &VecDeque<Move>,
-    dir_keypad_cache: &HashMap<Option<char>, (usize, usize)>,
-) -> VecDeque<Move> {
-    let mut dir_keypad_path: VecDeque<Move> = VecDeque::new();
-    for (start_num_move, end_num_move) in num_keypad_path.iter().tuple_windows() {
-        if let Some(move_direction) = get_move_direction(*start_num_move, *end_num_move) {
-            dir_keypad_path.push_back(Move {
-                pos: dir_keypad_cache[&Some(get_dir_move_entry(move_direction))],
-                button: get_dir_move_entry(move_direction),
-            });
-        } else {
-            dir_keypad_path.push_back(Move {
-                pos: dir_keypad_cache[&Some('A')],
-                button: 'A',
-            });
-        }
-    }
-    dir_keypad_path.push_back(Move {
-        pos: dir_keypad_cache[&Some('A')],
-        button: 'A',
-    });
-    dir_keypad_path
-}
-
-fn get_dir_path_from_dir_paths(
-    dir_keypad_paths: &Vec<VecDeque<Move>>,
-    dir_keypad_cache: &HashMap<Option<char>, (usize, usize)>,
-) -> VecDeque<Move> {
-    let mut shortest_path: Option<VecDeque<Move>> = None;
-
-    for dir_keypad_path in dir_keypad_paths {
-        let mut new_dir_keypad_path: VecDeque<Move> = VecDeque::new();
-
-        for (start_dir_move, end_dir_move) in dir_keypad_path.iter().tuple_windows() {
-            if let Some(move_direction) = get_move_direction(*start_dir_move, *end_dir_move) {
-                new_dir_keypad_path.push_back(Move {
-                    pos: dir_keypad_cache[&Some(get_dir_move_entry(move_direction))],
-                    button: get_dir_move_entry(move_direction),
-                });
-            } else {
-                new_dir_keypad_path.push_back(Move {
-                    pos: dir_keypad_cache[&Some('A')],
-                    button: 'A',
-                });
-            }
-        }
-        new_dir_keypad_path.push_back(Move {
-            pos: dir_keypad_cache[&Some('A')],
-            button: 'A',
-        });
-
-        if shortest_path.is_none()
-            || new_dir_keypad_path.len() < shortest_path.as_ref().unwrap().len()
-        {
-            shortest_path = Some(new_dir_keypad_path);
-        }
-    }
-
-    shortest_path.unwrap_or_default()
-}
-
-fn get_shortest_dir_paths_from_dir_path(
-    dir_keypad_path: &VecDeque<Move>,
-    dir_keypad_graph_data: &GraphData,
+fn get_shortest_paths_for_code(
+    keypad_path: &VecDeque<Move>,
+    keypad_graph_data: &GraphData,
 ) -> Vec<VecDeque<Move>> {
-    let mut dir_keypad_path_with_initial_pos = dir_keypad_path.clone();
-    dir_keypad_path_with_initial_pos.push_front(Move {
-        pos: dir_keypad_graph_data.cache[&Some('A')],
+    let mut keypad_path_with_initial_pos = keypad_path.clone();
+    keypad_path_with_initial_pos.push_front(Move {
+        pos: keypad_graph_data.cache[&Some('A')],
         button: 'A',
     });
 
-    let mut all_path_segments: Vec<Vec<Vec<Move>>> = Vec::new();
-
-    for (start_dir_move, end_dir_move) in dir_keypad_path_with_initial_pos.iter().tuple_windows() {
-        let start_dir_move_pos = dir_keypad_graph_data.cache[&Some(start_dir_move.button)];
-        let end_dir_move_pos = dir_keypad_graph_data.cache[&Some(end_dir_move.button)];
-        let start_move = Move {
-            pos: start_dir_move_pos,
-            button: start_dir_move.button,
-        };
-        let end_move = Move {
-            pos: end_dir_move_pos,
-            button: end_dir_move.button,
-        };
-        let shortest_keypath_paths =
-            get_shortest_keypad_paths(&start_move, &end_move, dir_keypad_graph_data);
-        all_path_segments.push(shortest_keypath_paths);
-    }
-
-    // Generate all possible combinations
-    let mut result = vec![VecDeque::new()];
-    for paths in all_path_segments {
-        let mut new_result = Vec::new();
-        for base_path in result {
-            for path in &paths {
-                let mut combined = base_path.clone();
-                combined.extend(path.iter().cloned());
-                new_result.push(combined);
-            }
-        }
-        result = new_result;
-    }
-
-    result
-}
-
-fn print_keypad_path(path: &VecDeque<Move>) {
-    for m in path {
-        print!("{} ", m.button);
-    }
-    println!();
-}
-
-fn get_shortest_sequence_len(
-    code: &str,
-    num_keypad_graph_data: &GraphData,
-    num_dir_keypads: usize,
-    dir_keypad_cache_graph_data: &GraphData,
-) -> usize {
-    let code_with_initial_pos: String = format!("A{}", code);
     let mut all_num_keypad_paths: Vec<VecDeque<Move>> = vec![VecDeque::new()];
 
-    for (start_num_move_entry, end_num_move_entry) in code_with_initial_pos.chars().tuple_windows()
-    {
-        let start_num_move_pos = num_keypad_graph_data.cache[&Some(start_num_move_entry)];
-        let end_num_move_pos = num_keypad_graph_data.cache[&Some(end_num_move_entry)];
+    for (start_move, end_move) in keypad_path_with_initial_pos.iter().tuple_windows() {
+        let start_move_pos = keypad_graph_data.cache[&Some(start_move.button)];
+        let end_move_pos = keypad_graph_data.cache[&Some(end_move.button)];
         let start_move = Move {
-            pos: start_num_move_pos,
-            button: start_num_move_entry,
+            pos: start_move_pos,
+            button: start_move.button,
         };
         let end_move = Move {
-            pos: end_num_move_pos,
-            button: end_num_move_entry,
+            pos: end_move_pos,
+            button: end_move.button,
         };
         let shortest_keypad_paths =
-            get_shortest_keypad_paths(&start_move, &end_move, num_keypad_graph_data);
+            get_shortest_paths_for_move(&start_move, &end_move, keypad_graph_data);
 
         let mut new_paths = Vec::new();
         for base_path in all_num_keypad_paths {
@@ -371,45 +282,112 @@ fn get_shortest_sequence_len(
         all_num_keypad_paths = new_paths;
     }
 
-    for keypad_path in all_num_keypad_paths.iter() {
-        print_keypad_path(keypad_path);
-    }
-
-    // Find shortest path from all possibilities
-    let shortest_num_path = all_num_keypad_paths
-        .iter()
-        .min_by_key(|path| path.len())
-        .unwrap_or(&VecDeque::new())
-        .clone();
-
-    let dir_keypad_path =
-        get_dir_path_from_num_path(&shortest_num_path, &dir_keypad_cache_graph_data.cache);
-    println!(
-        "Dir keypad path len {:?} for code: {:?}",
-        dir_keypad_path.len(),
-        code
-    );
-    let mut next_dir_keypad_path = dir_keypad_path.clone();
-    for i in 0..num_dir_keypads {
-        let shortest_dir_keypad_paths = get_shortest_dir_paths_from_dir_path(
-            &next_dir_keypad_path,
-            dir_keypad_cache_graph_data,
-        );
-        next_dir_keypad_path = get_dir_path_from_dir_paths(
-            &shortest_dir_keypad_paths,
-            &dir_keypad_cache_graph_data.cache,
-        );
-        println!(
-            "Dir keypad {:?} path len {:?} for code: {:?}",
-            i,
-            next_dir_keypad_path.len(),
-            code
-        );
-    }
-    next_dir_keypad_path.len()
+    all_num_keypad_paths
 }
 
-fn get_sum_complexity(input_file: &str, num_dir_keypads: usize) -> usize {
+fn get_all_num_keypad_paths(code: &str, num_keypad_graph_data: &GraphData) -> Vec<VecDeque<Move>> {
+    let mut all_num_keypad_paths: Vec<VecDeque<Move>> = vec![VecDeque::new()];
+
+    for (start_num_move, end_num_move) in code.chars().tuple_windows() {
+        let start_num_move_pos = num_keypad_graph_data.cache[&Some(start_num_move)];
+        let end_num_move_pos = num_keypad_graph_data.cache[&Some(end_num_move)];
+        let start_move = Move {
+            pos: start_num_move_pos,
+            button: start_num_move,
+        };
+        let end_move = Move {
+            pos: end_num_move_pos,
+            button: end_num_move,
+        };
+        let shortest_keypad_paths =
+            get_shortest_paths_for_move(&start_move, &end_move, num_keypad_graph_data);
+
+        let mut new_num_keypad_paths = Vec::new();
+        for base_num_keypad_path in all_num_keypad_paths {
+            for path in &shortest_keypad_paths {
+                let mut combined = base_num_keypad_path.clone();
+                combined.extend(path.iter().cloned());
+                new_num_keypad_paths.push(combined);
+            }
+        }
+        all_num_keypad_paths = new_num_keypad_paths;
+    }
+
+    all_num_keypad_paths
+}
+
+fn get_all_full_dir_keypad_paths(
+    dir_keypad_path: &VecDeque<Move>,
+    num_dir_keypads: usize,
+    dir_keypad_graph_data: &GraphData,
+) -> Vec<VecDeque<Move>> {
+    let mut all_dir_keypad_paths: Vec<VecDeque<Move>> = vec![VecDeque::new()];
+
+    let shortest_dir_keypad_paths =
+        get_shortest_paths_for_code(&dir_keypad_path, dir_keypad_graph_data);
+
+    let mut new_dir_keypad_paths = Vec::new();
+    for base_dir_keypad_path in all_dir_keypad_paths {
+        for path in &shortest_dir_keypad_paths {
+            let mut combined = base_dir_keypad_path.clone();
+            combined.extend(path.iter().cloned());
+            new_dir_keypad_paths.push(combined);
+        }
+    }
+
+    for new_dir_keypad_path in &new_dir_keypad_paths {
+        print_keypad_path(&dir_keypad_path);
+        println!(
+            "Dir keypad path len {:?}",
+            dir_keypad_path.len()
+        );
+    }
+
+    vec![]
+}
+
+fn get_shortest_sequence_len(
+    code: &str,
+    num_keypad_graph_data: &GraphData,
+    num_dir_keypads: usize,
+    dir_keypad_graph_data: &GraphData,
+) -> usize {
+    let code_with_initial_pos: String = format!("A{}", code);
+
+    let all_num_keypad_paths =
+        get_all_num_keypad_paths(&code_with_initial_pos, num_keypad_graph_data);
+
+    let mut all_dir_keypath_paths = vec![VecDeque::new()];
+
+    for num_keypad_path in all_num_keypad_paths.iter() {
+        let dir_keypad_path =
+            get_dir_path_from_keypad_path(&num_keypad_path, &dir_keypad_graph_data.cache);
+        all_dir_keypath_paths.push(dir_keypad_path);
+    }
+
+    let mut all_full_dir_keypath_paths: Vec<VecDeque<Move>> = vec![VecDeque::new()];
+
+    for dir_keypad_path in &all_dir_keypath_paths {
+        print_keypad_path(&dir_keypad_path);
+        println!(
+            "Dir keypad path len {:?} for code: {:?}",
+            dir_keypad_path.len(),
+            code
+        );
+
+        let full_dir_keypath_paths = get_all_full_dir_keypad_paths(
+            &dir_keypad_path,
+            num_dir_keypads,
+            &dir_keypad_graph_data,
+        );
+
+        all_full_dir_keypath_paths.extend(full_dir_keypath_paths);
+    }
+
+    0
+}
+
+pub fn get_sum_complexity(input_file: &str, num_dir_keypads: usize) -> usize {
     let input = parse_input(input_file);
 
     let num_keypad: HashMap<(usize, usize), Option<char>> = build_num_keypad();
@@ -463,7 +441,12 @@ mod tests {
 
     #[test]
     fn test_get_sum_complexity_test02() {
-        assert_eq!(126384, get_sum_complexity("input/2024/day21_test02.txt", 2));
+        assert_eq!(1972, get_sum_complexity("input/2024/day21_test02.txt", 2));
+    }
+
+    #[test]
+    fn test_get_sum_complexity_test03() {
+        assert_eq!(58800, get_sum_complexity("input/2024/day21_test03.txt", 2));
     }
 
     #[test]
