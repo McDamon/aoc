@@ -324,50 +324,52 @@ fn get_shortest_sequence_len(
     let all_num_keypad_paths =
         get_all_num_keypad_paths(&code_with_initial_pos, num_keypad_graph_data);
 
-    let mut all_dir_keypath_paths = vec![];
+    let mut all_dir_keypad_paths = vec![];
 
     for num_keypad_path in all_num_keypad_paths.iter() {
         let dir_keypad_path =
             get_dir_path_from_keypad_path(&num_keypad_path, &dir_keypad_graph_data.cache);
-        all_dir_keypath_paths.push(dir_keypad_path);
+        all_dir_keypad_paths.push(dir_keypad_path);
     }
 
-    let mut all_full_dir_keypath_paths: Vec<VecDeque<Move>> = vec![VecDeque::new()];
-
-    for dir_keypad_path in &all_dir_keypath_paths {
-        let full_dir_keypath_paths =
-            get_all_dir_keypad_paths(&dir_keypad_path, &dir_keypad_graph_data);
-
-        all_full_dir_keypath_paths.extend(full_dir_keypath_paths);
-    }
+    populate_all_full_dir_keypad_paths(
+        num_dir_keypads as isize,
+        &mut all_dir_keypad_paths,
+        dir_keypad_graph_data,
+    );
 
     0
 }
 
-fn recursive_do_stuff(
-    t: usize,
-    num_dir_keypads: usize,
-    all_full_dir_keypath_paths: &mut Vec<VecDeque<Move>>,
+fn populate_all_full_dir_keypad_paths(
+    counter: isize,
+    all_full_dir_keypad_paths: &mut Vec<VecDeque<Move>>,
     dir_keypad_graph_data: &GraphData,
 ) {
-    for i in 1..num_dir_keypads {
-        if i == t {
-            // Do stuff
+    if counter >= 0 {
+        let mut new_full_dir_keypad_paths = Vec::new();
+        for dir_keypad_path in &*all_full_dir_keypad_paths {
+            let mut prepend_dir_keypad_path = dir_keypad_path.clone();
+            prepend_dir_keypad_path.push_front(Move {
+                pos: dir_keypad_graph_data.cache[&Some('A')],
+                button: 'A',
+            });
+            let full_dir_keypad_paths =
+                get_all_dir_keypad_paths(&prepend_dir_keypad_path, &dir_keypad_graph_data);
 
-            for dir_keypad_path in &all_full_dir_keypath_paths {
-                let full_dir_keypath_paths =
-                    get_all_dir_keypad_paths(&dir_keypad_path, &dir_keypad_graph_data);
-
-                all_full_dir_keypath_paths.extend(full_dir_keypath_paths);
-            }
-        } else {
-            recursive_do_stuff(
-                t,
-                num_dir_keypads,
-                all_full_dir_keypath_paths,
-                dir_keypad_graph_data,
-            );
+            new_full_dir_keypad_paths.extend(full_dir_keypad_paths);
         }
+
+        for path in &*new_full_dir_keypad_paths {
+            println!("Path of length {}: ", path.len());
+            print_keypad_path(path);
+        }
+
+        populate_all_full_dir_keypad_paths(
+            counter - 1,
+            &mut new_full_dir_keypad_paths,
+            dir_keypad_graph_data,
+        );
     }
 }
 pub fn get_sum_complexity(input_file: &str, num_dir_keypads: usize) -> usize {
@@ -430,6 +432,21 @@ mod tests {
     #[test]
     fn test_get_sum_complexity_test03() {
         assert_eq!(58800, get_sum_complexity("input/2024/day21_test03.txt", 2));
+    }
+
+    #[test]
+    fn test_get_sum_complexity_test04() {
+        assert_eq!(12172, get_sum_complexity("input/2024/day21_test04.txt", 2));
+    }
+    
+    #[test]
+    fn test_get_sum_complexity_test05() {
+        assert_eq!(29184, get_sum_complexity("input/2024/day21_test05.txt", 2));
+    }
+    
+    #[test]
+    fn test_get_sum_complexity_test06() {
+        assert_eq!(24256, get_sum_complexity("input/2024/day21_test06.txt", 2));
     }
 
     #[test]
