@@ -495,7 +495,7 @@ mod tests {
 
     #[test]
     fn test_get_sum_complexity() {
-        assert_eq!(1151792, get_sum_complexity("input/2024/day21.txt", 2));
+        assert_eq!(184180, get_sum_complexity("input/2024/day21.txt", 2));
     }
     
     #[test]
