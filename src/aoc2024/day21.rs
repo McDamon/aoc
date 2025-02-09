@@ -363,6 +363,11 @@ fn populate_all_full_dir_keypad_paths(
         for path in &*new_full_dir_keypad_paths {
             println!("Path of length {}: ", path.len());
             print_keypad_path(path);
+
+            let transformed_path = transform_dir_path(path, dir_keypad_graph_data);
+
+            println!("New path of length {}: ", path.len());
+            print_keypad_path(&transformed_path);
         }
 
         populate_all_full_dir_keypad_paths(
@@ -415,6 +420,33 @@ pub fn get_sum_complexity(input_file: &str, num_dir_keypads: usize) -> usize {
     sum_complexity
 }
 
+fn transform_dir_path(
+    dir_keypad_path: &VecDeque<Move>,
+    dir_keypad_graph_data: &GraphData,
+) -> VecDeque<Move> {
+    let mut new_dir_keypad_path: VecDeque<Move> = VecDeque::new();
+
+    for (start_dir_move, end_dir_move) in dir_keypad_path.iter().tuple_windows() {
+        if let Some(move_direction) = get_move_direction(*start_dir_move, *end_dir_move) {
+            new_dir_keypad_path.push_back(Move {
+                pos: dir_keypad_graph_data.cache[&Some(get_dir_move_entry(move_direction))],
+                button: get_dir_move_entry(move_direction),
+            });
+        } else {
+            new_dir_keypad_path.push_back(Move {
+                pos: dir_keypad_graph_data.cache[&Some('A')],
+                button: 'A',
+            });
+        }
+    }
+    new_dir_keypad_path.push_back(Move {
+        pos: dir_keypad_graph_data.cache[&Some('A')],
+        button: 'A',
+    });
+
+    new_dir_keypad_path
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -438,15 +470,20 @@ mod tests {
     fn test_get_sum_complexity_test04() {
         assert_eq!(12172, get_sum_complexity("input/2024/day21_test04.txt", 2));
     }
-    
+
     #[test]
     fn test_get_sum_complexity_test05() {
         assert_eq!(29184, get_sum_complexity("input/2024/day21_test05.txt", 2));
     }
-    
+
     #[test]
     fn test_get_sum_complexity_test06() {
         assert_eq!(24256, get_sum_complexity("input/2024/day21_test06.txt", 2));
+    }
+
+    #[test]
+    fn test_get_sum_complexity_test07() {
+        assert_eq!(0, get_sum_complexity("input/2024/day21_test07.txt", 2));
     }
 
     #[test]
