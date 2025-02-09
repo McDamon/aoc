@@ -497,4 +497,49 @@ mod tests {
     fn test_get_sum_complexity() {
         assert_eq!(1151792, get_sum_complexity("input/2024/day21.txt", 2));
     }
+    
+    #[test]
+    fn test_get_sum_complexity_part_two_test01() {
+        assert_eq!(0, get_sum_complexity("input/2024/day21_test01.txt", 25));
+    }
+
+    #[test]
+    fn test_get_sum_complexity_part_two_test02() {
+        assert_eq!(0, get_sum_complexity("input/2024/day21_test02.txt", 25));
+    }
+
+    #[test]
+    fn test_get_sum_complexity_part_two_test03() {
+        assert_eq!(0, get_sum_complexity("input/2024/day21_test03.txt", 25));
+    }
+
+    #[test]
+    fn test_get_sum_complexity_part_two_test04() {
+        assert_eq!(0, get_sum_complexity("input/2024/day21_test04.txt", 25));
+    }
+
+    #[test]
+    fn test_get_sum_complexity_part_two_test05() {
+        assert_eq!(0, get_sum_complexity("input/2024/day21_test05.txt", 25));
+    }
+
+    #[test]
+    fn test_get_sum_complexity_part_two_test06() {
+        assert_eq!(0, get_sum_complexity("input/2024/day21_test06.txt", 25));
+    }
+
+    #[test]
+    fn test_get_sum_complexity_part_two_test07() {
+        assert_eq!(0, get_sum_complexity("input/2024/day21_test07.txt", 25));
+    }
+
+    #[test]
+    fn test_get_sum_complexity_part_two_test08() {
+        assert_eq!(0, get_sum_complexity("input/2024/day21_test08.txt", 25));
+    }
+
+    #[test]
+    fn test_get_sum_complexity_part_two() {
+        assert_eq!(0, get_sum_complexity("input/2024/day21.txt", 25));
+    }
 }
