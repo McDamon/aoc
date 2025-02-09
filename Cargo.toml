@@ -19,5 +19,5 @@ petgraph = "0.7.1"
 regex = "1.11.1"
 stacker = "0.1.17"
 
-#[profile.test]
-#inherits = "release"
+[profile.test]
+inherits = "release"

@@ -188,11 +188,19 @@ pub fn get_all_paths<T>(
     end_idx: NodeIndex,
 ) -> Vec<Vec<NodeIndex>> {
     let mut parents: HashMap<NodeIndex, Vec<NodeIndex>> = HashMap::new();
-    for node in graph.node_indices() {
+    
+    // Initialize parents map with sorted node indices
+    let mut nodes: Vec<_> = graph.node_indices().collect();
+    nodes.sort();
+    for node in nodes {
         parents.insert(node, vec![]);
     }
 
-    for edge in graph.edge_indices() {
+    // Collect and sort edges before processing
+    let mut edges: Vec<_> = graph.edge_indices().collect();
+    edges.sort();
+    
+    for edge in edges {
         let (source, target) = graph.edge_endpoints(edge).unwrap();
         let weight = graph.edge_weight(edge).unwrap();
 
@@ -200,7 +208,9 @@ pub fn get_all_paths<T>(
             && let Some(&target_cost) = node_costs.get(&target)
             && target_cost == source_cost + weight
         {
-            parents.get_mut(&target).unwrap().push(source);
+            let parent_vec = parents.get_mut(&target).unwrap();
+            parent_vec.push(source);
+            parent_vec.sort(); // Sort parents for deterministic order
         }
     }
 
@@ -213,7 +223,11 @@ pub fn get_all_paths<T>(
             correct_order_path.reverse();
             all_paths.push(correct_order_path);
         } else {
-            for &parent in &parents[&node] {
+            // Get sorted parents for deterministic processing
+            let mut sorted_parents: Vec<_> = parents[&node].iter().collect();
+            sorted_parents.sort();
+            
+            for &parent in sorted_parents {
                 let mut new_path = path.clone();
                 new_path.push(parent);
                 stack.push((parent, new_path));
@@ -221,6 +235,8 @@ pub fn get_all_paths<T>(
         }
     }
 
+    // Sort final paths for consistent output
+    all_paths.sort();
     all_paths
 }
 
