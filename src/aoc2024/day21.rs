@@ -1,5 +1,20 @@
 // https://adventofcode.com/2024/day/21
 
+// Hint
+
+/*
+
+You can construct for each robot (starting from the last one down the line) a table saying how many keypresses it needs to go from key a to key b (always put in there the minimum).
+Your table can look something like this :
+
+HashMap<(usize, char, char), usize>
+           ^      ^     ^      ^
+          robot key a  key b  min moves
+For first robot it's straighforward, and for the others each robot down the line you can compute their table based on the previous robot down the line by taking the move that is minimized for a sequence.
+This approach will scale well for part 2 (no spoilers)
+
+*/
+
 use std::{
     collections::{HashMap, HashSet, VecDeque},
     vec,
@@ -372,10 +387,7 @@ fn transform_dir_keypad_paths(
             dir_keypad_graph_data,
         )
     } else {
-        all_dir_keypad_paths
-        .iter()
-        .map(|path| path.len())
-        .collect()
+        all_dir_keypad_paths.iter().map(|path| path.len()).collect()
     }
 }
 
@@ -497,7 +509,7 @@ mod tests {
     fn test_get_sum_complexity() {
         assert_eq!(184180, get_sum_complexity("input/2024/day21.txt", 2));
     }
-    
+
     #[test]
     fn test_get_sum_complexity_part_two_test01() {
         assert_eq!(0, get_sum_complexity("input/2024/day21_test01.txt", 25));
