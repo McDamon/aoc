@@ -1,20 +1,5 @@
 // https://adventofcode.com/2024/day/21
 
-// Hint
-
-/*
-
-You can construct for each robot (starting from the last one down the line) a table saying how many keypresses it needs to go from key a to key b (always put in there the minimum).
-Your table can look something like this :
-
-HashMap<(usize, char, char), usize>
-           ^      ^     ^      ^
-          robot key a  key b  min moves
-For first robot it's straighforward, and for the others each robot down the line you can compute their table based on the previous robot down the line by taking the move that is minimized for a sequence.
-This approach will scale well for part 2 (no spoilers)
-
-*/
-
 use std::{
     collections::{HashMap, HashSet, VecDeque},
     vec,
@@ -33,6 +18,14 @@ struct Move {
     pos: (usize, usize),
     button: char,
 }
+
+struct MoveCacheEntry {
+    robot: usize,
+    key_a: usize,
+    key_b: usize,
+}
+
+type MoveCache = HashMap<MoveCacheEntry, usize>;
 
 struct Input {
     codes: Vec<String>,
@@ -328,34 +321,6 @@ fn get_all_dir_keypad_paths(
     all_dir_keypad_paths
 }
 
-fn get_shortest_sequence_len(
-    code: &str,
-    num_keypad_graph_data: &GraphData,
-    num_dir_keypads: usize,
-    dir_keypad_graph_data: &GraphData,
-) -> usize {
-    let code_with_initial_pos: String = format!("A{}", code);
-
-    let all_num_keypad_paths =
-        get_all_num_keypad_paths(&code_with_initial_pos, num_keypad_graph_data);
-
-    let mut all_dir_keypad_paths = vec![];
-
-    for num_keypad_path in all_num_keypad_paths.iter() {
-        let dir_keypad_path =
-            get_dir_path_from_keypad_path(&num_keypad_path, &dir_keypad_graph_data.cache);
-        all_dir_keypad_paths.push(dir_keypad_path);
-    }
-
-    let path_lens = transform_dir_keypad_paths(
-        num_dir_keypads as isize,
-        &mut all_dir_keypad_paths,
-        dir_keypad_graph_data,
-    );
-
-    *path_lens.iter().min().unwrap()
-}
-
 fn transform_dir_keypad_paths(
     counter: isize,
     all_dir_keypad_paths: &Vec<VecDeque<Move>>,
@@ -416,6 +381,34 @@ fn transform_dir_path(
     });
 
     new_dir_keypad_path
+}
+
+fn get_shortest_sequence_len(
+    code: &str,
+    num_keypad_graph_data: &GraphData,
+    num_dir_keypads: usize,
+    dir_keypad_graph_data: &GraphData,
+) -> usize {
+    let code_with_initial_pos: String = format!("A{}", code);
+
+    let all_num_keypad_paths =
+        get_all_num_keypad_paths(&code_with_initial_pos, num_keypad_graph_data);
+
+    let mut all_dir_keypad_paths = vec![];
+
+    for num_keypad_path in all_num_keypad_paths.iter() {
+        let dir_keypad_path =
+            get_dir_path_from_keypad_path(&num_keypad_path, &dir_keypad_graph_data.cache);
+        all_dir_keypad_paths.push(dir_keypad_path);
+    }
+
+    let path_lens = transform_dir_keypad_paths(
+        num_dir_keypads as isize,
+        &mut all_dir_keypad_paths,
+        dir_keypad_graph_data,
+    );
+
+    *path_lens.iter().min().unwrap()
 }
 
 pub fn get_sum_complexity(input_file: &str, num_dir_keypads: usize) -> usize {
