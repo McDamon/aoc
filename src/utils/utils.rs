@@ -188,7 +188,7 @@ pub fn get_all_paths<T>(
     end_idx: NodeIndex,
 ) -> Vec<Vec<NodeIndex>> {
     let mut parents: HashMap<NodeIndex, Vec<NodeIndex>> = HashMap::new();
-    
+
     // Initialize parents map with sorted node indices
     let mut nodes: Vec<_> = graph.node_indices().collect();
     nodes.sort();
@@ -199,7 +199,7 @@ pub fn get_all_paths<T>(
     // Collect and sort edges before processing
     let mut edges: Vec<_> = graph.edge_indices().collect();
     edges.sort();
-    
+
     for edge in edges {
         let (source, target) = graph.edge_endpoints(edge).unwrap();
         let weight = graph.edge_weight(edge).unwrap();
@@ -226,7 +226,7 @@ pub fn get_all_paths<T>(
             // Get sorted parents for deterministic processing
             let mut sorted_parents: Vec<_> = parents[&node].iter().collect();
             sorted_parents.sort();
-            
+
             for &parent in sorted_parents {
                 let mut new_path = path.clone();
                 new_path.push(parent);

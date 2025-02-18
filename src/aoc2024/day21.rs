@@ -7,11 +7,12 @@ use std::{
 
 use itertools::Itertools;
 use petgraph::{
-    Graph, algo,
+    algo,
     graph::{DiGraph, NodeIndex},
+    Graph,
 };
 
-use crate::utils::{Direction, get_all_paths, get_lines};
+use crate::utils::{get_all_paths, get_lines, Direction};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct Move {
