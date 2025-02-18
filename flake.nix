@@ -60,6 +60,7 @@
           inputsFrom = [ rustPackage ];
 
           buildInputs = with pkgs; [
+            cargo-flamegraph
             clippy
             just
             lldb_19

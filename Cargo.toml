@@ -21,3 +21,6 @@ stacker = "0.1.18"
 
 #[profile.test]
 #inherits = "release"
+
+[profile.release]
+debug = true
