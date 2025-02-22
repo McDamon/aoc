@@ -230,8 +230,10 @@ fn build_move_cache(
                     let paths =
                         get_shortest_paths_for_move(&start_move, &end_move, keypad_graph_data);
 
-                    let dir_paths: Vec<Vec<Button>> =
-                        paths.iter().map(get_dir_path_from_keypad_path).collect();
+                    let dir_paths: Vec<Vec<Button>> = paths
+                        .iter()
+                        .map(|path| get_dir_path_from_keypad_path(path))
+                        .collect();
 
                     move_cache.insert((start_move, end_move), dir_paths);
                 }
