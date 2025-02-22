@@ -4,12 +4,11 @@ use std::collections::HashMap;
 
 use itertools::Itertools;
 use petgraph::{
-    algo,
+    Graph, algo,
     graph::{DiGraph, NodeIndex},
-    Graph,
 };
 
-use crate::utils::{get_all_paths, get_lines, Direction};
+use crate::utils::{Direction, get_all_paths, get_lines};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum Button {
@@ -259,6 +258,38 @@ fn build_path_cache(
     path_cache
 }
 
+fn build_keypad_seq(
+    keys: &[Button],
+    index: usize,
+    prev_key: Button,
+    curr_path: &Vec<Button>,
+    keypad_path_cache: &HashMap<(Button, Button), Vec<Vec<Button>>>,
+) -> Vec<Vec<Button>> {
+    let mut result_path = vec![];
+
+    if index == keys.len() {
+        result_path.push(curr_path.clone());
+        return result_path;
+    }
+
+    let curr_key = keys[index];
+    let paths = &keypad_path_cache[&(prev_key, curr_key)];
+    for path in paths {
+        let mut new_path = curr_path.clone();
+        new_path.extend(path.iter().cloned());
+        new_path.push(Button::Activate);
+        result_path.extend(build_keypad_seq(
+            keys,
+            index + 1,
+            curr_key,
+            &new_path,
+            keypad_path_cache,
+        ));
+    }
+
+    result_path
+}
+
 fn get_shortest_sequence_len(
     code: &str,
     num_dir_keypads: usize,
@@ -268,7 +299,14 @@ fn get_shortest_sequence_len(
 
     let paths = &keypad_path_cache[&(Button::Seven, Button::Zero)];
 
-    println!("{:?}", paths);
+    let mut curr_path = vec![];
+    let result_path = build_keypad_seq(
+        &vec![Button::Left, Button::Activate],
+        0,
+        Button::Activate,
+        &mut curr_path,
+        &keypad_path_cache,
+    );
 
     0
 }
