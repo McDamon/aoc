@@ -60,10 +60,10 @@
           inputsFrom = [ rustPackage ];
 
           buildInputs = with pkgs; [
+            cargo-flamegraph
             clippy
             just
-            lldb_19
-            python312Packages.datetime # for some reason we need this for lldb_19 formatters
+            lldb
             treefmtConfig.config.build.wrapper
           ];
         };

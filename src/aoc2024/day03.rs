@@ -3,7 +3,7 @@
 use regex::Regex;
 use std::fs;
 
-fn get_sum_mul(input_file: &str) -> u32 {
+pub fn get_sum_mul(input_file: &str) -> u32 {
     lazy_static! {
         static ref RE_MUL: Regex =
             Regex::new(r"(?P<operation>mul)\((?P<left>\d*),(?P<right>\d*)\)").unwrap();
@@ -23,7 +23,7 @@ fn get_sum_mul(input_file: &str) -> u32 {
     sum_mul
 }
 
-fn get_sum_mul_cond(input_file: &str) -> u32 {
+pub fn get_sum_mul_cond(input_file: &str) -> u32 {
     lazy_static! {
         static ref RE_MUL_COND: Regex =
             Regex::new(r"(?P<operation>mul\((?P<left>\d*),(?P<right>\d*)\))|(?P<enable>do\(\))|(?P<disable>don't\(\))").unwrap();

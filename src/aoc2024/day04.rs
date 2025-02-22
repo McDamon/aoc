@@ -31,12 +31,6 @@ fn parse_input(input_file: &str) -> Input {
     }
 }
 
-fn print_grid(search_grid: &Vec<Vec<char>>) {
-    for row in search_grid {
-        let _: String = row.iter().collect();
-    }
-}
-
 fn min_row_index(row_index: usize) -> usize {
     if row_index as i32 - 1 < 0 {
         0
@@ -186,7 +180,7 @@ fn trace_xmas(
     }
 }
 
-fn get_sum_xmas(input_file: &str) -> u32 {
+pub fn get_sum_xmas(input_file: &str) -> u32 {
     let input = parse_input(input_file);
 
     let mut sum_xmas = 0;
@@ -262,7 +256,7 @@ fn check_next_in_x_mas_seq(
     None
 }
 
-fn get_sum_x_mas(input_file: &str) -> u32 {
+pub fn get_sum_x_mas(input_file: &str) -> u32 {
     let input = parse_input(input_file);
 
     let mut sum_x_mas = 0;

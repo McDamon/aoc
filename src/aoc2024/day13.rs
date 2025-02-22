@@ -78,7 +78,7 @@ fn parse_prize(prize: &str) -> GamePosition {
     }
 }
 
-fn get_fewest_tokens(input_file: &str, pos_inc: usize) -> usize {
+pub fn get_fewest_tokens(input_file: &str, pos_inc: usize) -> usize {
     let input = parse_input(input_file);
 
     input

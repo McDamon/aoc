@@ -17,7 +17,10 @@ lazy_static = "1.5.0"
 nalgebra = "0.33.2"
 petgraph = "0.7.1"
 regex = "1.11.1"
-stacker = "0.1.17"
+stacker = "0.1.19"
 
-[profile.test]
-inherits = "release"
+#[profile.test]
+#inherits = "release"
+
+#[profile.release]
+#debug = true

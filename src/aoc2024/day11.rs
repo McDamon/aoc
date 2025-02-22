@@ -51,7 +51,7 @@ fn get_new_stones(stone: usize) -> Vec<usize> {
     new_stones
 }
 
-fn get_num_stones(input_file: &str, blinks: usize) -> usize {
+pub fn get_num_stones(input_file: &str, blinks: usize) -> usize {
     let input = parse_input(input_file);
 
     println!("Initial arrangement:");
@@ -110,7 +110,7 @@ fn count_stones(
     num_stones
 }
 
-fn get_num_stones_memoize(input_file: &str, blinks: usize) -> usize {
+pub fn get_num_stones_memoize(input_file: &str, blinks: usize) -> usize {
     let input = parse_input(input_file);
 
     /*println!("Initial arrangement:");

@@ -70,14 +70,14 @@ fn parse_input(input_file: &str) -> Input {
     Input { warehouse, moves }
 }
 
-fn print_warehouse(warehouse: &[Vec<char>]) {
+/*fn print_warehouse(warehouse: &[Vec<char>]) {
     for row in warehouse {
         for entry in row {
             print!("{}", entry);
         }
         println!();
     }
-}
+}*/
 
 fn get_next_move(move_pos: (usize, usize), move_dir: &MoveDir) -> (usize, usize) {
     let (move_x, move_y) = move_pos;
@@ -136,7 +136,7 @@ fn get_robot_pos(warehouse: &[Vec<char>]) -> (usize, usize) {
     panic!("Robot not found in the warehouse");
 }
 
-fn get_sum_gps(input_file: &str) -> u32 {
+pub fn get_sum_gps(input_file: &str) -> u32 {
     let input = parse_input(input_file);
 
     let mut warehouse = input.warehouse.clone();
@@ -343,7 +343,7 @@ fn make_moves(warehouse: &mut [Vec<char>], stored_moves: &[Move]) {
     }
 }
 
-fn get_sum_gps_wider(input_file: &str) -> u32 {
+pub fn get_sum_gps_wider(input_file: &str) -> u32 {
     let input = parse_input(input_file);
 
     let mut warehouse_wider = widen_warehouse(&input.warehouse);

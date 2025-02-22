@@ -44,7 +44,7 @@ fn parse_input(input_file: &str) -> Input {
     Input { track }
 }
 
-fn print_track(track: &HashMap<(usize, usize), char>) {
+/*fn print_track(track: &HashMap<(usize, usize), char>) {
     let max_x = track.keys().map(|(x, _)| *x).max().unwrap();
     let max_y = track.keys().map(|(_, y)| *y).max().unwrap();
 
@@ -58,7 +58,7 @@ fn print_track(track: &HashMap<(usize, usize), char>) {
         }
         println!();
     }
-}
+}*/
 
 fn build_graph(
     track: &HashMap<(usize, usize), char>,
@@ -215,7 +215,7 @@ fn get_cheats(
     cheats
 }
 
-fn get_num_cheats(
+pub fn get_num_cheats(
     input_file: &str,
     required_savings: usize,
     is_at_least: bool,

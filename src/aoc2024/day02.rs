@@ -34,7 +34,7 @@ fn is_all_adj_diff_in_limits(arr: &[i32]) -> bool {
     arr.iter().all(|elem| elem.abs() >= 1 && elem.abs() <= 3)
 }
 
-fn get_num_safe_reports(input_file: &str) -> u32 {
+pub fn get_num_safe_reports(input_file: &str) -> u32 {
     let input = parse_input(input_file);
 
     let mut num_safe_reports = 0;
@@ -60,7 +60,7 @@ fn get_num_safe_reports(input_file: &str) -> u32 {
     num_safe_reports
 }
 
-fn get_num_safe_reports_with_prob_damp(input_file: &str) -> u32 {
+pub fn get_num_safe_reports_with_prob_damp(input_file: &str) -> u32 {
     let input = parse_input(input_file);
 
     let mut num_safe_reports = 0;

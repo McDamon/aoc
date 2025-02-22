@@ -25,15 +25,6 @@ fn parse_input(input_file: &str) -> Input {
     Input { top_map }
 }
 
-fn print_top_map(top_map: &Vec<Vec<u32>>) {
-    for row in top_map {
-        for level in row {
-            print!("{:?}", level);
-        }
-        println!();
-    }
-}
-
 fn print_tree(tree: &ArenaTree<u32>) {
     for node in tree.arena.iter() {
         println!("Node: {:?}", node);
@@ -157,7 +148,7 @@ fn build_tree(
     }
 }
 
-fn get_sum_trailheads(input_file: &str) -> usize {
+pub fn get_sum_trailheads(input_file: &str) -> usize {
     let input = parse_input(input_file);
 
     let trailheads: Vec<(usize, usize)> = input
@@ -199,7 +190,7 @@ fn get_sum_trailheads(input_file: &str) -> usize {
     sum_trailheads
 }
 
-fn get_sum_trailhead_ratings(input_file: &str) -> usize {
+pub fn get_sum_trailhead_ratings(input_file: &str) -> usize {
     let input = parse_input(input_file);
 
     let trailheads: Vec<(usize, usize)> = input

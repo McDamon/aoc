@@ -1,9 +1,12 @@
 use std::{
+    collections::HashMap,
     error::Error,
     fs::File,
     io::{BufRead, BufReader},
     path::Path,
 };
+
+use petgraph::graph::NodeIndex;
 
 pub fn get_lines(input_file: &str) -> Vec<String> {
     let path = Path::new(input_file);
@@ -178,8 +181,69 @@ where
     }
 }
 
+pub fn get_all_paths<T>(
+    graph: &petgraph::Graph<T, f64>,
+    node_costs: &HashMap<NodeIndex, f64>,
+    start_idx: NodeIndex,
+    end_idx: NodeIndex,
+) -> Vec<Vec<NodeIndex>> {
+    let mut parents: HashMap<NodeIndex, Vec<NodeIndex>> = HashMap::new();
+
+    // Initialize parents map with sorted node indices
+    let mut nodes: Vec<_> = graph.node_indices().collect();
+    nodes.sort();
+    for node in nodes {
+        parents.insert(node, vec![]);
+    }
+
+    // Collect and sort edges before processing
+    let mut edges: Vec<_> = graph.edge_indices().collect();
+    edges.sort();
+
+    for edge in edges {
+        let (source, target) = graph.edge_endpoints(edge).unwrap();
+        let weight = graph.edge_weight(edge).unwrap();
+
+        if let Some(&source_cost) = node_costs.get(&source)
+            && let Some(&target_cost) = node_costs.get(&target)
+            && target_cost == source_cost + weight
+        {
+            let parent_vec = parents.get_mut(&target).unwrap();
+            parent_vec.push(source);
+            parent_vec.sort(); // Sort parents for deterministic order
+        }
+    }
+
+    let mut all_paths = vec![];
+    let mut stack = vec![(end_idx, vec![end_idx])];
+
+    while let Some((node, path)) = stack.pop() {
+        if node == start_idx {
+            let mut correct_order_path = path.clone();
+            correct_order_path.reverse();
+            all_paths.push(correct_order_path);
+        } else {
+            // Get sorted parents for deterministic processing
+            let mut sorted_parents: Vec<_> = parents[&node].iter().collect();
+            sorted_parents.sort();
+
+            for &parent in sorted_parents {
+                let mut new_path = path.clone();
+                new_path.push(parent);
+                stack.push((parent, new_path));
+            }
+        }
+    }
+
+    // Sort final paths for consistent output
+    all_paths.sort();
+    all_paths
+}
+
 #[cfg(test)]
 mod tests {
+    use petgraph::Graph;
+
     use super::*;
 
     #[test]
@@ -204,5 +268,71 @@ mod tests {
         assert_eq!(tree.size(), 5);
         assert_eq!(tree.edges(), 4);
         assert_eq!(tree.depth(tree_node_5), 4);
+    }
+
+    fn build_test_graph() -> (Graph<(), f64>, HashMap<NodeIndex, f64>) {
+        let mut graph = Graph::<(), f64>::new();
+        let mut costs = HashMap::new();
+
+        // Create a simple graph:
+        // A(0) -> B(1) -> C(2)
+        //    \-----------> D(3)
+        let a = graph.add_node(());
+        let b = graph.add_node(());
+        let c = graph.add_node(());
+        let d = graph.add_node(());
+
+        graph.add_edge(a, b, 1.0);
+        graph.add_edge(b, c, 1.0);
+        graph.add_edge(a, d, 2.0);
+
+        costs.insert(a, 0.0);
+        costs.insert(b, 1.0);
+        costs.insert(c, 2.0);
+        costs.insert(d, 2.0);
+
+        (graph, costs)
+    }
+
+    #[test]
+    fn test_single_path() {
+        let (graph, costs) = build_test_graph();
+        let a = NodeIndex::new(0);
+        let b = NodeIndex::new(1);
+
+        let paths = get_all_paths(&graph, &costs, a, b);
+        assert_eq!(paths.len(), 1);
+        assert_eq!(paths[0], vec![a, b]);
+    }
+
+    #[test]
+    fn test_multiple_paths() {
+        let (graph, costs) = build_test_graph();
+        let a = NodeIndex::new(0);
+        let d = NodeIndex::new(3);
+
+        let paths = get_all_paths(&graph, &costs, a, d);
+        assert_eq!(paths.len(), 1);
+        assert_eq!(paths[0], vec![a, d]);
+    }
+
+    #[test]
+    fn test_no_path() {
+        let (graph, costs) = build_test_graph();
+        let c = NodeIndex::new(2);
+        let a = NodeIndex::new(0);
+
+        let paths = get_all_paths(&graph, &costs, c, a);
+        assert_eq!(paths.len(), 0);
+    }
+
+    #[test]
+    fn test_same_node() {
+        let (graph, costs) = build_test_graph();
+        let a = NodeIndex::new(0);
+
+        let paths = get_all_paths(&graph, &costs, a, a);
+        assert_eq!(paths.len(), 1);
+        assert_eq!(paths[0], vec![a]);
     }
 }

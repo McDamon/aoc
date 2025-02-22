@@ -32,7 +32,7 @@ fn parse_input(input_file: &str) -> Input {
     }
 }
 
-fn get_total_distance(input_file: &str) -> u32 {
+pub fn get_total_distance(input_file: &str) -> u32 {
     let input = parse_input(input_file);
 
     let mut total_distance = 0;
@@ -46,7 +46,7 @@ fn get_total_distance(input_file: &str) -> u32 {
     total_distance
 }
 
-fn get_similarity_score(input_file: &str) -> u32 {
+pub fn get_similarity_score(input_file: &str) -> u32 {
     let input = parse_input(input_file);
 
     let mut similarity_score = 0;
