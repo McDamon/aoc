@@ -1,7 +1,5 @@
 // https://adventofcode.com/2024/day/7
 
-use std::iter::{self};
-
 use itertools::Itertools;
 
 use crate::utils::get_lines;
@@ -46,8 +44,7 @@ fn parse_input(input_file: &str) -> Input {
 fn is_valid_calibration_result(equation: &CalibrationEquation) -> bool {
     let operators = [Operator::Add, Operator::Multiply];
 
-    let operator_seqs: Vec<_> = iter::repeat(operators.iter())
-        .take(equation.terms.len())
+    let operator_seqs: Vec<_> = std::iter::repeat_n(operators.iter(), equation.terms.len())
         .multi_cartesian_product()
         .collect();
 
@@ -97,8 +94,7 @@ pub fn get_total_calibration_result(input_file: &str) -> u64 {
 
 fn is_valid_calibration_result_concat(equation: &CalibrationEquation) -> bool {
     let operators = [Operator::Add, Operator::Multiply, Operator::Concat];
-    let operator_seqs: Vec<_> = iter::repeat(operators.iter())
-        .take(equation.terms.len())
+    let operator_seqs: Vec<_> = std::iter::repeat_n(operators.iter(), equation.terms.len())
         .multi_cartesian_product()
         .collect();
 

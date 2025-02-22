@@ -1,9 +1,6 @@
 // https://adventofcode.com/2024/day/21
 
-use std::{
-    collections::{HashMap, HashSet, VecDeque},
-    vec,
-};
+use std::collections::HashMap;
 
 use itertools::Itertools;
 use petgraph::{
@@ -15,25 +12,35 @@ use petgraph::{
 use crate::utils::{get_all_paths, get_lines, Direction};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+enum Button {
+    Activate,
+    Zero,
+    One,
+    Two,
+    Three,
+    Four,
+    Five,
+    Six,
+    Seven,
+    Eight,
+    Nine,
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct Move {
     pos: (usize, usize),
-    button: char,
+    button: Button,
 }
-
-struct MoveCacheEntry {
-    robot: usize,
-    key_a: usize,
-    key_b: usize,
-}
-
-type MoveCache = HashMap<MoveCacheEntry, usize>;
 
 struct Input {
     codes: Vec<String>,
 }
 
 struct GraphData {
-    cache: HashMap<Option<char>, (usize, usize)>,
     graph: Graph<Move, f64>,
     node_indices: HashMap<Move, NodeIndex>,
 }
@@ -50,50 +57,50 @@ fn parse_input(input_file: &str) -> Input {
     Input { codes }
 }
 
-fn build_num_keypad() -> HashMap<(usize, usize), Option<char>> {
+fn build_num_keypad() -> HashMap<(usize, usize), Option<Button>> {
     let mut num_keypad = HashMap::new();
 
     // First column
-    num_keypad.insert((0, 0), Some('7'));
-    num_keypad.insert((0, 1), Some('4'));
-    num_keypad.insert((0, 2), Some('1'));
+    num_keypad.insert((0, 0), Some(Button::Seven));
+    num_keypad.insert((0, 1), Some(Button::Four));
+    num_keypad.insert((0, 2), Some(Button::One));
     num_keypad.insert((0, 3), None);
 
     // Second column
-    num_keypad.insert((1, 0), Some('8'));
-    num_keypad.insert((1, 1), Some('5'));
-    num_keypad.insert((1, 2), Some('2'));
-    num_keypad.insert((1, 3), Some('0'));
+    num_keypad.insert((1, 0), Some(Button::Eight));
+    num_keypad.insert((1, 1), Some(Button::Five));
+    num_keypad.insert((1, 2), Some(Button::Two));
+    num_keypad.insert((1, 3), Some(Button::Zero));
 
     // Third column
-    num_keypad.insert((2, 0), Some('9'));
-    num_keypad.insert((2, 1), Some('6'));
-    num_keypad.insert((2, 2), Some('3'));
-    num_keypad.insert((2, 3), Some('A'));
+    num_keypad.insert((2, 0), Some(Button::Nine));
+    num_keypad.insert((2, 1), Some(Button::Six));
+    num_keypad.insert((2, 2), Some(Button::Three));
+    num_keypad.insert((2, 3), Some(Button::Activate));
 
     num_keypad
 }
 
-fn build_dir_keypad() -> HashMap<(usize, usize), Option<char>> {
+fn build_dir_keypad() -> HashMap<(usize, usize), Option<Button>> {
     let mut dir_keypad = HashMap::new();
 
     // First column
     dir_keypad.insert((0, 0), None);
-    dir_keypad.insert((0, 1), Some('<'));
+    dir_keypad.insert((0, 1), Some(Button::Left));
 
     // Second column
-    dir_keypad.insert((1, 0), Some('^'));
-    dir_keypad.insert((1, 1), Some('v'));
+    dir_keypad.insert((1, 0), Some(Button::Up));
+    dir_keypad.insert((1, 1), Some(Button::Down));
 
     // Third column
-    dir_keypad.insert((2, 0), Some('A'));
-    dir_keypad.insert((2, 1), Some('>'));
+    dir_keypad.insert((2, 0), Some(Button::Activate));
+    dir_keypad.insert((2, 1), Some(Button::Right));
 
     dir_keypad
 }
 
 fn build_keypad_graph(
-    keypad: &HashMap<(usize, usize), Option<char>>,
+    keypad: &HashMap<(usize, usize), Option<Button>>,
 ) -> (Graph<Move, f64>, HashMap<Move, NodeIndex>) {
     // Create directed graph
     let mut graph = DiGraph::<Move, f64>::new();
@@ -111,10 +118,6 @@ fn build_keypad_graph(
                 };
                 let node_idx = graph.add_node(point);
                 node_indices.insert(point, node_idx);
-                /*println!(
-                    "Added node at ({}, {}) dir {:?} -> idx {:?}",
-                    x, y, dir, node_idx
-                );*/
             }
         }
     }
@@ -141,7 +144,6 @@ fn build_keypad_graph(
                     };
                     let next_idx = node_indices[&next_move];
                     graph.add_edge(node_idx, next_idx, 1.0);
-                    //println!("Added edge {:?} -> {:?}", graph[node_idx], graph[next_idx]);
                 }
             }
         }
@@ -150,30 +152,27 @@ fn build_keypad_graph(
     (graph, node_indices)
 }
 
-/*fn print_keypad(keypad: &HashMap<(usize, usize), Option<char>>) {
-    let max_x = keypad.keys().map(|(x, _)| *x).max().unwrap();
-    let max_y = keypad.keys().map(|(_, y)| *y).max().unwrap();
+fn get_shortest_paths_for_move(
+    start_move: &Move,
+    end_move: &Move,
+    keypad_graph_data: &GraphData,
+) -> Vec<Vec<Move>> {
+    let start_idx = keypad_graph_data.node_indices[start_move];
+    let end_idx = keypad_graph_data.node_indices[end_move];
 
-    for y in 0..=max_y {
-        for x in 0..=max_x {
-            if let Some(c) = keypad.get(&(x, y)) {
-                if let Some(c) = c {
-                    print!("{}", c)
-                } else {
-                    print!(" ")
-                }
-            }
-        }
-        println!();
-    }
+    let keypad_costs = algo::dijkstra(&keypad_graph_data.graph, start_idx, Some(end_idx), |e| {
+        *e.weight()
+    });
+    let all_paths = get_all_paths(&keypad_graph_data.graph, &keypad_costs, start_idx, end_idx);
+    all_paths
+        .iter()
+        .map(|path| {
+            path.iter()
+                .map(|&idx| keypad_graph_data.graph[idx])
+                .collect()
+        })
+        .collect()
 }
-
-fn print_keypad_path(path: &VecDeque<Move>) {
-    for m in path {
-        print!("{} ", m.button);
-    }
-    println!();
-}*/
 
 fn get_move_direction(start: Move, end: Move) -> Option<Direction> {
     let (start_x, start_y) = start.pos;
@@ -191,262 +190,123 @@ fn get_move_direction(start: Move, end: Move) -> Option<Direction> {
     }
 }
 
-fn get_dir_move_entry(direction: Direction) -> char {
+fn get_dir_move_entry(direction: Direction) -> Button {
     match direction {
-        Direction::N => '^',
-        Direction::S => 'v',
-        Direction::E => '>',
-        Direction::W => '<',
+        Direction::N => Button::Up,
+        Direction::S => Button::Down,
+        Direction::E => Button::Right,
+        Direction::W => Button::Left,
     }
 }
 
-fn get_dir_path_from_keypad_path(
-    keypad_path: &VecDeque<Move>,
-    dir_keypad_cache: &HashMap<Option<char>, (usize, usize)>,
-) -> VecDeque<Move> {
-    let mut new_dir_keypad_path: VecDeque<Move> = VecDeque::new();
+fn get_dir_path_from_keypad_path(keypad_path: &[Move]) -> Vec<Button> {
+    let mut new_dir_keypad_path: Vec<Button> = vec![];
     for (start_num_move, end_num_move) in keypad_path.iter().tuple_windows() {
         if let Some(move_direction) = get_move_direction(*start_num_move, *end_num_move) {
-            new_dir_keypad_path.push_back(Move {
-                pos: dir_keypad_cache[&Some(get_dir_move_entry(move_direction))],
-                button: get_dir_move_entry(move_direction),
-            });
-        } else {
-            new_dir_keypad_path.push_back(Move {
-                pos: dir_keypad_cache[&Some('A')],
-                button: 'A',
-            });
+            new_dir_keypad_path.push(get_dir_move_entry(move_direction));
         }
     }
-    new_dir_keypad_path.push_back(Move {
-        pos: dir_keypad_cache[&Some('A')],
-        button: 'A',
-    });
     new_dir_keypad_path
 }
 
-fn get_shortest_paths_for_move(
-    start_move: &Move,
-    end_move: &Move,
+fn build_move_cache(
+    keypad: &HashMap<(usize, usize), Option<Button>>,
     keypad_graph_data: &GraphData,
-) -> Vec<Vec<Move>> {
-    /*println!(
-        "Finding shortest path from {:?} to {:?}",
-        start_move, end_move
-    );*/
-    let start_idx = keypad_graph_data.node_indices[start_move];
-    let end_idx = keypad_graph_data.node_indices[end_move];
+) -> HashMap<(Move, Move), Vec<Vec<Button>>> {
+    let mut move_cache = HashMap::new();
 
-    let keypad_costs = algo::dijkstra(&keypad_graph_data.graph, start_idx, Some(end_idx), |e| {
-        *e.weight()
-    });
-    let all_paths = get_all_paths(&keypad_graph_data.graph, &keypad_costs, start_idx, end_idx);
-    /*for path in &all_paths {
-        println!("Path:");
-        for node_index in path.iter() {
-            println!("{:?}", keypad_graph_data.graph[*node_index]);
-        }
-    }*/
-    all_paths
-        .iter()
-        .map(|path| {
-            path.iter()
-                .map(|&idx| keypad_graph_data.graph[idx])
-                .collect()
-        })
-        .collect()
-}
+    for (&(x1, y1), &maybe_button1) in keypad.iter() {
+        if let Some(button1) = maybe_button1 {
+            for (&(x2, y2), &maybe_button2) in keypad.iter() {
+                if let Some(button2) = maybe_button2 {
+                    let start_move = Move {
+                        pos: (x1, y1),
+                        button: button1,
+                    };
+                    let end_move = Move {
+                        pos: (x2, y2),
+                        button: button2,
+                    };
+                    let paths =
+                        get_shortest_paths_for_move(&start_move, &end_move, keypad_graph_data);
 
-fn get_all_num_keypad_paths(code: &str, num_keypad_graph_data: &GraphData) -> Vec<VecDeque<Move>> {
-    let mut all_num_keypad_paths: Vec<VecDeque<Move>> = vec![VecDeque::new()];
+                    let dir_paths: Vec<Vec<Button>> =
+                        paths.iter().map(get_dir_path_from_keypad_path).collect();
 
-    for (start_num_move, end_num_move) in code.chars().tuple_windows() {
-        let start_num_move_pos = num_keypad_graph_data.cache[&Some(start_num_move)];
-        let end_num_move_pos = num_keypad_graph_data.cache[&Some(end_num_move)];
-        let start_move = Move {
-            pos: start_num_move_pos,
-            button: start_num_move,
-        };
-        let end_move = Move {
-            pos: end_num_move_pos,
-            button: end_num_move,
-        };
-        let shortest_keypad_paths =
-            get_shortest_paths_for_move(&start_move, &end_move, num_keypad_graph_data);
-
-        let mut new_num_keypad_paths = Vec::new();
-        for base_num_keypad_path in all_num_keypad_paths {
-            for path in &shortest_keypad_paths {
-                let mut combined = base_num_keypad_path.clone();
-                combined.extend(path.iter().cloned());
-                new_num_keypad_paths.push(combined);
+                    move_cache.insert((start_move, end_move), dir_paths);
+                }
             }
         }
-        all_num_keypad_paths = new_num_keypad_paths;
     }
 
-    all_num_keypad_paths
+    move_cache
 }
 
-fn get_all_dir_keypad_paths(
-    dir_keypad_path: &VecDeque<Move>,
-    dir_keypad_graph_data: &GraphData,
-) -> Vec<VecDeque<Move>> {
-    let mut all_dir_keypad_paths: Vec<VecDeque<Move>> = vec![VecDeque::new()];
+fn build_path_cache(
+    move_cache: &HashMap<(Move, Move), Vec<Vec<Button>>>,
+) -> HashMap<(Button, Button), Vec<Vec<Button>>> {
+    let mut path_cache = HashMap::new();
 
-    for (start_dir_move, end_dir_move) in dir_keypad_path.into_iter().tuple_windows() {
-        let start_dir_move_pos = dir_keypad_graph_data.cache[&Some(start_dir_move.button)];
-        let end_dir_move_pos = dir_keypad_graph_data.cache[&Some(end_dir_move.button)];
-        let start_move = Move {
-            pos: start_dir_move_pos,
-            button: start_dir_move.button,
-        };
-        let end_move = Move {
-            pos: end_dir_move_pos,
-            button: end_dir_move.button,
-        };
-        let shortest_keypad_paths =
-            get_shortest_paths_for_move(&start_move, &end_move, dir_keypad_graph_data);
-
-        let mut new_dir_keypad_paths = Vec::new();
-        for base_dir_keypad_path in all_dir_keypad_paths {
-            for path in &shortest_keypad_paths {
-                let mut combined = base_dir_keypad_path.clone();
-                combined.extend(path.iter().cloned());
-                new_dir_keypad_paths.push(combined);
-            }
-        }
-        all_dir_keypad_paths = new_dir_keypad_paths;
+    for (&(start_move, end_move), paths) in move_cache.iter() {
+        let start_button = start_move.button;
+        let end_button = end_move.button;
+        let button_paths = paths.iter().map(|path| path.to_vec()).collect();
+        path_cache.insert((start_button, end_button), button_paths);
     }
 
-    all_dir_keypad_paths
-}
-
-fn transform_dir_keypad_paths(
-    counter: isize,
-    all_dir_keypad_paths: &Vec<VecDeque<Move>>,
-    dir_keypad_graph_data: &GraphData,
-) -> HashSet<usize> {
-    if counter > 0 {
-        let mut untransformed_dir_keypad_paths = Vec::new();
-        for dir_keypad_path in all_dir_keypad_paths {
-            let mut prepend_dir_keypad_path = dir_keypad_path.clone();
-            prepend_dir_keypad_path.push_front(Move {
-                pos: dir_keypad_graph_data.cache[&Some('A')],
-                button: 'A',
-            });
-            let dir_keypad_paths =
-                get_all_dir_keypad_paths(&prepend_dir_keypad_path, &dir_keypad_graph_data);
-
-            untransformed_dir_keypad_paths.extend(dir_keypad_paths);
-        }
-
-        let mut transformed_dir_keypad_paths = Vec::new();
-        for path in &untransformed_dir_keypad_paths {
-            let transformed_path = transform_dir_path(path, dir_keypad_graph_data);
-            transformed_dir_keypad_paths.push(transformed_path);
-        }
-
-        transform_dir_keypad_paths(
-            counter - 1,
-            &transformed_dir_keypad_paths,
-            dir_keypad_graph_data,
-        )
-    } else {
-        all_dir_keypad_paths.iter().map(|path| path.len()).collect()
-    }
-}
-
-fn transform_dir_path(
-    dir_keypad_path: &VecDeque<Move>,
-    dir_keypad_graph_data: &GraphData,
-) -> VecDeque<Move> {
-    let mut new_dir_keypad_path: VecDeque<Move> = VecDeque::new();
-
-    for (start_dir_move, end_dir_move) in dir_keypad_path.iter().tuple_windows() {
-        if let Some(move_direction) = get_move_direction(*start_dir_move, *end_dir_move) {
-            new_dir_keypad_path.push_back(Move {
-                pos: dir_keypad_graph_data.cache[&Some(get_dir_move_entry(move_direction))],
-                button: get_dir_move_entry(move_direction),
-            });
-        } else {
-            new_dir_keypad_path.push_back(Move {
-                pos: dir_keypad_graph_data.cache[&Some('A')],
-                button: 'A',
-            });
-        }
-    }
-    new_dir_keypad_path.push_back(Move {
-        pos: dir_keypad_graph_data.cache[&Some('A')],
-        button: 'A',
-    });
-
-    new_dir_keypad_path
+    path_cache
 }
 
 fn get_shortest_sequence_len(
     code: &str,
-    num_keypad_graph_data: &GraphData,
     num_dir_keypads: usize,
-    dir_keypad_graph_data: &GraphData,
+    keypad_path_cache: &HashMap<(Button, Button), Vec<Vec<Button>>>,
 ) -> usize {
     let code_with_initial_pos: String = format!("A{}", code);
 
-    let all_num_keypad_paths =
-        get_all_num_keypad_paths(&code_with_initial_pos, num_keypad_graph_data);
+    let paths = &keypad_path_cache[&(Button::Seven, Button::Zero)];
 
-    let mut all_dir_keypad_paths = vec![];
+    println!("{:?}", paths);
 
-    for num_keypad_path in all_num_keypad_paths.iter() {
-        let dir_keypad_path =
-            get_dir_path_from_keypad_path(&num_keypad_path, &dir_keypad_graph_data.cache);
-        all_dir_keypad_paths.push(dir_keypad_path);
-    }
-
-    let path_lens = transform_dir_keypad_paths(
-        num_dir_keypads as isize,
-        &mut all_dir_keypad_paths,
-        dir_keypad_graph_data,
-    );
-
-    *path_lens.iter().min().unwrap()
+    0
 }
 
 pub fn get_sum_complexity(input_file: &str, num_dir_keypads: usize) -> usize {
     let input = parse_input(input_file);
 
-    let num_keypad: HashMap<(usize, usize), Option<char>> = build_num_keypad();
-    let dir_keypad: HashMap<(usize, usize), Option<char>> = build_dir_keypad();
-
-    let num_keypad_cache = num_keypad
-        .iter()
-        .map(|(k, v)| (*v, *k))
-        .collect::<HashMap<_, _>>();
-    let dir_keypad_cache = dir_keypad
-        .iter()
-        .map(|(k, v)| (*v, *k))
-        .collect::<HashMap<_, _>>();
+    let num_keypad: HashMap<(usize, usize), Option<Button>> = build_num_keypad();
+    let dir_keypad: HashMap<(usize, usize), Option<Button>> = build_dir_keypad();
 
     let (num_keypad_graph, num_keypad_node_indices) = build_keypad_graph(&num_keypad);
     let (dir_keypad_graph, dir_keypad_node_indices) = build_keypad_graph(&dir_keypad);
 
+    let num_keypad_move_cache = build_move_cache(
+        &num_keypad,
+        &GraphData {
+            graph: num_keypad_graph.clone(),
+            node_indices: num_keypad_node_indices.clone(),
+        },
+    );
+    let num_keypad_path_cache = build_path_cache(&num_keypad_move_cache);
+    let dir_keypad_move_cache = build_move_cache(
+        &dir_keypad,
+        &GraphData {
+            graph: dir_keypad_graph.clone(),
+            node_indices: dir_keypad_node_indices.clone(),
+        },
+    );
+    let dir_keypad_path_cache = build_path_cache(&dir_keypad_move_cache);
+
+    let keypad_path_cache = num_keypad_path_cache
+        .into_iter()
+        .chain(dir_keypad_path_cache)
+        .collect();
+
     let mut sum_complexity = 0;
 
     for code in input.codes {
-        let shortest_sequence_len = get_shortest_sequence_len(
-            &code,
-            &GraphData {
-                cache: num_keypad_cache.clone(),
-                graph: num_keypad_graph.clone(),
-                node_indices: num_keypad_node_indices.clone(),
-            },
-            num_dir_keypads,
-            &GraphData {
-                cache: dir_keypad_cache.clone(),
-                graph: dir_keypad_graph.clone(),
-                node_indices: dir_keypad_node_indices.clone(),
-            },
-        );
+        let shortest_sequence_len =
+            get_shortest_sequence_len(&code, num_dir_keypads, &keypad_path_cache);
         if let Ok(num_part) = code[0..code.len() - 1].parse::<usize>() {
             sum_complexity += shortest_sequence_len * num_part;
         }
