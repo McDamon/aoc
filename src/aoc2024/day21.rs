@@ -4,11 +4,12 @@ use std::collections::HashMap;
 
 use itertools::Itertools;
 use petgraph::{
-    Graph, algo,
+    algo,
     graph::{DiGraph, NodeIndex},
+    Graph,
 };
 
-use crate::utils::{Direction, get_all_paths, get_lines};
+use crate::utils::{get_all_paths, get_lines, Direction};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum Button {
@@ -262,21 +263,21 @@ fn build_keypad_seq(
     keys: &[Button],
     index: usize,
     prev_key: Button,
-    curr_path: &Vec<Button>,
+    curr_path: &[Button],
     keypad_path_cache: &HashMap<(Button, Button), Vec<Vec<Button>>>,
 ) -> Vec<Vec<Button>> {
     let mut result_path = vec![];
 
     if index == keys.len() {
-        result_path.push(curr_path.clone());
+        result_path.push(curr_path.to_vec());
         return result_path;
     }
 
     let curr_key = keys[index];
     let paths = &keypad_path_cache[&(prev_key, curr_key)];
     for path in paths {
-        let mut new_path = curr_path.clone();
-        new_path.extend(path.iter().cloned());
+        let mut new_path = curr_path.to_vec();
+        new_path.extend_from_slice(path);
         new_path.push(Button::Activate);
         result_path.extend(build_keypad_seq(
             keys,
@@ -290,28 +291,74 @@ fn build_keypad_seq(
     result_path
 }
 
-fn get_shortest_sequence_len(
-    code: &str,
-    num_dir_keypads: usize,
-    keypad_path_cache: &HashMap<(Button, Button), Vec<Vec<Button>>>,
-) -> usize {
-    let code_with_initial_pos: String = format!("A{}", code);
-
-    let paths = &keypad_path_cache[&(Button::Seven, Button::Zero)];
-
-    let mut curr_path = vec![];
-    let result_path = build_keypad_seq(
-        &vec![Button::Left, Button::Activate],
-        0,
-        Button::Activate,
-        &mut curr_path,
-        &keypad_path_cache,
-    );
-
-    0
+fn get_buttons_for_code(code: &str) -> Vec<Button> {
+    code.chars()
+        .map(|c| {
+            match c {
+                '0' => Some(Button::Zero),
+                '1' => Some(Button::One),
+                '2' => Some(Button::Two),
+                '3' => Some(Button::Three),
+                '4' => Some(Button::Four),
+                '5' => Some(Button::Five),
+                '6' => Some(Button::Six),
+                '7' => Some(Button::Seven),
+                '8' => Some(Button::Eight),
+                '9' => Some(Button::Nine),
+                'A' => Some(Button::Activate),
+                _ => panic!("Invalid button"),
+            }
+            .unwrap()
+        })
+        .collect()
 }
 
-pub fn get_sum_complexity(input_file: &str, num_dir_keypads: usize) -> usize {
+fn get_shortest_seq_len(
+    buttons: &[Button],
+    depth: usize,
+    keypad_path_cache: &HashMap<(Button, Button), Vec<Vec<Button>>>,
+    move_cache: &mut HashMap<(Vec<Button>, usize), usize>,
+) -> usize {
+    if depth == 0 {
+        return buttons.len();
+    }
+
+    if move_cache.contains_key(&((*buttons).to_vec(), depth)) {
+        return move_cache[&((*buttons).to_vec(), depth)];
+    }
+
+    let mut total = 0;
+
+    buttons
+        .split_inclusive(|&button| button == Button::Activate)
+        .for_each(|sub_buttons| {
+            let curr_path = vec![];
+            let result_paths = build_keypad_seq(
+                sub_buttons,
+                0,
+                Button::Activate,
+                &curr_path,
+                keypad_path_cache,
+            );
+
+            let shortest_seq_lens: Vec<usize> = result_paths
+                .iter()
+                .map(|result_path| {
+                    get_shortest_seq_len(result_path, depth - 1, keypad_path_cache, move_cache)
+                })
+                .collect();
+
+            if let Some(min_len) = shortest_seq_lens.into_iter().min() {
+                total += min_len;
+            }
+        });
+
+    move_cache.insert((buttons.to_vec(), depth), total);
+
+    total
+}
+
+pub fn get_sum_complexity(input_file: &str, depth: usize) -> usize {
     let input = parse_input(input_file);
 
     let num_keypad: HashMap<(usize, usize), Option<Button>> = build_num_keypad();
@@ -342,13 +389,16 @@ pub fn get_sum_complexity(input_file: &str, num_dir_keypads: usize) -> usize {
         .chain(dir_keypad_path_cache)
         .collect();
 
+    let mut move_cache: HashMap<(Vec<Button>, usize), usize> = HashMap::new();
+
     let mut sum_complexity = 0;
 
     for code in input.codes {
-        let shortest_sequence_len =
-            get_shortest_sequence_len(&code, num_dir_keypads, &keypad_path_cache);
+        let buttons = get_buttons_for_code(&code);
+        let shortest_seq_len =
+            get_shortest_seq_len(&buttons, depth, &keypad_path_cache, &mut move_cache);
         if let Ok(num_part) = code[0..code.len() - 1].parse::<usize>() {
-            sum_complexity += shortest_sequence_len * num_part;
+            sum_complexity += shortest_seq_len * num_part;
         }
     }
 
@@ -361,91 +411,115 @@ mod tests {
 
     #[test]
     fn test_get_sum_complexity_test01() {
-        assert_eq!(126384, get_sum_complexity("input/2024/day21_test01.txt", 2));
+        assert_eq!(126384, get_sum_complexity("input/2024/day21_test01.txt", 3));
     }
 
     #[test]
     fn test_get_sum_complexity_test02() {
-        assert_eq!(1972, get_sum_complexity("input/2024/day21_test02.txt", 2));
+        assert_eq!(1972, get_sum_complexity("input/2024/day21_test02.txt", 3));
     }
 
     #[test]
     fn test_get_sum_complexity_test03() {
-        assert_eq!(58800, get_sum_complexity("input/2024/day21_test03.txt", 2));
+        assert_eq!(58800, get_sum_complexity("input/2024/day21_test03.txt", 3));
     }
 
     #[test]
     fn test_get_sum_complexity_test04() {
-        assert_eq!(12172, get_sum_complexity("input/2024/day21_test04.txt", 2));
+        assert_eq!(12172, get_sum_complexity("input/2024/day21_test04.txt", 3));
     }
 
     #[test]
     fn test_get_sum_complexity_test05() {
-        assert_eq!(29184, get_sum_complexity("input/2024/day21_test05.txt", 2));
+        assert_eq!(29184, get_sum_complexity("input/2024/day21_test05.txt", 3));
     }
 
     #[test]
     fn test_get_sum_complexity_test06() {
-        assert_eq!(24256, get_sum_complexity("input/2024/day21_test06.txt", 2));
+        assert_eq!(24256, get_sum_complexity("input/2024/day21_test06.txt", 3));
     }
 
     #[test]
     fn test_get_sum_complexity_test07() {
-        assert_eq!(0, get_sum_complexity("input/2024/day21_test07.txt", 2));
+        assert_eq!(0, get_sum_complexity("input/2024/day21_test07.txt", 3));
     }
 
     #[test]
     fn test_get_sum_complexity_test08() {
-        assert_eq!(9990, get_sum_complexity("input/2024/day21_test08.txt", 2));
+        assert_eq!(9990, get_sum_complexity("input/2024/day21_test08.txt", 3));
     }
 
     #[test]
     fn test_get_sum_complexity() {
-        assert_eq!(184180, get_sum_complexity("input/2024/day21.txt", 2));
+        assert_eq!(184180, get_sum_complexity("input/2024/day21.txt", 3));
     }
 
     #[test]
     fn test_get_sum_complexity_part_two_test01() {
-        assert_eq!(0, get_sum_complexity("input/2024/day21_test01.txt", 25));
+        assert_eq!(
+            154115708116294,
+            get_sum_complexity("input/2024/day21_test01.txt", 26)
+        );
     }
 
     #[test]
     fn test_get_sum_complexity_part_two_test02() {
-        assert_eq!(0, get_sum_complexity("input/2024/day21_test02.txt", 25));
+        assert_eq!(
+            2379451789590,
+            get_sum_complexity("input/2024/day21_test02.txt", 26)
+        );
     }
 
     #[test]
     fn test_get_sum_complexity_part_two_test03() {
-        assert_eq!(0, get_sum_complexity("input/2024/day21_test03.txt", 25));
+        assert_eq!(
+            70797185862200,
+            get_sum_complexity("input/2024/day21_test03.txt", 26)
+        );
     }
 
     #[test]
     fn test_get_sum_complexity_part_two_test04() {
-        assert_eq!(0, get_sum_complexity("input/2024/day21_test04.txt", 25));
+        assert_eq!(
+            14543936021812,
+            get_sum_complexity("input/2024/day21_test04.txt", 26)
+        );
     }
 
     #[test]
     fn test_get_sum_complexity_part_two_test05() {
-        assert_eq!(0, get_sum_complexity("input/2024/day21_test05.txt", 25));
+        assert_eq!(
+            36838581189648,
+            get_sum_complexity("input/2024/day21_test05.txt", 26)
+        );
     }
 
     #[test]
     fn test_get_sum_complexity_part_two_test06() {
-        assert_eq!(0, get_sum_complexity("input/2024/day21_test06.txt", 25));
+        assert_eq!(
+            29556553253044,
+            get_sum_complexity("input/2024/day21_test06.txt", 26)
+        );
     }
 
     #[test]
     fn test_get_sum_complexity_part_two_test07() {
-        assert_eq!(0, get_sum_complexity("input/2024/day21_test07.txt", 25));
+        assert_eq!(0, get_sum_complexity("input/2024/day21_test07.txt", 26));
     }
 
     #[test]
     fn test_get_sum_complexity_part_two_test08() {
-        assert_eq!(0, get_sum_complexity("input/2024/day21_test08.txt", 25));
+        assert_eq!(
+            11835830901420,
+            get_sum_complexity("input/2024/day21_test08.txt", 26)
+        );
     }
 
     #[test]
     fn test_get_sum_complexity_part_two() {
-        assert_eq!(0, get_sum_complexity("input/2024/day21.txt", 25));
+        assert_eq!(
+            231309103124520,
+            get_sum_complexity("input/2024/day21.txt", 26)
+        );
     }
 }
