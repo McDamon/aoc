@@ -117,10 +117,8 @@ pub fn get_max_bananas(input_file: &str, level: usize) -> usize {
     let input = parse_input(input_file);
 
     let mut all_banana_price_seqs: HashSet<(isize, isize, isize, isize)> = HashSet::new();
-    let mut banana_price_seqs_with_prices_by_sec_num: HashMap<
-        usize,
-        Vec<BananaPriceSeqWithPrice>,
-    > = HashMap::new();
+    let mut banana_price_seqs_with_prices_by_sec_num: HashMap<usize, Vec<BananaPriceSeqWithPrice>> =
+        HashMap::new();
 
     for sec_num in &input.init_sec_nums {
         let banana_prices = get_all_sec_nums_ones(*sec_num, level);
