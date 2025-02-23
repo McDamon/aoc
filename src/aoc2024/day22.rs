@@ -1,7 +1,6 @@
 // https://adventofcode.com/2024/day/22
 
 use std::collections::{HashMap, HashSet};
-use itertools::Itertools;
 
 use crate::utils::get_lines;
 
@@ -93,29 +92,20 @@ fn get_banana_price_deltas(banana_prices: &[usize]) -> Vec<isize> {
 fn get_banana_price_seqs_with_prices(
     banana_prices: &[usize],
     banana_price_deltas: &[isize],
-) -> HashMap<(isize, isize, isize, isize), usize> {
-    let mut banana_price_seqs_with_prices = HashMap::new();
+) -> Vec<((isize, isize, isize, isize), usize)> {
+    let mut banana_price_seqs_with_prices = vec![];
 
-    let dedup_banana_prices: Vec<usize> = banana_prices
-        .iter()
-        .cloned()
-        .unique()
-        .collect();
-
-    for dedup_banana_price in dedup_banana_prices {
-        for (i, banana_price) in banana_prices.iter().enumerate() {
-            if *banana_price == dedup_banana_price && i >= 4 {
-                banana_price_seqs_with_prices.insert(
-                    (
-                        banana_price_deltas[i - 4],
-                        banana_price_deltas[i - 3],
-                        banana_price_deltas[i - 2],
-                        banana_price_deltas[i - 1],
-                    ),
-                    *banana_price,
-                );
-            }
+    for (i, banana_price) in banana_prices.iter().enumerate() {
+        if i < 4 {
+            continue;
         }
+        let banana_price_seq = (
+            banana_price_deltas[i - 4],
+            banana_price_deltas[i - 3],
+            banana_price_deltas[i - 2],
+            banana_price_deltas[i - 1],
+        );
+        banana_price_seqs_with_prices.push((banana_price_seq, *banana_price));
     }
 
     banana_price_seqs_with_prices
@@ -124,48 +114,40 @@ fn get_banana_price_seqs_with_prices(
 pub fn get_max_bananas(input_file: &str, level: usize) -> usize {
     let input = parse_input(input_file);
 
-    let mut all_banana_price_seqs_by_sec_num = HashMap::new();
-    let mut all_banana_price_seqs = HashSet::new();
-    let mut all_banana_price_seqs_with_prices = HashMap::new();
+    let mut all_banana_price_seqs: HashSet<(isize, isize, isize, isize)> = HashSet::new();
+    let mut banana_price_seqs_with_prices_by_sec_num: HashMap<
+        usize,
+        Vec<((isize, isize, isize, isize), usize)>,
+    > = HashMap::new();
 
     for sec_num in &input.init_sec_nums {
         let banana_prices = get_all_sec_nums_ones(*sec_num, level);
         let banana_price_deltas = get_banana_price_deltas(&banana_prices);
         let banana_price_seqs_with_prices =
             get_banana_price_seqs_with_prices(&banana_prices, &banana_price_deltas);
-        let banana_price_seqs: Vec<(isize, isize, isize, isize)> =
-            banana_price_seqs_with_prices.keys().cloned().collect();
-        all_banana_price_seqs_by_sec_num.insert(*sec_num, banana_price_seqs.clone());
-        all_banana_price_seqs.extend(banana_price_seqs);
-        all_banana_price_seqs_with_prices.insert(
-            *sec_num,
-            banana_price_seqs_with_prices.clone(),
-        );
+        all_banana_price_seqs.extend(banana_price_seqs_with_prices.iter().map(|(seq, _)| *seq));
+        banana_price_seqs_with_prices_by_sec_num.insert(*sec_num, banana_price_seqs_with_prices);
     }
 
-    let mut all_banana_price_seqs_with_max_bananas = HashMap::new();
+    let mut max_banana_prices = vec![];
 
     for banana_price_seq in &all_banana_price_seqs {
-        let mut max_bananas = 0;
+        let mut max_banana_price_for_seq = 0;
         for sec_num in &input.init_sec_nums {
-            if all_banana_price_seqs_by_sec_num[&sec_num].contains(&banana_price_seq) {
-                if let Some(all_banana_prices_seqs_for_sec_num) = all_banana_price_seqs_with_prices.get(&sec_num) {
-                    if let Some(banana_price_for_seq_num) = all_banana_prices_seqs_for_sec_num.get(banana_price_seq) {
-                        max_bananas += banana_price_for_seq_num;
-                    }
+            let banana_price_seqs_with_prices = banana_price_seqs_with_prices_by_sec_num
+                .get(sec_num)
+                .unwrap();
+            for (banana_price_seq_for_sec_num, banana_price) in banana_price_seqs_with_prices {
+                if banana_price_seq_for_sec_num == banana_price_seq {
+                    max_banana_price_for_seq += banana_price;
+                    break;
                 }
             }
         }
-        all_banana_price_seqs_with_max_bananas.insert(banana_price_seq, max_bananas);
+        max_banana_prices.push(max_banana_price_for_seq);
     }
 
-    let max_bananas = all_banana_price_seqs_with_max_bananas
-        .values()
-        .max()
-        .unwrap()
-        .clone();
-
-    max_bananas
+    *max_banana_prices.iter().max().unwrap()
 }
 
 #[cfg(test)]
@@ -187,12 +169,18 @@ mod tests {
 
     #[test]
     fn test_get_sum_sec_nums_test03() {
-        assert_eq!(18183557, get_sum_sec_nums("input/2024/day22_test04.txt", 2000));
+        assert_eq!(
+            18183557,
+            get_sum_sec_nums("input/2024/day22_test04.txt", 2000)
+        );
     }
 
     #[test]
     fn test_get_sum_sec_nums_test04() {
-        assert_eq!(8876699, get_sum_sec_nums("input/2024/day22_test05.txt", 2000));
+        assert_eq!(
+            8876699,
+            get_sum_sec_nums("input/2024/day22_test05.txt", 2000)
+        );
     }
 
     #[test]
@@ -254,7 +242,7 @@ mod tests {
     fn test_get_max_bananas_test05() {
         assert_eq!(12, get_max_bananas("input/2024/day22_test06.txt", 9));
     }
-    
+
     #[test]
     fn test_get_max_bananas() {
         assert_eq!(0, get_max_bananas("input/2024/day22.txt", 2000));
