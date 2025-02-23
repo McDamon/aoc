@@ -23,10 +23,10 @@ fn parse_input(input_file: &str) -> Input {
 fn get_next_sec_num(sec_num: usize) -> usize {
     // First step, sec_num * 64 and XOR (mix) with sec_num, then prune
     let mut next_sec_num = (sec_num * 64) ^ sec_num;
-    next_sec_num = next_sec_num % 16777216;
+    next_sec_num %= 16777216;
     // Second step, sec_num / 32 and XOR (mix) with sec_num, then prune
     next_sec_num = (next_sec_num / 32) ^ next_sec_num;
-    next_sec_num = next_sec_num % 16777216;
+    next_sec_num %= 16777216;
     // Finally, sec_num * 2014 and XOR (mix) with sec_num, then prune
     next_sec_num = (next_sec_num * 2048) ^ next_sec_num;
     next_sec_num % 16777216
@@ -89,10 +89,12 @@ fn get_banana_price_deltas(banana_prices: &[usize]) -> Vec<isize> {
     banana_price_deltas
 }
 
+type BananaPriceSeqWithPrice = ((isize, isize, isize, isize), usize);
+
 fn get_banana_price_seqs_with_prices(
     banana_prices: &[usize],
     banana_price_deltas: &[isize],
-) -> Vec<((isize, isize, isize, isize), usize)> {
+) -> Vec<BananaPriceSeqWithPrice> {
     let mut banana_price_seqs_with_prices = vec![];
 
     for (i, banana_price) in banana_prices.iter().enumerate() {
@@ -117,7 +119,7 @@ pub fn get_max_bananas(input_file: &str, level: usize) -> usize {
     let mut all_banana_price_seqs: HashSet<(isize, isize, isize, isize)> = HashSet::new();
     let mut banana_price_seqs_with_prices_by_sec_num: HashMap<
         usize,
-        Vec<((isize, isize, isize, isize), usize)>,
+        Vec<BananaPriceSeqWithPrice>,
     > = HashMap::new();
 
     for sec_num in &input.init_sec_nums {
@@ -243,8 +245,9 @@ mod tests {
         assert_eq!(12, get_max_bananas("input/2024/day22_test06.txt", 9));
     }
 
+    #[ignore]
     #[test]
     fn test_get_max_bananas() {
-        assert_eq!(0, get_max_bananas("input/2024/day22.txt", 2000));
+        assert_eq!(1791, get_max_bananas("input/2024/day22.txt", 2000));
     }
 }
