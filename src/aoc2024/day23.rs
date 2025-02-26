@@ -57,28 +57,59 @@ fn build_conn_graph(
     (graph, node_indices)
 }
 
-pub fn get_num_conn_start_t(input_file: &str) -> u32 {
+pub fn get_num_conn_start_t(input_file: &str) -> usize {
     let input = parse_input(input_file);
 
     let (graph, node_indices) = build_conn_graph(&input.conn_pairs);
 
-    let mut conn_comps = HashSet::<(String, String, String)>::new();
+    let mut conn_comp_pairs = HashSet::<(String, String)>::new();
+    let mut conn_comp_tuples = HashSet::<(String, String, String)>::new();
 
     for (comp1, ni1) in &node_indices {
         for (comp2, ni2) in &node_indices {
-            for (comp3, ni3) in &node_indices {
-                if *ni1 != *ni2 && *ni1 != *ni3 && *ni2 != *ni3 {
-                    if let Some(n1_to_n2) =
-                        astar(&graph, *ni1, |finish| finish == *ni2, |_| 1, |_| 0)
-                        && let Some(n1_to_n3) =
-                            astar(&graph, *ni1, |finish| finish == *ni3, |_| 1, |_| 0)
-                        && let Some(n2_to_n3) =
-                            astar(&graph, *ni2, |finish| finish == *ni3, |_| 1, |_| 0)
-                    {
-                        if n1_to_n2.0 == 1 && n1_to_n3.0 == 1 && n2_to_n3.0 == 1 {
-                            let mut conn_comp = vec![comp1, comp2, comp3];
-                            conn_comp.sort();
-                            conn_comps.insert((conn_comp[0].clone(), conn_comp[1].clone(), conn_comp[2].clone()));
+            let mut conn_comp = [comp1, comp2];
+            conn_comp.sort();
+
+            let conn_comp_tup = (conn_comp[0].clone(), conn_comp[1].clone());
+
+            if *ni1 != *ni2 && let Some(n1_to_n2) = astar(&graph, *ni1, |finish| finish == *ni2, |_| 1, |_| 0) && n1_to_n2.0 == 1 {
+                conn_comp_pairs.insert(conn_comp_tup);
+            }
+        }
+    }
+
+    for (comp1, ni1) in &node_indices {
+        for (comp2, ni2) in &node_indices {
+            let mut conn_comp12 = [comp1, comp2];
+            conn_comp12.sort();
+
+            let conn_comp_pair12 = (conn_comp12[0].clone(), conn_comp12[1].clone());
+
+            if conn_comp_pairs.contains(&conn_comp_pair12) {
+                for (comp3, ni3) in &node_indices {
+                    if *ni1 != *ni2 && *ni1 != *ni3 && *ni2 != *ni3 {
+                        let mut conn_comp13 = [comp1, comp3];
+                        conn_comp13.sort();
+
+                        let mut conn_comp23 = [comp2, comp3];
+                        conn_comp23.sort();
+
+                        let conn_comp_pair13 = (conn_comp13[0].clone(), conn_comp13[1].clone());
+
+                        let conn_comp_pair22 = (conn_comp23[0].clone(), conn_comp23[1].clone());
+
+                        if conn_comp_pairs.contains(&conn_comp_pair13) && conn_comp_pairs.contains(&conn_comp_pair22) && (comp1.starts_with("t")
+                                || comp2.starts_with("t") || comp3.starts_with("t")) {
+                            let mut conn_comp123 = [comp1, comp2, comp3];
+                            conn_comp123.sort();
+
+                            let conn_comp_tuple123 = (
+                                conn_comp123[0].clone(),
+                                conn_comp123[1].clone(),
+                                conn_comp123[2].clone(),
+                            );
+
+                            conn_comp_tuples.insert(conn_comp_tuple123);
                         }
                     }
                 }
@@ -86,15 +117,7 @@ pub fn get_num_conn_start_t(input_file: &str) -> u32 {
         }
     }
 
-    let mut num_conn_start_t = 0;
-
-    for (conn_comp1, conn_comp2, conn_comp3) in conn_comps {
-        if conn_comp1.starts_with("t") || conn_comp2.starts_with("t") || conn_comp3.starts_with("t") {
-            num_conn_start_t += 1;
-        }
-    }
-
-    num_conn_start_t
+    conn_comp_tuples.len()
 }
 
 #[cfg(test)]
@@ -108,6 +131,6 @@ mod tests {
 
     #[test]
     fn test_get_num_conn_start_t() {
-        assert_eq!(0, get_num_conn_start_t("input/2024/day23.txt"));
+        assert_eq!(1327, get_num_conn_start_t("input/2024/day23.txt"));
     }
 }
