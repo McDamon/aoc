@@ -223,6 +223,9 @@ mod tests {
 
     #[test]
     fn test_get_password() {
-        assert_eq!("df,kg,la,mp,pb,qh,sk,th,vn,ww,xp,yp,zk", get_password("input/2024/day23.txt"));
+        assert_eq!(
+            "df,kg,la,mp,pb,qh,sk,th,vn,ww,xp,yp,zk",
+            get_password("input/2024/day23.txt")
+        );
     }
 }
