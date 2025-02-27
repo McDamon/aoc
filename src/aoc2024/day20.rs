@@ -79,7 +79,7 @@ fn build_graph(
         }
     }
 
-    // Then a~dd all edges in a separate pass
+    // Then add all edges in a separate pass
     for (&(x, y), &c) in track.iter() {
         if c != '#' {
             for dir in Direction::all() {
