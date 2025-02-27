@@ -57,7 +57,7 @@ fn build_conn_graph(
     (graph, node_indices)
 }
 
-pub fn get_num_conn_start_t(input_file: &str) -> usize {
+pub fn get_num_conn_start_t_brute_force(input_file: &str) -> usize {
     let input = parse_input(input_file);
 
     let (graph, node_indices) = build_conn_graph(&input.conn_pairs);
@@ -72,7 +72,10 @@ pub fn get_num_conn_start_t(input_file: &str) -> usize {
 
             let conn_comp_tup = (conn_comp[0].clone(), conn_comp[1].clone());
 
-            if *ni1 != *ni2 && let Some(n1_to_n2) = astar(&graph, *ni1, |finish| finish == *ni2, |_| 1, |_| 0) && n1_to_n2.0 == 1 {
+            if *ni1 != *ni2
+                && let Some(n1_to_n2) = astar(&graph, *ni1, |finish| finish == *ni2, |_| 1, |_| 0)
+                && n1_to_n2.0 == 1
+            {
                 conn_comp_pairs.insert(conn_comp_tup);
             }
         }
@@ -98,8 +101,12 @@ pub fn get_num_conn_start_t(input_file: &str) -> usize {
 
                         let conn_comp_pair22 = (conn_comp23[0].clone(), conn_comp23[1].clone());
 
-                        if conn_comp_pairs.contains(&conn_comp_pair13) && conn_comp_pairs.contains(&conn_comp_pair22) && (comp1.starts_with("t")
-                                || comp2.starts_with("t") || comp3.starts_with("t")) {
+                        if conn_comp_pairs.contains(&conn_comp_pair13)
+                            && conn_comp_pairs.contains(&conn_comp_pair22)
+                            && (comp1.starts_with("t")
+                                || comp2.starts_with("t")
+                                || comp3.starts_with("t"))
+                        {
                             let mut conn_comp123 = [comp1, comp2, comp3];
                             conn_comp123.sort();
 
@@ -120,17 +127,102 @@ pub fn get_num_conn_start_t(input_file: &str) -> usize {
     conn_comp_tuples.len()
 }
 
+fn bron_kerbosch<F>(graph: &UnGraph<String, ()>, mut callback: F)
+where
+    F: FnMut(&[NodeIndex]),
+{
+    let mut r = Vec::new();
+    let mut p: Vec<NodeIndex> = graph.node_indices().collect();
+    let mut x = Vec::new();
+    bron_kerbosch_recursive(&graph, &mut r, &mut p, &mut x, &mut callback);
+}
+
+fn bron_kerbosch_recursive<F>(
+    graph: &UnGraph<String, ()>,
+    r: &mut Vec<NodeIndex>,
+    p: &mut Vec<NodeIndex>,
+    x: &mut Vec<NodeIndex>,
+    callback: &mut F,
+) where
+    F: FnMut(&[NodeIndex]),
+{
+    if p.is_empty() && x.is_empty() {
+        callback(r);
+    } else {
+        let p_clone = p.clone();
+        for v in p_clone.iter() {
+            r.push(*v);
+            let mut p_new = Vec::new();
+            let mut x_new = Vec::new();
+            for u in p.iter() {
+                if graph.contains_edge(*v, *u) {
+                    p_new.push(*u);
+                }
+            }
+            for u in x.iter() {
+                if graph.contains_edge(*v, *u) {
+                    x_new.push(*u);
+                }
+            }
+            bron_kerbosch_recursive(graph, r, &mut p_new, &mut x_new, callback);
+            r.pop();
+            p.retain(|u| u != v);
+            x.push(*v);
+        }
+    }
+}
+
+pub fn get_password(input_file: &str) -> String {
+    let input = parse_input(input_file);
+
+    let (graph, _node_indices) = build_conn_graph(&input.conn_pairs);
+
+    let mut cliques: Vec<Vec<NodeIndex>> = Vec::new();
+    bron_kerbosch(&graph, |clique| {
+        cliques.push(clique.iter().cloned().collect());
+    });
+
+    let mut password_vec: Vec<String> = vec![];
+
+    if let Some(max) = cliques.iter().max_by_key(|clique| clique.len()) {
+        for node_index in max {
+            password_vec.push(graph[*node_index].clone());
+        }
+    }
+
+    password_vec.sort();
+
+    password_vec.join(",")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn test_get_num_conn_start_t_test01() {
-        assert_eq!(7, get_num_conn_start_t("input/2024/day23_test01.txt"));
+        assert_eq!(
+            7,
+            get_num_conn_start_t_brute_force("input/2024/day23_test01.txt")
+        );
+    }
+
+    #[ignore]
+    #[test]
+    fn test_get_num_conn_start_t() {
+        assert_eq!(
+            1327,
+            get_num_conn_start_t_brute_force("input/2024/day23.txt")
+        );
     }
 
     #[test]
-    fn test_get_num_conn_start_t() {
-        assert_eq!(1327, get_num_conn_start_t("input/2024/day23.txt"));
+    fn test_get_password_test01() {
+        assert_eq!("co,de,ka,ta", get_password("input/2024/day23_test01.txt"));
+    }
+
+    #[test]
+    fn test_get_password() {
+        assert_eq!("df,kg,la,mp,pb,qh,sk,th,vn,ww,xp,yp,zk", get_password("input/2024/day23.txt"));
     }
 }
