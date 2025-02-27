@@ -134,7 +134,7 @@ where
     let mut r = Vec::new();
     let mut p: Vec<NodeIndex> = graph.node_indices().collect();
     let mut x = Vec::new();
-    bron_kerbosch_recursive(&graph, &mut r, &mut p, &mut x, &mut callback);
+    bron_kerbosch_recursive(graph, &mut r, &mut p, &mut x, &mut callback);
 }
 
 fn bron_kerbosch_recursive<F>(
@@ -179,7 +179,7 @@ pub fn get_password(input_file: &str) -> String {
 
     let mut cliques: Vec<Vec<NodeIndex>> = Vec::new();
     bron_kerbosch(&graph, |clique| {
-        cliques.push(clique.iter().cloned().collect());
+        cliques.push(clique.to_vec());
     });
 
     let mut password_vec: Vec<String> = vec![];
