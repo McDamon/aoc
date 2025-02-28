@@ -87,7 +87,6 @@ fn parse_input(input_file: &str) -> Input {
 }
 
 fn get_gate_result(gate: &Gate, wire1: usize, wire2: usize) -> usize {
-    
     match gate.op {
         Operation::And => wire1 & wire2,
         Operation::Or => wire1 | wire2,
