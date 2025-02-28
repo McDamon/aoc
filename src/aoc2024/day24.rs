@@ -2,6 +2,8 @@
 
 use std::collections::{HashMap, HashSet};
 
+use itertools::Itertools;
+
 use crate::utils::get_lines;
 
 struct Input {
@@ -9,14 +11,26 @@ struct Input {
     gates: Vec<Gate>,
 }
 
-#[derive(Debug, Clone)]
+impl Ord for GateCalc {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.gate.output_wire.cmp(&other.gate.output_wire)
+    }
+}
+
+impl PartialOrd for GateCalc {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+#[derive(Debug, Eq, PartialEq, Clone)]
 enum Operation {
     And,
     Or,
     Xor,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 struct Gate {
     input_wire1: String,
     input_wire2: String,
@@ -24,7 +38,7 @@ struct Gate {
     output_wire: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 struct GateCalc {
     gate: Gate,
     input_wire1_val: Option<usize>,
@@ -73,12 +87,20 @@ fn parse_input(input_file: &str) -> Input {
 }
 
 fn get_gate_result(gate: &Gate, wire1: usize, wire2: usize) -> usize {
-    let gate_result = match gate.op {
+    
+    match gate.op {
         Operation::And => wire1 & wire2,
         Operation::Or => wire1 | wire2,
         Operation::Xor => wire1 ^ wire2,
-    };
-    gate_result
+    }
+}
+
+fn bin_to_dec(binary_digits: &[usize]) -> usize {
+    binary_digits
+        .iter()
+        .rev()
+        .enumerate()
+        .fold(0, |acc, (i, &digit)| acc + (digit * 2_usize.pow(i as u32)))
 }
 
 pub fn get_z_decimal_num(input_file: &str) -> usize {
@@ -86,34 +108,97 @@ pub fn get_z_decimal_num(input_file: &str) -> usize {
 
     let mut done_gates = HashSet::new();
 
-    let gate_calcs: Vec<_> = input.gates.iter().map(|gate| {
-        let input_wire1_val = input.init_wires.get(&gate.input_wire1).copied();
-        let input_wire2_val = input.init_wires.get(&gate.input_wire2).copied();
-        let output_wire_val = match (input_wire1_val, input_wire2_val) {
-            (Some(wire1), Some(wire2)) => {
-                done_gates.insert(gate.output_wire.clone());
-                Some(get_gate_result(gate, wire1, wire2))
-            },
-            _ => None,
-        };
-        GateCalc {
-            gate: (*gate).clone(),
-            input_wire1_val,
-            input_wire2_val,
-            output_wire_val,
+    let gate_calcs: Vec<_> = input
+        .gates
+        .iter()
+        .map(|gate| {
+            let input_wire1_val = input.init_wires.get(&gate.input_wire1).copied();
+            let input_wire2_val = input.init_wires.get(&gate.input_wire2).copied();
+            let output_wire_val = match (input_wire1_val, input_wire2_val) {
+                (Some(wire1), Some(wire2)) => {
+                    done_gates.insert(gate.output_wire.clone());
+                    Some(get_gate_result(gate, wire1, wire2))
+                }
+                _ => None,
+            };
+            GateCalc {
+                gate: (*gate).clone(),
+                input_wire1_val,
+                input_wire2_val,
+                output_wire_val,
+            }
+        })
+        .collect();
+
+    loop {
+        for gate_calc in &gate_calcs {
+            if done_gates.contains(&gate_calc.gate.output_wire) {
+                continue;
+            }
+
+            let input_wire1_val = match gate_calc.input_wire1_val {
+                Some(val) => val,
+                None => {
+                    if done_gates.contains(&gate_calc.gate.input_wire1)
+                        && let Some(&input_wire_1) =
+                            input.init_wires.get(&gate_calc.gate.input_wire1)
+                    {
+                        input_wire_1
+                    } else {
+                        continue;
+                    }
+                }
+            };
+
+            let input_wire2_val = match gate_calc.input_wire2_val {
+                Some(val) => val,
+                None => {
+                    if done_gates.contains(&gate_calc.gate.input_wire2)
+                        && let Some(&input_wire_2) =
+                            input.init_wires.get(&gate_calc.gate.input_wire2)
+                    {
+                        input_wire_2
+                    } else {
+                        continue;
+                    }
+                }
+            };
+
+            let output_wire_val =
+                get_gate_result(&gate_calc.gate, input_wire1_val, input_wire2_val);
+            println!(
+                "Gate: {:?}, Input1: {:?}, Input2: {:?}, Output: {:?}",
+                gate_calc.gate, input_wire1_val, input_wire2_val, output_wire_val
+            );
+            done_gates.insert(gate_calc.gate.output_wire.clone());
         }
-    }).collect();
 
-    println!("Done gates: {:?}", done_gates);
+        if done_gates.len() == gate_calcs.len() {
+            break;
+        }
+    }
 
-    for gate_calc in gate_calcs {
+    for gate_calc in &gate_calcs {
         println!(
             "Gate: {:?}, Input1: {:?}, Input2: {:?}, Output: {:?}",
-            gate_calc.gate, gate_calc.input_wire1_val, gate_calc.input_wire2_val, gate_calc.output_wire_val
+            gate_calc.gate,
+            gate_calc.input_wire1_val,
+            gate_calc.input_wire2_val,
+            gate_calc.output_wire_val
         );
     }
 
-    0
+    let z_output_vals = gate_calcs
+        .iter()
+        .filter(|gate_calc| gate_calc.gate.output_wire.starts_with('z'))
+        .sorted()
+        .rev()
+        .map(|gate_calc| gate_calc.output_wire_val.unwrap())
+        .collect::<Vec<_>>();
+
+    println!("Z output vals: {:?}", z_output_vals);
+
+    bin_to_dec(&z_output_vals)
 }
 
 #[cfg(test)]
