@@ -112,9 +112,7 @@ pub fn get_z_decimal_num(input_file: &str) -> usize {
             let input_wire1_val = input.init_wires.get(&gate.input_wire1).copied();
             let input_wire2_val = input.init_wires.get(&gate.input_wire2).copied();
             let output_wire_val = match (input_wire1_val, input_wire2_val) {
-                (Some(wire1), Some(wire2)) => {
-                    Some(get_gate_result(gate, wire1, wire2))
-                }
+                (Some(wire1), Some(wire2)) => Some(get_gate_result(gate, wire1, wire2)),
                 _ => None,
             };
             (
@@ -142,29 +140,24 @@ pub fn get_z_decimal_num(input_file: &str) -> usize {
 
     loop {
         let mut updates = vec![];
-        for (_output_wire, gate_calc) in &gate_calcs {
+        for gate_calc in gate_calcs.values() {
             if gate_calc.output_wire_val.is_none() {
-                let input_wire1_val = gate_calc
-                    .input_wire1_val
-                    .or_else(|| {
-                        gate_calcs
-                            .get(&gate_calc.gate.input_wire1)
-                            .and_then(|gate_calc| gate_calc.output_wire_val)
-                    });
-                let input_wire2_val = gate_calc
-                    .input_wire2_val
-                    .or_else(|| {
-                        gate_calcs
-                            .get(&gate_calc.gate.input_wire2)
-                            .and_then(|gate_calc| gate_calc.output_wire_val)
-                    });
+                let input_wire1_val = gate_calc.input_wire1_val.or_else(|| {
+                    gate_calcs
+                        .get(&gate_calc.gate.input_wire1)
+                        .and_then(|gate_calc| gate_calc.output_wire_val)
+                });
+                let input_wire2_val = gate_calc.input_wire2_val.or_else(|| {
+                    gate_calcs
+                        .get(&gate_calc.gate.input_wire2)
+                        .and_then(|gate_calc| gate_calc.output_wire_val)
+                });
                 let output_wire_val = match (input_wire1_val, input_wire2_val) {
                     (Some(wire1), Some(wire2)) => {
                         Some(get_gate_result(&gate_calc.gate, wire1, wire2))
                     }
                     _ => None,
                 };
-
                 updates.push((gate_calc.gate.output_wire.clone(), output_wire_val));
             }
         }
@@ -174,15 +167,12 @@ pub fn get_z_decimal_num(input_file: &str) -> usize {
         }
 
         for (output_wire, output_wire_val) in updates {
-            gate_calcs
-                .get_mut(&output_wire)
-                .unwrap()
-                .output_wire_val = output_wire_val;
+            gate_calcs.get_mut(&output_wire).unwrap().output_wire_val = output_wire_val;
         }
     }
 
     println!("POST UPDATE GATE CALCS");
-    for (_output_wire, gate_calc) in &gate_calcs {
+    for gate_calc in gate_calcs.values() {
         println!(
             "Gate: {:?}, Input1: {:?}, Input2: {:?}, Output: {:?}",
             gate_calc.gate,
