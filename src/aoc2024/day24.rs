@@ -211,6 +211,6 @@ mod tests {
 
     #[test]
     fn test_get_z_decimal_num_() {
-        assert_eq!(0, get_z_decimal_num("input/2024/day24.txt"));
+        assert_eq!(65635066541798, get_z_decimal_num("input/2024/day24.txt"));
     }
 }
