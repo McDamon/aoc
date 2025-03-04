@@ -177,8 +177,6 @@ fn get_gate_calcs(input: &Input) -> HashMap<String, GateCalc> {
 }
 
 fn get_z_output_vals(gate_calcs: &HashMap<String, GateCalc>) -> Vec<bool> {
-    
-
     gate_calcs
         .iter()
         .filter(|(_output_wire, gate_calc)| gate_calc.gate.output_wire.starts_with('z'))
@@ -210,7 +208,14 @@ pub fn get_z_decimal_num(input_file: &str) -> usize {
     bin_to_dec(&z_output_vals)
 }
 
-pub fn full_adder(_bit_num: usize, a: bool, b: bool, c_in: bool) -> (bool, bool) {
+pub fn full_adder(
+    _bit_num: usize,
+    a: bool,
+    b: bool,
+    c_in: bool,
+    _gates: &[Gate],
+    _gate_calcs: &mut HashMap<String, GateCalc>,
+) -> (bool, bool) {
     // sum, c_out
     let a_xor_b = a ^ b;
     let sum = a_xor_b ^ c_in;
@@ -223,8 +228,8 @@ pub fn full_adder(_bit_num: usize, a: bool, b: bool, c_in: bool) -> (bool, bool)
 pub fn ripple_adder(
     a_bits: &[bool],
     b_bits: &[bool],
-    _gates: &[Gate],
-    _gate_calcs: &mut HashMap<String, GateCalc>,
+    gates: &[Gate],
+    gate_calcs: &mut HashMap<String, GateCalc>,
 ) -> (Vec<bool>, Vec<bool>) {
     // sums, c_outs
     let mut sums = vec![];
@@ -232,7 +237,7 @@ pub fn ripple_adder(
 
     for (bit_num, (a, b)) in zip(a_bits, b_bits).enumerate() {
         if let Some(c_out) = c_outs.last() {
-            let (sum, c_out) = full_adder(bit_num, *a, *b, *c_out);
+            let (sum, c_out) = full_adder(bit_num, *a, *b, *c_out, gates, gate_calcs);
             sums.push(sum);
             c_outs.push(c_out);
         }
@@ -300,14 +305,40 @@ mod tests {
 
     #[test]
     fn test_full_adder() {
-        assert_eq!((false, false), full_adder(0, false, false, false));
-        assert_eq!((true, false), full_adder(0, false, false, true));
-        assert_eq!((true, false), full_adder(0, false, true, false));
-        assert_eq!((false, true), full_adder(0, false, true, true));
-        assert_eq!((true, false), full_adder(0, true, false, false));
-        assert_eq!((false, true), full_adder(0, true, false, true));
-        assert_eq!((false, true), full_adder(0, true, true, false));
-        assert_eq!((true, true), full_adder(0, true, true, true));
+        let gates = vec![];
+        let mut gate_calcs = HashMap::new();
+        assert_eq!(
+            (false, false),
+            full_adder(0, false, false, false, &gates, &mut gate_calcs)
+        );
+        assert_eq!(
+            (true, false),
+            full_adder(0, false, false, true, &gates, &mut gate_calcs)
+        );
+        assert_eq!(
+            (true, false),
+            full_adder(0, false, true, false, &gates, &mut gate_calcs)
+        );
+        assert_eq!(
+            (false, true),
+            full_adder(0, false, true, true, &gates, &mut gate_calcs)
+        );
+        assert_eq!(
+            (true, false),
+            full_adder(0, true, false, false, &gates, &mut gate_calcs)
+        );
+        assert_eq!(
+            (false, true),
+            full_adder(0, true, false, true, &gates, &mut gate_calcs)
+        );
+        assert_eq!(
+            (false, true),
+            full_adder(0, true, true, false, &gates, &mut gate_calcs)
+        );
+        assert_eq!(
+            (true, true),
+            full_adder(0, true, true, true, &gates, &mut gate_calcs)
+        );
     }
 
     #[test]
@@ -318,7 +349,10 @@ mod tests {
         let c_outs = vec![false, true, true, true, true];
         let gates = vec![];
         let mut gate_calcs = HashMap::new();
-        assert_eq!((sums, c_outs), ripple_adder(&a_bits, &b_bits, &gates, &mut gate_calcs));
+        assert_eq!(
+            (sums, c_outs),
+            ripple_adder(&a_bits, &b_bits, &gates, &mut gate_calcs)
+        );
     }
 
     #[test]
