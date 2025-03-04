@@ -7,7 +7,7 @@ use itertools::Itertools;
 use crate::utils::get_lines;
 
 struct Input {
-    init_wires: HashMap<String, usize>,
+    init_wires: HashMap<String, bool>,
     gates: Vec<Gate>,
 }
 
@@ -41,9 +41,9 @@ struct Gate {
 #[derive(Debug, Eq, PartialEq)]
 struct GateCalc {
     gate: Gate,
-    input_wire1_val: Option<usize>,
-    input_wire2_val: Option<usize>,
-    output_wire_val: Option<usize>,
+    input_wire1_val: Option<bool>,
+    input_wire2_val: Option<bool>,
+    output_wire_val: Option<bool>,
 }
 
 fn parse_input(input_file: &str) -> Input {
@@ -78,7 +78,7 @@ fn parse_input(input_file: &str) -> Input {
         } else {
             let parts: Vec<&str> = line.split(':').collect();
             if let [wire, value] = &parts[..] {
-                init_wires.insert(wire.trim().to_string(), value.trim().parse().unwrap());
+                init_wires.insert(wire.trim().to_string(), value.trim().parse::<usize>().unwrap() != 0);
             }
         }
     }
@@ -86,7 +86,7 @@ fn parse_input(input_file: &str) -> Input {
     Input { init_wires, gates }
 }
 
-fn get_gate_result(gate: &Gate, wire1: usize, wire2: usize) -> usize {
+fn get_gate_result(gate: &Gate, wire1: bool, wire2: bool) -> bool {
     match gate.op {
         Operation::And => wire1 & wire2,
         Operation::Or => wire1 | wire2,
@@ -94,12 +94,12 @@ fn get_gate_result(gate: &Gate, wire1: usize, wire2: usize) -> usize {
     }
 }
 
-fn bin_to_dec(binary_digits: &[usize]) -> usize {
+fn bin_to_dec(binary_digits: &[bool]) -> usize {
     binary_digits
         .iter()
         .rev()
         .enumerate()
-        .fold(0, |acc, (i, &digit)| acc + (digit * 2_usize.pow(i as u32)))
+        .fold(0, |acc, (i, &digit)| acc + (digit as usize * 2_usize.pow(i as u32)))
 }
 
 pub fn get_z_decimal_num(input_file: &str) -> usize {
