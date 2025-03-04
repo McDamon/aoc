@@ -1,6 +1,6 @@
 // https://adventofcode.com/2024/day/24
 
-use std::collections::HashMap;
+use std::{collections::HashMap, iter::zip};
 
 use itertools::Itertools;
 
@@ -195,6 +195,36 @@ pub fn get_z_decimal_num(input_file: &str) -> usize {
     bin_to_dec(&z_output_vals)
 }
 
+pub fn full_adder(a: bool, b: bool, c_in: bool) -> (bool, bool) {
+    // sum, c_out
+    let a_xor_b = a ^ b;
+    let sum = a_xor_b ^ c_in;
+    let c_in_and_a_or_b = c_in & a_xor_b;
+    let a_and_b = a & b;
+    let c_out = c_in_and_a_or_b | a_and_b;
+    (sum, c_out)
+}
+
+pub fn ripple_adder(a_bits: Vec<bool>, b_bits: Vec<bool>) -> (Vec<bool>, Vec<bool>) {
+    // sums, c_outs
+    let mut sums = vec![];
+    let mut c_outs = vec![false];
+
+    for (a, b) in zip(a_bits, b_bits) {
+        if let Some(c_out) = c_outs.last() {
+            let (sum, c_out) = full_adder(a, b, *c_out);
+            sums.push(sum);
+            c_outs.push(c_out);
+        }
+    }
+
+    if let Some(c_out) = c_outs.last() {
+        sums.push(*c_out);
+    }
+
+    (sums, c_outs)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -210,7 +240,28 @@ mod tests {
     }
 
     #[test]
-    fn test_get_z_decimal_num_() {
+    fn test_get_z_decimal_num() {
         assert_eq!(65635066541798, get_z_decimal_num("input/2024/day24.txt"));
+    }
+
+    #[test]
+    fn test_full_adder() {
+        assert_eq!((false, false), full_adder(false, false, false));
+        assert_eq!((true, false), full_adder(false, false, true));
+        assert_eq!((true, false), full_adder(false, true, false));
+        assert_eq!((false, true), full_adder(false, true, true));
+        assert_eq!((true, false), full_adder(true, false, false));
+        assert_eq!((false, true), full_adder(true, false, true));
+        assert_eq!((false, true), full_adder(true, true, false));
+        assert_eq!((true, true), full_adder(true, true, true));
+    }
+
+    #[test]
+    fn test_ripple_adder() {
+        let a_bits = vec![true, true, false, true];
+        let b_bits = vec![true, false, true, true];
+        let sums = vec![false, false, false, true, true];
+        let c_outs = vec![false, true, true, true, true];
+        assert_eq!((sums, c_outs), ripple_adder(a_bits, b_bits));
     }
 }
