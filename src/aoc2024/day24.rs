@@ -78,7 +78,10 @@ fn parse_input(input_file: &str) -> Input {
         } else {
             let parts: Vec<&str> = line.split(':').collect();
             if let [wire, value] = &parts[..] {
-                init_wires.insert(wire.trim().to_string(), value.trim().parse::<usize>().unwrap() != 0);
+                init_wires.insert(
+                    wire.trim().to_string(),
+                    value.trim().parse::<usize>().unwrap() != 0,
+                );
             }
         }
     }
@@ -99,7 +102,9 @@ fn bin_to_dec(binary_digits: &[bool]) -> usize {
         .iter()
         .rev()
         .enumerate()
-        .fold(0, |acc, (i, &digit)| acc + (digit as usize * 2_usize.pow(i as u32)))
+        .fold(0, |acc, (i, &digit)| {
+            acc + (digit as usize * 2_usize.pow(i as u32))
+        })
 }
 
 pub fn get_z_decimal_num(input_file: &str) -> usize {
@@ -195,7 +200,7 @@ pub fn get_z_decimal_num(input_file: &str) -> usize {
     bin_to_dec(&z_output_vals)
 }
 
-pub fn full_adder(a: bool, b: bool, c_in: bool) -> (bool, bool) {
+pub fn full_adder(_bit_num: usize, a: bool, b: bool, c_in: bool) -> (bool, bool) {
     // sum, c_out
     let a_xor_b = a ^ b;
     let sum = a_xor_b ^ c_in;
@@ -210,9 +215,9 @@ pub fn ripple_adder(a_bits: &[bool], b_bits: &[bool]) -> (Vec<bool>, Vec<bool>) 
     let mut sums = vec![];
     let mut c_outs = vec![false];
 
-    for (a, b) in zip(a_bits, b_bits) {
+    for (bit_num, (a, b)) in zip(a_bits, b_bits).enumerate() {
         if let Some(c_out) = c_outs.last() {
-            let (sum, c_out) = full_adder(*a, *b, *c_out);
+            let (sum, c_out) = full_adder(bit_num, *a, *b, *c_out);
             sums.push(sum);
             c_outs.push(c_out);
         }
@@ -238,7 +243,9 @@ pub fn get_swapped_wires(input_file: &str) -> &str {
         let bit_num_str = bit_num.to_string();
         let x_key: String = "x".to_owned() + &bit_num_str;
         let y_key = "y".to_owned() + &bit_num_str;
-        if let Some(x_val) = input.init_wires.get(&x_key) && let Some(y_val) = input.init_wires.get(&y_key) {
+        if let Some(x_val) = input.init_wires.get(&x_key)
+            && let Some(y_val) = input.init_wires.get(&y_key)
+        {
             a_bits.push(*x_val);
             b_bits.push(*y_val);
         }
@@ -276,14 +283,14 @@ mod tests {
 
     #[test]
     fn test_full_adder() {
-        assert_eq!((false, false), full_adder(false, false, false));
-        assert_eq!((true, false), full_adder(false, false, true));
-        assert_eq!((true, false), full_adder(false, true, false));
-        assert_eq!((false, true), full_adder(false, true, true));
-        assert_eq!((true, false), full_adder(true, false, false));
-        assert_eq!((false, true), full_adder(true, false, true));
-        assert_eq!((false, true), full_adder(true, true, false));
-        assert_eq!((true, true), full_adder(true, true, true));
+        assert_eq!((false, false), full_adder(0, false, false, false));
+        assert_eq!((true, false), full_adder(0, false, false, true));
+        assert_eq!((true, false), full_adder(0, false, true, false));
+        assert_eq!((false, true), full_adder(0, false, true, true));
+        assert_eq!((true, false), full_adder(0, true, false, false));
+        assert_eq!((false, true), full_adder(0, true, false, true));
+        assert_eq!((false, true), full_adder(0, true, true, false));
+        assert_eq!((true, true), full_adder(0, true, true, true));
     }
 
     #[test]
