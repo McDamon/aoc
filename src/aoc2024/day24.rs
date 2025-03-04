@@ -205,14 +205,14 @@ pub fn full_adder(a: bool, b: bool, c_in: bool) -> (bool, bool) {
     (sum, c_out)
 }
 
-pub fn ripple_adder(a_bits: Vec<bool>, b_bits: Vec<bool>) -> (Vec<bool>, Vec<bool>) {
+pub fn ripple_adder(a_bits: &[bool], b_bits: &[bool]) -> (Vec<bool>, Vec<bool>) {
     // sums, c_outs
     let mut sums = vec![];
     let mut c_outs = vec![false];
 
     for (a, b) in zip(a_bits, b_bits) {
         if let Some(c_out) = c_outs.last() {
-            let (sum, c_out) = full_adder(a, b, *c_out);
+            let (sum, c_out) = full_adder(*a, *b, *c_out);
             sums.push(sum);
             c_outs.push(c_out);
         }
@@ -223,6 +223,36 @@ pub fn ripple_adder(a_bits: Vec<bool>, b_bits: Vec<bool>) -> (Vec<bool>, Vec<boo
     }
 
     (sums, c_outs)
+}
+
+pub fn get_swapped_wires(input_file: &str) -> &str {
+    let input = parse_input(input_file);
+
+    let num_bits = input.init_wires.len() / 2;
+    println!("num_bits: {:?}", num_bits);
+
+    let mut a_bits = vec![];
+    let mut b_bits = vec![];
+
+    for bit_num in 0..num_bits {
+        let bit_num_str = bit_num.to_string();
+        let x_key: String = "x".to_owned() + &bit_num_str;
+        let y_key = "y".to_owned() + &bit_num_str;
+        if let Some(x_val) = input.init_wires.get(&x_key) && let Some(y_val) = input.init_wires.get(&y_key) {
+            a_bits.push(*x_val);
+            b_bits.push(*y_val);
+        }
+    }
+
+    println!("a_bits: {:?}", a_bits);
+    println!("b_bits: {:?}", b_bits);
+
+    let (sums, c_outs) = ripple_adder(&a_bits, &b_bits);
+
+    println!("sums: {:?}", sums);
+    println!("c_outs: {:?}", c_outs);
+
+    ""
 }
 
 #[cfg(test)]
@@ -262,6 +292,11 @@ mod tests {
         let b_bits = vec![true, false, true, true];
         let sums = vec![false, false, false, true, true];
         let c_outs = vec![false, true, true, true, true];
-        assert_eq!((sums, c_outs), ripple_adder(a_bits, b_bits));
+        assert_eq!((sums, c_outs), ripple_adder(&a_bits, &b_bits));
+    }
+
+    #[test]
+    fn test_get_swapped_wires() {
+        assert_eq!("", get_swapped_wires("input/2024/day24.txt"));
     }
 }
