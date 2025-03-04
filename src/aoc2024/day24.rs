@@ -100,16 +100,13 @@ fn get_gate_result(gate: &Gate, wire1: bool, wire2: bool) -> bool {
 fn bin_to_dec(binary_digits: &[bool]) -> usize {
     binary_digits
         .iter()
-        .rev()
         .enumerate()
         .fold(0, |acc, (i, &digit)| {
             acc + (digit as usize * 2_usize.pow(i as u32))
         })
 }
 
-pub fn get_z_decimal_num(input_file: &str) -> usize {
-    let input = parse_input(input_file);
-
+fn get_gate_calcs(input: &Input) -> HashMap<String, GateCalc> {
     let mut gate_calcs: HashMap<String, GateCalc> = input
         .gates
         .iter()
@@ -176,6 +173,25 @@ pub fn get_z_decimal_num(input_file: &str) -> usize {
         }
     }
 
+    gate_calcs
+}
+
+fn get_z_output_vals(gate_calcs: &HashMap<String, GateCalc>) -> Vec<bool> {
+    let z_output_vals = gate_calcs
+        .iter()
+        .filter(|(_output_wire, gate_calc)| gate_calc.gate.output_wire.starts_with('z'))
+        .sorted()
+        .map(|(_output_wire, gate_calc)| gate_calc.output_wire_val.unwrap())
+        .collect::<Vec<_>>();
+
+    z_output_vals
+}
+
+pub fn get_z_decimal_num(input_file: &str) -> usize {
+    let input = parse_input(input_file);
+
+    let gate_calcs = get_gate_calcs(&input);
+
     println!("POST UPDATE GATE CALCS");
     for gate_calc in gate_calcs.values() {
         println!(
@@ -187,14 +203,8 @@ pub fn get_z_decimal_num(input_file: &str) -> usize {
         );
     }
 
-    let z_output_vals = gate_calcs
-        .iter()
-        .filter(|(_output_wire, gate_calc)| gate_calc.gate.output_wire.starts_with('z'))
-        .sorted()
-        .rev()
-        .map(|(_output_wire, gate_calc)| gate_calc.output_wire_val.unwrap())
-        .collect::<Vec<_>>();
-
+    let z_output_vals = get_z_output_vals(&gate_calcs);
+    
     println!("Z output vals: {:?}", z_output_vals);
 
     bin_to_dec(&z_output_vals)
