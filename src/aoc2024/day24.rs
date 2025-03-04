@@ -31,7 +31,7 @@ enum Operation {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-struct Gate {
+pub struct Gate {
     input_wire1: String,
     input_wire2: String,
     op: Operation,
@@ -39,7 +39,7 @@ struct Gate {
 }
 
 #[derive(Debug, Eq, PartialEq)]
-struct GateCalc {
+pub struct GateCalc {
     gate: Gate,
     input_wire1_val: Option<bool>,
     input_wire2_val: Option<bool>,
@@ -177,14 +177,14 @@ fn get_gate_calcs(input: &Input) -> HashMap<String, GateCalc> {
 }
 
 fn get_z_output_vals(gate_calcs: &HashMap<String, GateCalc>) -> Vec<bool> {
-    let z_output_vals = gate_calcs
+    
+
+    gate_calcs
         .iter()
         .filter(|(_output_wire, gate_calc)| gate_calc.gate.output_wire.starts_with('z'))
         .sorted()
         .map(|(_output_wire, gate_calc)| gate_calc.output_wire_val.unwrap())
-        .collect::<Vec<_>>();
-
-    z_output_vals
+        .collect::<Vec<_>>()
 }
 
 pub fn get_z_decimal_num(input_file: &str) -> usize {
@@ -204,7 +204,7 @@ pub fn get_z_decimal_num(input_file: &str) -> usize {
     }
 
     let z_output_vals = get_z_output_vals(&gate_calcs);
-    
+
     println!("Z output vals: {:?}", z_output_vals);
 
     bin_to_dec(&z_output_vals)
@@ -220,7 +220,12 @@ pub fn full_adder(_bit_num: usize, a: bool, b: bool, c_in: bool) -> (bool, bool)
     (sum, c_out)
 }
 
-pub fn ripple_adder(a_bits: &[bool], b_bits: &[bool]) -> (Vec<bool>, Vec<bool>) {
+pub fn ripple_adder(
+    a_bits: &[bool],
+    b_bits: &[bool],
+    _gates: &[Gate],
+    _gate_calcs: &mut HashMap<String, GateCalc>,
+) -> (Vec<bool>, Vec<bool>) {
     // sums, c_outs
     let mut sums = vec![];
     let mut c_outs = vec![false];
@@ -264,7 +269,9 @@ pub fn get_swapped_wires(input_file: &str) -> &str {
     println!("a_bits: {:?}", a_bits);
     println!("b_bits: {:?}", b_bits);
 
-    let (sums, c_outs) = ripple_adder(&a_bits, &b_bits);
+    let mut gate_calcs = HashMap::new();
+
+    let (sums, c_outs) = ripple_adder(&a_bits, &b_bits, &input.gates, &mut gate_calcs);
 
     println!("sums: {:?}", sums);
     println!("c_outs: {:?}", c_outs);
@@ -309,7 +316,9 @@ mod tests {
         let b_bits = vec![true, false, true, true];
         let sums = vec![false, false, false, true, true];
         let c_outs = vec![false, true, true, true, true];
-        assert_eq!((sums, c_outs), ripple_adder(&a_bits, &b_bits));
+        let gates = vec![];
+        let mut gate_calcs = HashMap::new();
+        assert_eq!((sums, c_outs), ripple_adder(&a_bits, &b_bits, &gates, &mut gate_calcs));
     }
 
     #[test]
