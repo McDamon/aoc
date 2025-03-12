@@ -208,36 +208,123 @@ pub fn get_z_decimal_num(input_file: &str) -> usize {
     bin_to_dec(&z_output_vals)
 }
 
-pub fn full_adder(
-    _bit_num: usize,
-    a: bool,
-    b: bool,
-    c_in: bool,
-    _gates: &[Gate],
-    _gate_calcs: &mut HashMap<String, GateCalc>,
-) -> (bool, bool) {
+pub fn full_adder(bit_num: usize, a: bool, b: bool, c_in: bool, gates: &[Gate]) -> (bool, bool) {
     // sum, c_out
     let a_xor_b = a ^ b;
     let sum = a_xor_b ^ c_in;
     let c_in_and_a_or_b = c_in & a_xor_b;
     let a_and_b = a & b;
     let c_out = c_in_and_a_or_b | a_and_b;
+
+    let input_gate_name_a = format!("x{:02}", bit_num);
+    let input_gate_name_b = format!("y{:02}", bit_num);
+    let output_gate_name_sum = format!("z{:02}", bit_num);
+
+    // We know that for the a_xor_b gate, the input names are "x_{bit_num}" and "y_{bit_num}", and the output name cannot be "z_{bit_num}"
+
+    // First check whether we have a swapped output
+    let all_gates_a_xor_b: Vec<Gate> = gates
+        .iter()
+        .filter(|gate| {
+            (gate.input_wire1 == input_gate_name_a || gate.input_wire1 == input_gate_name_b)
+                && (gate.input_wire2 == input_gate_name_b || gate.input_wire2 == input_gate_name_a)
+                && gate.op == Operation::Xor
+        })
+        .cloned()
+        .into_iter()
+        .collect();
+
+    let mut maybe_gate_a_xor_b: Option<Gate> = None;
+
+    for gate in all_gates_a_xor_b {
+        if gate.output_wire == output_gate_name_sum {
+            println!("gate.output_wire: {:?}", gate.output_wire);
+        } else {
+            maybe_gate_a_xor_b = Some(gate.clone());
+        }
+    }
+
+    // We know that the sum gate will have an output name of "z_{bit_num}"
+    let all_gates_sum: Vec<Gate> = gates
+        .iter()
+        .filter(|gate| gate.output_wire == format!("z{:02}", bit_num))
+        .cloned()
+        .into_iter()
+        .collect();
+
+    let mut maybe_gate_sum: Option<Gate> = None;
+
+    for gate in all_gates_sum {
+        if gate.output_wire == output_gate_name_sum {
+            maybe_gate_sum = Some(gate.clone());
+        } else {
+            println!("gate.output_wire: {:?}", gate.output_wire);
+        }
+    }
+
+    if let Some(gate_sum) = maybe_gate_sum {
+        // We know that the c_in_and_a_or_b gate will have an input name of c_in and a_xor_b from the sum gate
+        let all_gates_c_in_and_a_or_b: Vec<Gate> = gates
+            .iter()
+            .filter(|gate| {
+                (gate.input_wire1 == gate_sum.input_wire1
+                    || gate.input_wire1 == gate_sum.input_wire2)
+                    && (gate.input_wire2 == gate_sum.input_wire1
+                        || gate.input_wire2 == gate_sum.input_wire2)
+                    && gate.op == Operation::And
+            })
+            .cloned()
+            .into_iter()
+            .collect();
+
+        let maybe_gate_c_in_and_a_or_b: Option<Gate> = None;
+
+        // We know that the a_and_b gate will have an input name of "x_{bit_num}" and "y_{bit_num}"
+        let all_gates_a_and_b: Vec<Gate> = gates
+            .iter()
+            .find(|gate| {
+                (gate.input_wire1 == input_gate_name_a || gate.input_wire1 == input_gate_name_b)
+                    && (gate.input_wire2 == input_gate_name_a
+                        || gate.input_wire2 == input_gate_name_b)
+            })
+            .cloned()
+            .into_iter()
+            .collect();
+
+        let mut maybe_gate_a_and_b: Option<Gate> = None;
+
+        if let Some(gate_a_and_b) = maybe_gate_a_and_b {
+            if let Some(gate_c_in_and_a_or_b) = maybe_gate_c_in_and_a_or_b {
+                println!("c_in_and_a_or_b: {:?}", c_in_and_a_or_b);
+
+                // We know that the c_out gate will have an input name of c_in_and_a_or_b and a_and_b from the sum gate
+                let all_gates_c_out: Vec<Gate> = gates
+                    .iter()
+                    .filter(|gate| {
+                        (gate.input_wire1 == gate_c_in_and_a_or_b.output_wire
+                            || gate.input_wire1 == gate_a_and_b.output_wire)
+                            && (gate.input_wire2 == gate_c_in_and_a_or_b.output_wire
+                                || gate.input_wire2 == gate_a_and_b.output_wire)
+                            && gate.op == Operation::Or
+                    })
+                    .cloned()
+                    .into_iter()
+                    .collect();
+            }
+        }
+    }
+
     (sum, c_out)
 }
 
-pub fn ripple_adder(
-    a_bits: &[bool],
-    b_bits: &[bool],
-    gates: &[Gate],
-    gate_calcs: &mut HashMap<String, GateCalc>,
-) -> (Vec<bool>, Vec<bool>) {
+pub fn ripple_adder(a_bits: &[bool], b_bits: &[bool], gates: &[Gate]) -> (Vec<bool>, Vec<bool>) {
     // sums, c_outs
     let mut sums = vec![];
     let mut c_outs = vec![false];
 
     for (bit_num, (a, b)) in zip(a_bits, b_bits).enumerate() {
         if let Some(c_out) = c_outs.last() {
-            let (sum, c_out) = full_adder(bit_num, *a, *b, *c_out, gates, gate_calcs);
+            let (sum, c_out) = full_adder(bit_num, *a, *b, *c_out, gates);
             sums.push(sum);
             c_outs.push(c_out);
         }
@@ -274,9 +361,7 @@ pub fn get_swapped_wires(input_file: &str) -> &str {
     println!("a_bits: {:?}", a_bits);
     println!("b_bits: {:?}", b_bits);
 
-    let mut gate_calcs = HashMap::new();
-
-    let (sums, c_outs) = ripple_adder(&a_bits, &b_bits, &input.gates, &mut gate_calcs);
+    let (sums, c_outs) = ripple_adder(&a_bits, &b_bits, &input.gates);
 
     println!("sums: {:?}", sums);
     println!("c_outs: {:?}", c_outs);
@@ -306,39 +391,14 @@ mod tests {
     #[test]
     fn test_full_adder() {
         let gates = vec![];
-        let mut gate_calcs = HashMap::new();
-        assert_eq!(
-            (false, false),
-            full_adder(0, false, false, false, &gates, &mut gate_calcs)
-        );
-        assert_eq!(
-            (true, false),
-            full_adder(0, false, false, true, &gates, &mut gate_calcs)
-        );
-        assert_eq!(
-            (true, false),
-            full_adder(0, false, true, false, &gates, &mut gate_calcs)
-        );
-        assert_eq!(
-            (false, true),
-            full_adder(0, false, true, true, &gates, &mut gate_calcs)
-        );
-        assert_eq!(
-            (true, false),
-            full_adder(0, true, false, false, &gates, &mut gate_calcs)
-        );
-        assert_eq!(
-            (false, true),
-            full_adder(0, true, false, true, &gates, &mut gate_calcs)
-        );
-        assert_eq!(
-            (false, true),
-            full_adder(0, true, true, false, &gates, &mut gate_calcs)
-        );
-        assert_eq!(
-            (true, true),
-            full_adder(0, true, true, true, &gates, &mut gate_calcs)
-        );
+        assert_eq!((false, false), full_adder(0, false, false, false, &gates));
+        assert_eq!((true, false), full_adder(0, false, false, true, &gates));
+        assert_eq!((true, false), full_adder(0, false, true, false, &gates));
+        assert_eq!((false, true), full_adder(0, false, true, true, &gates));
+        assert_eq!((true, false), full_adder(0, true, false, false, &gates));
+        assert_eq!((false, true), full_adder(0, true, false, true, &gates));
+        assert_eq!((false, true), full_adder(0, true, true, false, &gates));
+        assert_eq!((true, true), full_adder(0, true, true, true, &gates));
     }
 
     #[test]
@@ -348,11 +408,7 @@ mod tests {
         let sums = vec![false, false, false, true, true];
         let c_outs = vec![false, true, true, true, true];
         let gates = vec![];
-        let mut gate_calcs = HashMap::new();
-        assert_eq!(
-            (sums, c_outs),
-            ripple_adder(&a_bits, &b_bits, &gates, &mut gate_calcs)
-        );
+        assert_eq!((sums, c_outs), ripple_adder(&a_bits, &b_bits, &gates));
     }
 
     #[test]
