@@ -221,8 +221,6 @@ pub fn full_adder(bit_num: usize, a: bool, b: bool, c_in: bool, gates: &[Gate]) 
     let output_gate_name_sum = format!("z{:02}", bit_num);
 
     // We know that for the a_xor_b gate, the input names are "x_{bit_num}" and "y_{bit_num}", and the output name cannot be "z_{bit_num}"
-
-    // First check whether we have a swapped output
     let all_gates_a_xor_b: Vec<Gate> = gates
         .iter()
         .filter(|gate| {
@@ -234,82 +232,84 @@ pub fn full_adder(bit_num: usize, a: bool, b: bool, c_in: bool, gates: &[Gate]) 
         .into_iter()
         .collect();
 
+    // We know that the a_and_b gate will have an input name of "x_{bit_num}" and "y_{bit_num}"
+    let all_gates_a_and_b: Vec<Gate> = gates
+        .iter()
+        .find(|gate| {
+            (gate.input_wire1 == input_gate_name_a || gate.input_wire1 == input_gate_name_b)
+                && (gate.input_wire2 == input_gate_name_a || gate.input_wire2 == input_gate_name_b)
+                && gate.op == Operation::And
+        })
+        .cloned()
+        .into_iter()
+        .collect();
+
     let mut maybe_gate_a_xor_b: Option<Gate> = None;
 
     for gate in all_gates_a_xor_b {
         if gate.output_wire == output_gate_name_sum {
-            println!("gate.output_wire: {:?}", gate.output_wire);
+            println!("Swapped gate output_wire: {:?}", gate.output_wire);
         } else {
             maybe_gate_a_xor_b = Some(gate.clone());
         }
     }
 
-    // We know that the sum gate will have an output name of "z_{bit_num}"
-    let all_gates_sum: Vec<Gate> = gates
-        .iter()
-        .filter(|gate| gate.output_wire == format!("z{:02}", bit_num))
-        .cloned()
-        .into_iter()
-        .collect();
+    if let Some(gate_a_xor_b) = maybe_gate_a_xor_b {
+        // We know that the sum gate will have an output name of "z_{bit_num}"
+        let all_gates_sum: Vec<Gate> = gates
+            .iter()
+            .filter(|gate| gate.output_wire == format!("z{:02}", bit_num))
+            .cloned()
+            .into_iter()
+            .collect();
 
-    let mut maybe_gate_sum: Option<Gate> = None;
+        let mut maybe_gate_sum: Option<Gate> = None;
 
-    for gate in all_gates_sum {
-        if gate.output_wire == output_gate_name_sum {
-            maybe_gate_sum = Some(gate.clone());
-        } else {
-            println!("gate.output_wire: {:?}", gate.output_wire);
+        for gate in all_gates_sum {
+            if gate.output_wire == output_gate_name_sum {
+                maybe_gate_sum = Some(gate.clone());
+            } else {
+                println!("gate.output_wire: {:?}", gate.output_wire);
+            }
         }
-    }
 
-    if let Some(gate_sum) = maybe_gate_sum {
-        // We know that the c_in_and_a_or_b gate will have an input name of c_in and a_xor_b from the sum gate
-        let all_gates_c_in_and_a_or_b: Vec<Gate> = gates
-            .iter()
-            .filter(|gate| {
-                (gate.input_wire1 == gate_sum.input_wire1
-                    || gate.input_wire1 == gate_sum.input_wire2)
-                    && (gate.input_wire2 == gate_sum.input_wire1
-                        || gate.input_wire2 == gate_sum.input_wire2)
-                    && gate.op == Operation::And
-            })
-            .cloned()
-            .into_iter()
-            .collect();
+        if let Some(gate_sum) = maybe_gate_sum {
+            // We know that the c_in_and_a_or_b gate will have an input name of c_in and a_xor_b from the sum gate
+            let all_gates_c_in_and_a_or_b: Vec<Gate> = gates
+                .iter()
+                .filter(|gate| {
+                    (gate.input_wire1 == gate_sum.input_wire1
+                        || gate.input_wire1 == gate_sum.input_wire2)
+                        && (gate.input_wire2 == gate_sum.input_wire1
+                            || gate.input_wire2 == gate_sum.input_wire2)
+                        && gate.op == Operation::And
+                })
+                .cloned()
+                .into_iter()
+                .collect();
 
-        let maybe_gate_c_in_and_a_or_b: Option<Gate> = None;
+            let maybe_gate_c_in_and_a_or_b: Option<Gate> = None;
 
-        // We know that the a_and_b gate will have an input name of "x_{bit_num}" and "y_{bit_num}"
-        let all_gates_a_and_b: Vec<Gate> = gates
-            .iter()
-            .find(|gate| {
-                (gate.input_wire1 == input_gate_name_a || gate.input_wire1 == input_gate_name_b)
-                    && (gate.input_wire2 == input_gate_name_a
-                        || gate.input_wire2 == input_gate_name_b)
-            })
-            .cloned()
-            .into_iter()
-            .collect();
+            let mut maybe_gate_a_and_b: Option<Gate> = None;
 
-        let mut maybe_gate_a_and_b: Option<Gate> = None;
+            if let Some(gate_a_and_b) = maybe_gate_a_and_b {
+                if let Some(gate_c_in_and_a_or_b) = maybe_gate_c_in_and_a_or_b {
+                    println!("c_in_and_a_or_b: {:?}", c_in_and_a_or_b);
 
-        if let Some(gate_a_and_b) = maybe_gate_a_and_b {
-            if let Some(gate_c_in_and_a_or_b) = maybe_gate_c_in_and_a_or_b {
-                println!("c_in_and_a_or_b: {:?}", c_in_and_a_or_b);
-
-                // We know that the c_out gate will have an input name of c_in_and_a_or_b and a_and_b from the sum gate
-                let all_gates_c_out: Vec<Gate> = gates
-                    .iter()
-                    .filter(|gate| {
-                        (gate.input_wire1 == gate_c_in_and_a_or_b.output_wire
-                            || gate.input_wire1 == gate_a_and_b.output_wire)
-                            && (gate.input_wire2 == gate_c_in_and_a_or_b.output_wire
-                                || gate.input_wire2 == gate_a_and_b.output_wire)
-                            && gate.op == Operation::Or
-                    })
-                    .cloned()
-                    .into_iter()
-                    .collect();
+                    // We know that the c_out gate will have an input name of c_in_and_a_or_b and a_and_b from the sum gate
+                    let all_gates_c_out: Vec<Gate> = gates
+                        .iter()
+                        .filter(|gate| {
+                            (gate.input_wire1 == gate_c_in_and_a_or_b.output_wire
+                                || gate.input_wire1 == gate_a_and_b.output_wire)
+                                && (gate.input_wire2 == gate_c_in_and_a_or_b.output_wire
+                                    || gate.input_wire2 == gate_a_and_b.output_wire)
+                                && gate.op == Operation::Or
+                        })
+                        .cloned()
+                        .into_iter()
+                        .collect();
+                }
             }
         }
     }
@@ -358,13 +358,13 @@ pub fn get_swapped_wires(input_file: &str) -> &str {
         }
     }
 
-    println!("a_bits: {:?}", a_bits);
-    println!("b_bits: {:?}", b_bits);
+    //println!("a_bits: {:?}", a_bits);
+    //println!("b_bits: {:?}", b_bits);
 
-    let (sums, c_outs) = ripple_adder(&a_bits, &b_bits, &input.gates);
+    let (_sums, _c_outs) = ripple_adder(&a_bits, &b_bits, &input.gates);
 
-    println!("sums: {:?}", sums);
-    println!("c_outs: {:?}", c_outs);
+    //println!("sums: {:?}", sums);
+    //println!("c_outs: {:?}", c_outs);
 
     ""
 }
