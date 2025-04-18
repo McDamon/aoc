@@ -1,7 +1,6 @@
 // https://adventofcode.com/2024/day/24
 
 use itertools::Itertools;
-use regex::Regex;
 use std::{
     collections::{HashMap, HashSet},
     iter::zip,
@@ -277,164 +276,115 @@ pub fn get_swapped_wires(input_file: &str) -> String {
     println!("sums: {:?}", sums);
     println!("c_outs: {:?}", c_outs);
 
-    swap_wires(&input.gates.clone(), num_bits).to_string()
+    swap_wires(&input.gates.clone()).to_string()
 }
 
-fn swap_wires(gates: &[Gate], num_bits: usize) -> String {
-    let mut initial_valid_gates: HashSet<Gate> = HashSet::new();
+fn swap_wires(gates: &[Gate]) -> String {
+    let mut initial_invalid_gates: HashSet<Gate> = HashSet::new();
 
-    match has_swapped_wires(gates, num_bits) {
+    match has_swapped_wires(gates) {
         Ok(_) => (),
-        Err(new_valid_gates) => {
-            initial_valid_gates.extend(new_valid_gates);
+        Err(new_invalid_gates) => {
+            initial_invalid_gates.extend(new_invalid_gates);
         }
     }
 
-    println!("Total gates: {:?}", gates.len());
-    println!("Valid gates after initial run: {:?}", initial_valid_gates.len());
+    for initial_invalid_gate in initial_invalid_gates.clone() {
+        println!("Initial invalid gate: {:?}", initial_invalid_gate);
+    }
 
-    let maybe_invalid_gates: Vec<Gate> = gates
+    let output_wires = initial_invalid_gates
         .iter()
-        .filter(|gate| !initial_valid_gates.contains(gate))
+        .map(|gate| gate.output_wire.clone())
+        .sorted_by(|a, b| a.to_lowercase().cmp(&b.to_lowercase()))
+        .collect::<Vec<_>>()
+        .join(","); // Join the sorted output wires with commas
+
+    println!("Output wires: {:?}", output_wires);
+
+    output_wires // Return the comma-separated string
+}
+
+fn has_swapped_wires(gates: &[Gate]) -> Result<Vec<Gate>, Vec<Gate>> {
+    let mut valid_gates: Vec<Gate> = Vec::new();
+    let mut invalid_gates: Vec<Gate> = Vec::new();
+
+    // Identify invalid gates based on the provided logic
+    let wrong1: Vec<_> = gates
+        .iter()
+        .filter(|gate| {
+            gate.output_wire.contains('z') && gate.op != Operation::Xor && gate.output_wire != "z45"
+        })
         .cloned()
         .collect();
 
-    let cloned_invalid_gates = maybe_invalid_gates.clone();
-    let invalid_gate_combinations: Vec<_> =
-        cloned_invalid_gates.iter().tuple_combinations().collect();
-    let mut new_valid_gates: HashSet<Gate> = HashSet::new();
-    for (gate1, gate2) in invalid_gate_combinations {
-        let mut swapped_gates = maybe_invalid_gates.clone();
+    let wrong2: Vec<_> = gates
+        .iter()
+        .filter(|gate| {
+            !gate.output_wire.contains('z')
+                && !gate.input_wire1.contains('x')
+                && !gate.input_wire2.contains('x')
+                && !gate.input_wire1.contains('y')
+                && !gate.input_wire2.contains('y')
+                && gate.op == Operation::Xor
+        })
+        .cloned()
+        .collect();
 
-        let gate1_output_wire = gate1.output_wire.clone();
-        let gate2_output_wire = gate2.output_wire.clone();
+    let wrong3: Vec<_> = gates
+        .iter()
+        .filter(|gate| {
+            (gate.input_wire1.contains('x')
+                || gate.input_wire2.contains('x')
+                || gate.input_wire1.contains('y')
+                || gate.input_wire2.contains('y'))
+                && gate.op == Operation::Xor
+                && gates.iter().all(|other_gate| {
+                    (other_gate.input_wire1 != gate.output_wire
+                        && other_gate.input_wire2 != gate.output_wire)
+                        || other_gate.op != Operation::Xor
+                })
+        })
+        .filter(|gate| !gate.input_wire1.contains("00"))
+        .cloned()
+        .collect();
 
-        if gate1.input_wire1 == "x00"
-            && gate1.input_wire2 == "y00"
-            && gate1.op == Operation::Xor
-        {
-            println!("Debug: Swapping wires for gate: {:?}", gate1);
-        }
+    let wrong4: Vec<_> = gates
+        .iter()
+        .filter(|gate| {
+            (gate.input_wire1.contains('x')
+                || gate.input_wire2.contains('x')
+                || gate.input_wire1.contains('y')
+                || gate.input_wire2.contains('y'))
+                && gate.op == Operation::And
+                && gates.iter().all(|other_gate| {
+                    (other_gate.input_wire1 != gate.output_wire
+                        && other_gate.input_wire2 != gate.output_wire)
+                        || other_gate.op != Operation::Or
+                })
+        })
+        .filter(|gate| !gate.input_wire1.contains("00"))
+        .cloned()
+        .collect();
 
-        // Find and swap the output_wire values of the two gates
-        for swapped_gate in swapped_gates.iter_mut() {
-            if gate1 == swapped_gate {
-                swapped_gate.output_wire = gate2_output_wire.clone();
-            } else if gate2 == swapped_gate {
-                swapped_gate.output_wire = gate1_output_wire.clone();
-            }
-        }
+    // Combine all invalid gates
+    invalid_gates.extend(wrong1);
+    invalid_gates.extend(wrong2);
+    invalid_gates.extend(wrong3);
+    invalid_gates.extend(wrong4);
 
-        let mut updated_valid_gates = initial_valid_gates.clone();
-        updated_valid_gates.extend(swapped_gates.clone());
-        let valid_gates_with_swaps: Vec<_> = updated_valid_gates.iter().cloned().collect();
+    // Identify valid gates
+    valid_gates.extend(
+        gates
+            .iter()
+            .filter(|gate| !invalid_gates.contains(gate))
+            .cloned(),
+    );
 
-        // Test if swapping resolves all invalid gates
-        match has_swapped_wires(&valid_gates_with_swaps, num_bits) {
-            Ok(_) => {
-                panic!("Found a valid swap: {:?}", swapped_gates);
-            },
-            Err(swapped_new_valid_gates) => {
-                new_valid_gates.extend(swapped_new_valid_gates);
-            }
-        }
-    }
-
-    let mut final_valid_gates = initial_valid_gates.clone();
-    final_valid_gates.extend(new_valid_gates.clone());
-
-    println!("Valid gates after swap: {:?}", final_valid_gates.len());
-
-    match has_swapped_wires(&final_valid_gates.into_iter().collect::<Vec<_>>(), num_bits) {
-        Ok(final_valid_gates) => {
-            println!("Valid gates after final run: {:?}", final_valid_gates.len());
-        }
-        Err(_error_result) => {
-            println!("Error: Still invalid gates found after final run");
-        },
-    }
-    "".to_string()
-}
-
-fn has_swapped_wires_for_bit(gates: &[Gate], bit_num: usize) -> Vec<Gate> {
-    let mut valid_gates: Vec<Gate> = Vec::new();
-
-    let bit_num_str = format!("{:02}", bit_num);
-    let re = Regex::new(&format!(r"^(x{0}|y{0}|z{0})$", bit_num_str)).unwrap();
-
-    if let Some(a_xor_b_gate) = gates.iter().find(|g| {
-        re.is_match(&g.input_wire1)
-            && re.is_match(&g.input_wire2)
-            && g.op == Operation::Xor
-            && !re.is_match(&g.output_wire)
-    }) {
-        if let Some(sum_gate) = gates.iter().find(|g| {
-            (g.input_wire1 == a_xor_b_gate.output_wire || g.input_wire2 == a_xor_b_gate.output_wire)
-                && g.op == Operation::Xor
-                && re.is_match(&g.output_wire)
-        }) {
-            if let Some(c_in_and_a_or_b_gate) = gates.iter().find(|g| {
-                (g.input_wire1 == a_xor_b_gate.output_wire
-                    || g.input_wire2 == a_xor_b_gate.output_wire)
-                    && g.op == Operation::And
-            }) {
-                if let Some(a_and_b_gate) = gates.iter().find(|g| {
-                    re.is_match(&g.input_wire1)
-                        && re.is_match(&g.input_wire2)
-                        && g.op == Operation::And
-                        && !re.is_match(&g.output_wire)
-                }) {
-                    if let Some(c_out_gate) = gates.iter().find(|g| {
-                        (g.input_wire1 == a_and_b_gate.output_wire
-                            && g.input_wire2 == c_in_and_a_or_b_gate.output_wire)
-                            || (g.input_wire1 == c_in_and_a_or_b_gate.output_wire
-                                && g.input_wire2 == a_and_b_gate.output_wire)
-                                && g.op == Operation::Or
-                    }) {
-                        valid_gates.push(a_xor_b_gate.clone());
-                        valid_gates.push(sum_gate.clone());
-                        valid_gates.push(c_in_and_a_or_b_gate.clone());
-                        valid_gates.push(a_and_b_gate.clone());
-                        valid_gates.push(c_out_gate.clone());
-                    } else {
-                        println!("Debug: Missing c_out_gate for bit_num: {}", bit_num);
-                    }
-                } else {
-                    println!("Debug: Missing a_and_b_gate for bit_num: {}", bit_num);
-                }
-            } else {
-                println!(
-                    "Debug: Missing c_in_and_a_or_b_gate for bit_num: {}",
-                    bit_num
-                );
-            }
-        } else {
-            println!("Debug: Missing sum_gate for bit_num: {}", bit_num);
-        }
-    } else {
-        println!("Debug: Missing a_xor_b_gate for bit_num: {}", bit_num);
-    }
-
-    valid_gates
-}
-
-fn has_swapped_wires(gates: &[Gate], num_bits: usize) -> Result<Vec<Gate>, Vec<Gate>> {
-    let mut valid_gates: Vec<Gate> = Vec::new();
-
-    let mut error_bits = vec![];
-
-    for bit_num in 0..num_bits {
-        let new_valid_gates = has_swapped_wires_for_bit(gates, bit_num);
-        valid_gates.extend(new_valid_gates.clone());
-        if new_valid_gates.len() != 5 {
-            error_bits.push(bit_num);
-        }
-    }
-
-    if error_bits.is_empty() {
+    if invalid_gates.is_empty() {
         Ok(valid_gates)
     } else {
-        Err(valid_gates)
+        Err(invalid_gates)
     }
 }
 
@@ -480,6 +430,6 @@ mod tests {
 
     #[test]
     fn test_get_swapped_wires() {
-        assert_eq!("", get_swapped_wires("input/2024/day24.txt"));
+        assert_eq!("dgr,dtv,fgc,mtj,vvm,z12,z29,z37", get_swapped_wires("input/2024/day24.txt"));
     }
 }
