@@ -311,6 +311,7 @@ fn swap_wires(gates: &[Gate], num_bits: usize) -> String {
 
         if gate1.input_wire1 == "x00"
             && gate1.input_wire2 == "y00"
+            && gate1.op == Operation::Xor
         {
             println!("Debug: Swapping wires for gate: {:?}", gate1);
         }
@@ -333,9 +334,8 @@ fn swap_wires(gates: &[Gate], num_bits: usize) -> String {
             Ok(_) => {
                 panic!("Found a valid swap: {:?}", swapped_gates);
             },
-            Err(mut new_valid_gates) => {
-                let cloned_new_valid_gates = new_valid_gates.clone();
-                new_valid_gates.extend(cloned_new_valid_gates);
+            Err(swapped_new_valid_gates) => {
+                new_valid_gates.extend(swapped_new_valid_gates);
             }
         }
     }
