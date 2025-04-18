@@ -1,11 +1,11 @@
 use std::{
-    collections::HashMap,
     error::Error,
     fs::File,
     io::{BufRead, BufReader},
     path::Path,
 };
 
+use hashbrown::HashMap;
 use petgraph::graph::NodeIndex;
 
 pub fn get_lines(input_file: &str) -> Vec<String> {

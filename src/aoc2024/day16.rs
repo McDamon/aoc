@@ -1,6 +1,6 @@
 // https://adventofcode.com/2024/day/16
 
-use std::collections::{HashMap, HashSet};
+use hashbrown::{HashMap, HashSet};
 
 use petgraph::{
     algo,
