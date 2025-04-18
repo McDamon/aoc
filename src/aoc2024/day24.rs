@@ -430,6 +430,9 @@ mod tests {
 
     #[test]
     fn test_get_swapped_wires() {
-        assert_eq!("dgr,dtv,fgc,mtj,vvm,z12,z29,z37", get_swapped_wires("input/2024/day24.txt"));
+        assert_eq!(
+            "dgr,dtv,fgc,mtj,vvm,z12,z29,z37",
+            get_swapped_wires("input/2024/day24.txt")
+        );
     }
 }
