@@ -81,6 +81,21 @@ pub fn get_unique_lock_key_pairs(input_file: &str) -> u32 {
     println!("Locks: {:?}", locks);
     println!("Keys: {:?}", keys);
 
+    let lock_pin_heights = locks.iter().map(|lock| {
+        (0..5) // Iterate over columns
+            .map(|col| lock.iter().filter(|line| line[col] == LockPin::Filled).count() - 1) // Subtract 1 from each height
+            .collect::<Vec<_>>()
+    }).collect::<Vec<_>>();
+
+    let key_pin_heights = keys.iter().map(|key| {
+        (0..5) // Iterate over columns
+            .map(|col| key.iter().filter(|line| line[col] == LockPin::Filled).count() - 1) // Subtract 1 from each height
+            .collect::<Vec<_>>()
+    }).collect::<Vec<_>>();
+
+    println!("Lock pin heights (columns): {:?}", lock_pin_heights);
+    println!("Key pin heights (columns): {:?}", key_pin_heights);
+
     let unique_lock_key_pairs = 0;
 
     unique_lock_key_pairs
