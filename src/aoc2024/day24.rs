@@ -309,7 +309,7 @@ fn has_swapped_wires(gates: &[Gate]) -> Result<Vec<Gate>, Vec<Gate>> {
     let mut valid_gates: Vec<Gate> = Vec::new();
     let mut invalid_gates: Vec<Gate> = Vec::new();
 
-    // Identify invalid gates based on the provided logic
+    // Helped by https://www.reddit.com/r/adventofcode/comments/1hla5ql/2024_day_24_part_2_a_guide_on_the_idea_behind_the/
     let wrong1: Vec<_> = gates
         .iter()
         .filter(|gate| {
