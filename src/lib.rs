@@ -9,3 +9,6 @@ pub mod aoc2024;
 
 #[path = "./utils/utils.rs"]
 pub mod utils;
+
+#[path = "./utils/intcode.rs"]
+pub mod intcode;
