@@ -38,23 +38,27 @@ pub fn run_intcode(intcode: &mut [isize], prog_counter: usize) -> &[isize] {
             run_intcode(intcode, prog_counter + 4)
         }
         Ok(Opcode::Halt) => intcode,
-        Err(_) => todo!(),
+        Err(_) => panic!(),
     }
 }
 
-pub fn get_op_pos(intcode: &mut [isize], prog_counter: usize) -> (usize, usize, usize) {
-    let op_pos1 = intcode[prog_counter + 1];
-    let op_pos2 = intcode[prog_counter + 2];
-    let result_pos = intcode[prog_counter + 3];
-    (op_pos1 as usize, op_pos2 as usize, result_pos as usize)
+pub fn get_param_pos(intcode: &mut [isize], prog_counter: usize) -> (usize, usize, usize) {
+    let param_pos1 = intcode[prog_counter + 1];
+    let param_pos2 = intcode[prog_counter + 2];
+    let param_pos3 = intcode[prog_counter + 3];
+    (
+        param_pos1 as usize,
+        param_pos2 as usize,
+        param_pos3 as usize,
+    )
 }
 
 pub fn calc_add(intcode: &mut [isize], prog_counter: usize) {
-    let op_pos = get_op_pos(intcode, prog_counter);
-    intcode[op_pos.2] = intcode[op_pos.0] + intcode[op_pos.1];
+    let param_pos = get_param_pos(intcode, prog_counter);
+    intcode[param_pos.2] = intcode[param_pos.0] + intcode[param_pos.1];
 }
 
 pub fn calc_multiply(intcode: &mut [isize], prog_counter: usize) {
-    let op_pos = get_op_pos(intcode, prog_counter);
-    intcode[op_pos.2] = intcode[op_pos.0] * intcode[op_pos.1];
+    let param_pos = get_param_pos(intcode, prog_counter);
+    intcode[param_pos.2] = intcode[param_pos.0] * intcode[param_pos.1];
 }

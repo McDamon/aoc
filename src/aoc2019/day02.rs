@@ -41,11 +41,27 @@ mod tests {
     }
 
     #[test]
-    fn test_run_intcode() {
+    fn test_run_intcode_part01() {
         let mut input_intcode = parse_intcode_input("input/2019/day02.txt");
         input_intcode[1] = 12;
         input_intcode[2] = 2;
         let result_intcode = run_intcode(&mut input_intcode, 0);
         assert_eq!(10566835, result_intcode[0]);
+    }
+
+    #[test]
+    fn test_run_intcode_part02() {
+        let input_intcode = parse_intcode_input("input/2019/day02.txt");
+        for noun in 0..99 {
+            for verb in 0..99 {
+                let mut intcode = input_intcode.clone();
+                intcode[1] = noun;
+                intcode[2] = verb;
+                let result_intcode = run_intcode(&mut intcode, 0);
+                if result_intcode[0] == 19690720 {
+                    assert_eq!(2347, 100 * noun + verb)
+                }
+            }
+        }
     }
 }
