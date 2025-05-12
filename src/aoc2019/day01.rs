@@ -3,7 +3,7 @@
 use crate::utils::get_lines;
 
 struct Input {
-    masses: Vec<u32>
+    masses: Vec<u32>,
 }
 
 fn parse_input(input_file: &str) -> Input {
@@ -15,9 +15,7 @@ fn parse_input(input_file: &str) -> Input {
         masses.push(line.parse::<u32>().unwrap());
     }
 
-    Input {
-        masses
-    }
+    Input { masses }
 }
 
 pub fn get_sum_fuel_reqs(input_file: &str) -> u32 {
@@ -64,7 +62,10 @@ mod tests {
 
     #[test]
     fn test_get_sum_fuel_reqs_with_fuel_test02() {
-        assert_eq!(51314, get_sum_fuel_reqs_with_fuel("input/2019/day01_test02.txt"));
+        assert_eq!(
+            51314,
+            get_sum_fuel_reqs_with_fuel("input/2019/day01_test02.txt")
+        );
     }
 
     #[test]
