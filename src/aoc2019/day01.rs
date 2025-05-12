@@ -32,6 +32,22 @@ pub fn get_sum_fuel_reqs(input_file: &str) -> u32 {
     sum_fuel_reqs
 }
 
+pub fn get_sum_fuel_reqs_with_fuel(input_file: &str) -> u32 {
+    let input = parse_input(input_file);
+
+    let mut sum_fuel_reqs = 0;
+
+    for mass in input.masses {
+        let mut fuel = (mass / 3).saturating_sub(2);
+        while fuel > 0 {
+            sum_fuel_reqs += fuel;
+            fuel = (fuel / 3).saturating_sub(2);
+        }
+    }
+
+    sum_fuel_reqs
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -44,5 +60,15 @@ mod tests {
     #[test]
     fn test_get_sum_fuel_reqs() {
         assert_eq!(3361976, get_sum_fuel_reqs("input/2019/day01.txt"));
+    }
+
+    #[test]
+    fn test_get_sum_fuel_reqs_with_fuel_test02() {
+        assert_eq!(51314, get_sum_fuel_reqs_with_fuel("input/2019/day01_test02.txt"));
+    }
+
+    #[test]
+    fn test_get_sum_fuel_reqs_with_fuel() {
+        assert_eq!(5040085, get_sum_fuel_reqs_with_fuel("input/2019/day01.txt"));
     }
 }
