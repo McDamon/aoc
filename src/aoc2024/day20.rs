@@ -11,7 +11,7 @@ use petgraph::{
     Graph,
 };
 
-use crate::utils::{get_lines, Direction};
+use crate::utils::{get_lines, manhattan_distance, Direction};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct Move {
@@ -118,12 +118,6 @@ fn build_graph(
     }
 
     (graph, node_indices)
-}
-
-fn manhattan_distance(from: (usize, usize), to: (usize, usize)) -> usize {
-    let (from_x, from_y) = from;
-    let (to_x, to_y) = to;
-    ((from_x as isize - to_x as isize).abs() + (from_y as isize - to_y as isize).abs()) as usize
 }
 
 fn get_distance(
