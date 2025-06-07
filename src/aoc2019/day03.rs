@@ -99,8 +99,10 @@ pub fn get_closest_dist(input_file: &str) -> isize {
     let wire1_moves_set: HashSet<(isize, isize)> = HashSet::from_iter(wire1_moves);
     let wire2_moves_set: HashSet<(isize, isize)> = HashSet::from_iter(wire2_moves);
 
-    let intersections: Vec<(isize, isize)> =
-        wire1_moves_set.intersection(&wire2_moves_set).cloned().collect();
+    let intersections: Vec<(isize, isize)> = wire1_moves_set
+        .intersection(&wire2_moves_set)
+        .cloned()
+        .collect();
 
     let mut manhattan_distances = vec![];
 
@@ -111,48 +113,12 @@ pub fn get_closest_dist(input_file: &str) -> isize {
     *manhattan_distances.iter().min().unwrap()
 }
 
-fn get_combined_steps(wire_path: &Vec<WireMove>, intersection: (isize, isize)) -> isize {
+fn get_combined_steps(wire_moves: &Vec<(isize, isize)>, intersection: (isize, isize)) -> isize {
     let mut steps = 0;
-    let mut wire_pos = (0isize, 0isize);
-
-    for wire_move in wire_path {
-        match wire_move.dir {
-            MoveDir::Up => {
-                for _i in 1..=wire_move.dist {
-                    wire_pos.1 += 1;
-                    steps += 1;
-                    if wire_pos == intersection {
-                        return steps;
-                    }
-                }
-            }
-            MoveDir::Down => {
-                for _i in 1..=wire_move.dist {
-                    wire_pos.1 -= 1;
-                    steps += 1;
-                    if wire_pos == intersection {
-                        return steps;
-                    }
-                }
-            }
-            MoveDir::Left => {
-                for _i in 1..=wire_move.dist {
-                    wire_pos.0 -= 1;
-                    steps += 1;
-                    if wire_pos == intersection {
-                        return steps;
-                    }
-                }
-            }
-            MoveDir::Right => {
-                for _i in 1..=wire_move.dist {
-                    wire_pos.0 += 1;
-                    steps += 1;
-                    if wire_pos == intersection {
-                        return steps;
-                    }
-                }
-            }
+    for wire_move in wire_moves {
+        steps += 1;
+        if *wire_move == intersection {
+            return steps;
         }
     }
 
@@ -168,16 +134,18 @@ pub fn get_closest_combined_steps(input_file: &str) -> isize {
 
     let wire2_moves = get_wire_moves(&input.wire2_path, start_pos);
 
-    let wire1_moves_set: HashSet<(isize, isize)> = HashSet::from_iter(wire1_moves);
-    let wire2_moves_set: HashSet<(isize, isize)> = HashSet::from_iter(wire2_moves);
+    let wire1_moves_set: HashSet<(isize, isize)> = HashSet::from_iter(wire1_moves.clone());
+    let wire2_moves_set: HashSet<(isize, isize)> = HashSet::from_iter(wire2_moves.clone());
 
-    let intersections: Vec<(isize, isize)> =
-        wire1_moves_set.intersection(&wire2_moves_set).cloned().collect();
+    let intersections: Vec<(isize, isize)> = wire1_moves_set
+        .intersection(&wire2_moves_set)
+        .cloned()
+        .collect();
 
     let mut combined_steps = vec![];
     for intersection in intersections {
-        let wire1_combined_steps_for_intersection = get_combined_steps(&input.wire1_path, intersection);
-        let wire2_combined_steps_for_intersection = get_combined_steps(&input.wire2_path, intersection);
+        let wire1_combined_steps_for_intersection = get_combined_steps(&wire1_moves, intersection);
+        let wire2_combined_steps_for_intersection = get_combined_steps(&wire2_moves, intersection);
         combined_steps
             .push(wire1_combined_steps_for_intersection + wire2_combined_steps_for_intersection);
     }
@@ -234,6 +202,6 @@ mod tests {
 
     #[test]
     fn test_get_closest_combined_steps() {
-        assert_eq!(0, get_closest_combined_steps("input/2019/day03.txt"));
+        assert_eq!(27306, get_closest_combined_steps("input/2019/day03.txt"));
     }
 }
