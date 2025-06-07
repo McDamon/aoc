@@ -2,7 +2,7 @@
 
 use std::collections::HashSet;
 
-use crate::utils::{get_lines, manhattan_distance_i, MoveDir};
+use crate::utils::{MoveDir, get_lines, manhattan_distance_i};
 
 struct WireMove {
     dir: MoveDir,
@@ -43,17 +43,17 @@ fn parse_wire_path(line: &str) -> Vec<WireMove> {
         .collect()
 }
 
-fn get_wire_moves(wire_path: Vec<WireMove>, start_pos: (isize, isize)) -> HashSet<(isize, isize)> {
-    let mut wire_moves: HashSet<(isize, isize)> = HashSet::new();
+fn get_wire_moves(wire_path: &Vec<WireMove>, start_pos: (isize, isize)) -> Vec<(isize, isize)> {
+    let mut wire_moves: Vec<(isize, isize)> = vec![];
     let mut wire_pos = start_pos;
 
-    for wire_move in &wire_path {
+    for wire_move in wire_path {
         match wire_move.dir {
             MoveDir::Up => {
                 let start_y = wire_pos.1;
                 for i in 1..wire_move.dist + 1 {
                     let new_pos = (wire_pos.0, start_y + i);
-                    wire_moves.insert(new_pos);
+                    wire_moves.push(new_pos);
                     wire_pos = new_pos;
                 }
             }
@@ -61,7 +61,7 @@ fn get_wire_moves(wire_path: Vec<WireMove>, start_pos: (isize, isize)) -> HashSe
                 let start_y = wire_pos.1;
                 for i in 1..wire_move.dist + 1 {
                     let new_pos = (wire_pos.0, start_y - i);
-                    wire_moves.insert(new_pos);
+                    wire_moves.push(new_pos);
                     wire_pos = new_pos;
                 }
             }
@@ -69,7 +69,7 @@ fn get_wire_moves(wire_path: Vec<WireMove>, start_pos: (isize, isize)) -> HashSe
                 let start_x = wire_pos.0;
                 for i in 1..wire_move.dist + 1 {
                     let new_pos = (start_x - i, wire_pos.1);
-                    wire_moves.insert(new_pos);
+                    wire_moves.push(new_pos);
                     wire_pos = new_pos;
                 }
             }
@@ -77,7 +77,7 @@ fn get_wire_moves(wire_path: Vec<WireMove>, start_pos: (isize, isize)) -> HashSe
                 let start_x = wire_pos.0;
                 for i in 1..wire_move.dist + 1 {
                     let new_pos = (start_x + i, wire_pos.1);
-                    wire_moves.insert(new_pos);
+                    wire_moves.push(new_pos);
                     wire_pos = new_pos;
                 }
             }
@@ -92,12 +92,15 @@ pub fn get_closest_dist(input_file: &str) -> isize {
 
     let start_pos = (0isize, 0isize);
 
-    let wire1_moves = get_wire_moves(input.wire1_path, start_pos);
+    let wire1_moves = get_wire_moves(&input.wire1_path, start_pos);
 
-    let wire2_moves = get_wire_moves(input.wire2_path, start_pos);
+    let wire2_moves = get_wire_moves(&input.wire2_path, start_pos);
+
+    let wire1_moves_set: HashSet<(isize, isize)> = HashSet::from_iter(wire1_moves);
+    let wire2_moves_set: HashSet<(isize, isize)> = HashSet::from_iter(wire2_moves);
 
     let intersections: Vec<(isize, isize)> =
-        wire1_moves.intersection(&wire2_moves).cloned().collect();
+        wire1_moves_set.intersection(&wire2_moves_set).cloned().collect();
 
     let mut manhattan_distances = vec![];
 
@@ -105,7 +108,80 @@ pub fn get_closest_dist(input_file: &str) -> isize {
         manhattan_distances.push(manhattan_distance_i(start_pos, intersection));
     }
 
-    return *manhattan_distances.iter().min().unwrap();
+    *manhattan_distances.iter().min().unwrap()
+}
+
+fn get_combined_steps(wire_path: &Vec<WireMove>, intersection: (isize, isize)) -> isize {
+    let mut steps = 0;
+    let mut wire_pos = (0isize, 0isize);
+
+    for wire_move in wire_path {
+        match wire_move.dir {
+            MoveDir::Up => {
+                for _i in 1..=wire_move.dist {
+                    wire_pos.1 += 1;
+                    steps += 1;
+                    if wire_pos == intersection {
+                        return steps;
+                    }
+                }
+            }
+            MoveDir::Down => {
+                for _i in 1..=wire_move.dist {
+                    wire_pos.1 -= 1;
+                    steps += 1;
+                    if wire_pos == intersection {
+                        return steps;
+                    }
+                }
+            }
+            MoveDir::Left => {
+                for _i in 1..=wire_move.dist {
+                    wire_pos.0 -= 1;
+                    steps += 1;
+                    if wire_pos == intersection {
+                        return steps;
+                    }
+                }
+            }
+            MoveDir::Right => {
+                for _i in 1..=wire_move.dist {
+                    wire_pos.0 += 1;
+                    steps += 1;
+                    if wire_pos == intersection {
+                        return steps;
+                    }
+                }
+            }
+        }
+    }
+
+    steps
+}
+
+pub fn get_closest_combined_steps(input_file: &str) -> isize {
+    let input = parse_input(input_file);
+
+    let start_pos = (0isize, 0isize);
+
+    let wire1_moves = get_wire_moves(&input.wire1_path, start_pos);
+
+    let wire2_moves = get_wire_moves(&input.wire2_path, start_pos);
+
+    let wire1_moves_set: HashSet<(isize, isize)> = HashSet::from_iter(wire1_moves);
+    let wire2_moves_set: HashSet<(isize, isize)> = HashSet::from_iter(wire2_moves);
+
+    let intersections: Vec<(isize, isize)> =
+        wire1_moves_set.intersection(&wire2_moves_set).cloned().collect();
+
+    let mut combined_steps = vec![];
+    for intersection in intersections {
+        let wire1_combined_steps_for_intersection = get_combined_steps(&input.wire1_path, intersection);
+        let wire2_combined_steps_for_intersection = get_combined_steps(&input.wire2_path, intersection);
+        combined_steps
+            .push(wire1_combined_steps_for_intersection + wire2_combined_steps_for_intersection);
+    }
+    *combined_steps.iter().min().unwrap()
 }
 
 #[cfg(test)]
@@ -130,5 +206,34 @@ mod tests {
     #[test]
     fn test_get_closest_dist() {
         assert_eq!(293, get_closest_dist("input/2019/day03.txt"));
+    }
+
+    #[test]
+    fn test_get_closest_combined_steps_test01() {
+        assert_eq!(
+            30,
+            get_closest_combined_steps("input/2019/day03_test01.txt")
+        );
+    }
+
+    #[test]
+    fn test_get_closest_combined_steps_test02() {
+        assert_eq!(
+            610,
+            get_closest_combined_steps("input/2019/day03_test02.txt")
+        );
+    }
+
+    #[test]
+    fn test_get_closest_combined_steps_test03() {
+        assert_eq!(
+            410,
+            get_closest_combined_steps("input/2019/day03_test03.txt")
+        );
+    }
+
+    #[test]
+    fn test_get_closest_combined_steps() {
+        assert_eq!(0, get_closest_combined_steps("input/2019/day03.txt"));
     }
 }

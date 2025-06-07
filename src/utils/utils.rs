@@ -258,7 +258,7 @@ pub fn manhattan_distance(from: (usize, usize), to: (usize, usize)) -> usize {
 pub fn manhattan_distance_i(from: (isize, isize), to: (isize, isize)) -> isize {
     let (from_x, from_y) = from;
     let (to_x, to_y) = to;
-    (from_x as isize - to_x as isize).abs() + (from_y as isize - to_y as isize).abs()
+    (from_x - to_x).abs() + (from_y - to_y).abs()
 }
 
 #[cfg(test)]
