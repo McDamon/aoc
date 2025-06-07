@@ -3,16 +3,7 @@
 use core::panic;
 use std::collections::{HashSet, VecDeque};
 
-use crate::utils::get_lines;
-
-#[derive(Debug, PartialEq, Eq, Hash, Copy, Clone, Default)]
-enum MoveDir {
-    #[default]
-    Up,
-    Down,
-    Left,
-    Right,
-}
+use crate::utils::{get_lines, MoveDir};
 
 #[derive(Debug, PartialEq, Eq, Hash, Default, Clone)]
 struct Move {
