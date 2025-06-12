@@ -2,7 +2,7 @@
 
 use std::collections::HashSet;
 
-use crate::utils::{get_lines, manhattan_distance_i, MoveDir};
+use crate::utils::{MoveDir, get_lines, manhattan_distance_i};
 
 struct WireMove {
     dir: MoveDir,

@@ -4,12 +4,11 @@ use hashbrown::HashMap;
 
 use itertools::Itertools;
 use petgraph::{
-    algo,
+    Graph, algo,
     graph::{DiGraph, NodeIndex},
-    Graph,
 };
 
-use crate::utils::{get_all_paths, get_lines, Direction};
+use crate::utils::{Direction, get_all_paths, get_lines};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum Button {

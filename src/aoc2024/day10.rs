@@ -2,8 +2,8 @@
 
 use std::collections::HashSet;
 
-use crate::utils::get_lines;
 use crate::utils::ArenaTree;
+use crate::utils::get_lines;
 
 struct Input {
     top_map: Vec<Vec<u32>>,
@@ -27,7 +27,7 @@ fn parse_input(input_file: &str) -> Input {
 
 fn print_tree(tree: &ArenaTree<u32>) {
     for node in tree.arena.iter() {
-        println!("Node: {:?}", node);
+        println!("Node: {node:?}");
     }
 }
 

@@ -60,7 +60,7 @@ fn parse_input_part_one(input_file: &str) -> InputPartOne {
                 });
         InputPartOne { disk }
     } else {
-        panic!("Invalid input file: {}", input_file);
+        panic!("Invalid input file: {input_file}");
     }
 }
 
@@ -92,7 +92,7 @@ fn parse_input_part_two(input_file: &str) -> InputPartTwo {
                 });
         InputPartTwo { disk }
     } else {
-        panic!("Invalid input file: {}", input_file);
+        panic!("Invalid input file: {input_file}");
     }
 }
 

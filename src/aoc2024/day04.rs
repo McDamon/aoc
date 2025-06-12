@@ -1,7 +1,7 @@
 // https://adventofcode.com/2024/day/4
 
-use crate::utils::get_lines;
 use crate::utils::Compass;
+use crate::utils::get_lines;
 
 struct Input {
     search_grid: Vec<Vec<char>>,
