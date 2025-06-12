@@ -54,7 +54,6 @@ pub fn is_valid_password_range(input_file: &str) -> usize {
             .collect();
 
         if is_valid_password(&password) {
-            println!("Valid password: {password:?}");
             num_valid_passwords += 1;
         }
     }
@@ -88,6 +87,6 @@ mod tests {
 
     #[test]
     fn test_is_valid_password_range() {
-        assert_eq!(0, is_valid_password_range("input/2019/day04.txt"));
+        assert_eq!(1929, is_valid_password_range("input/2019/day04.txt"));
     }
 }
