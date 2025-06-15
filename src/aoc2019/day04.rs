@@ -17,7 +17,7 @@ fn parse_input(input_file: &str) -> Input {
     }
 }
 
-pub fn is_valid_password(password: &[usize]) -> bool {
+pub fn is_valid_password_part_one(password: &[usize]) -> bool {
     if password.len() != 6 {
         return false;
     }
@@ -41,7 +41,27 @@ pub fn is_valid_password(password: &[usize]) -> bool {
     is_adj_equal && !is_any_dec
 }
 
-pub fn is_valid_password_range(input_file: &str) -> usize {
+pub fn is_valid_password_part_two(password: &[usize]) -> bool {
+    if password.len() != 6 {
+        return false;
+    }
+
+    let is_adj_equal = password.iter().filter_map(|s| {
+        Some(s)
+    });
+
+    let mut is_any_dec = false;
+    for (prev, next) in password.iter().tuple_windows() {
+        if next < prev {
+            is_any_dec = true;
+            break;
+        }
+    }
+
+    is_adj_equal && !is_any_dec
+}
+
+pub fn is_valid_password_range(input_file: &str, is_part_two: bool) -> usize {
     let input = parse_input(input_file);
 
     let mut num_valid_passwords = 0usize;
@@ -53,7 +73,11 @@ pub fn is_valid_password_range(input_file: &str) -> usize {
             .map(|c| c.to_digit(10).unwrap() as usize)
             .collect();
 
-        if is_valid_password(&password) {
+        if is_part_two {
+            if is_valid_password_part_two(&password) {
+                num_valid_passwords += 1;
+            }
+        } else if is_valid_password_part_one(&password) {
             num_valid_passwords += 1;
         }
     }
@@ -66,27 +90,47 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_is_valid_password_first() {
-        assert_eq!(true, is_valid_password(&[1, 1, 1, 1, 1, 1,]));
+    fn test_is_valid_password_part_one_first() {
+        assert_eq!(true, is_valid_password_part_one(&[1, 1, 1, 1, 1, 1,]));
     }
 
     #[test]
-    fn test_is_valid_password_second() {
-        assert_eq!(false, is_valid_password(&[2, 2, 3, 4, 5, 0]));
+    fn test_is_valid_password_part_one_second() {
+        assert_eq!(false, is_valid_password_part_one(&[2, 2, 3, 4, 5, 0]));
     }
 
     #[test]
-    fn test_is_valid_password_third() {
-        assert_eq!(false, is_valid_password(&[1, 2, 3, 7, 8, 9]));
+    fn test_is_valid_password_part_one_third() {
+        assert_eq!(false, is_valid_password_part_one(&[1, 2, 3, 7, 8, 9]));
     }
 
     #[test]
-    fn test_is_valid_password_fourth() {
-        assert_eq!(false, is_valid_password(&[5, 8, 4, 7, 0, 0]));
+    fn test_is_valid_password_part_one_fourth() {
+        assert_eq!(false, is_valid_password_part_one(&[5, 8, 4, 7, 0, 0]));
     }
 
     #[test]
-    fn test_is_valid_password_range() {
-        assert_eq!(1929, is_valid_password_range("input/2019/day04.txt"));
+    fn test_is_valid_password_part_two_first() {
+        assert_eq!(true, is_valid_password_part_two(&[1, 1, 2, 2, 3, 3]));
+    }
+
+    #[test]
+    fn test_is_valid_password_part_two_second() {
+        assert_eq!(false, is_valid_password_part_two(&[1, 2, 3, 4, 4, 4]));
+    }
+
+    #[test]
+    fn test_is_valid_password_part_two_third() {
+        assert_eq!(true, is_valid_password_part_two(&[1, 1, 1, 1, 2, 2]));
+    }
+
+    #[test]
+    fn test_is_valid_password_range_part_one() {
+        assert_eq!(1929, is_valid_password_range("input/2019/day04.txt", false));
+    }
+
+    #[test]
+    fn test_is_valid_password_range_part_two() {
+        assert_eq!(0, is_valid_password_range("input/2019/day04.txt", true));
     }
 }
