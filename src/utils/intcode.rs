@@ -33,25 +33,26 @@ pub fn parse_intcode_input(input_file: &str) -> Vec<isize> {
         .collect()
 }
 
-pub fn run_intcode(intcode: &mut [isize], prog_counter: usize, input: Option<isize>) -> &[isize] {
+pub fn run_intcode<'a>(intcode: &'a mut [isize], prog_counter: usize, input: Option<isize>, outputs: &'a mut Vec<isize>) -> &'a [isize] {
     let instruction = int_to_instruction(intcode[prog_counter]);
     let modes = int_to_modes(intcode[prog_counter]);
     match Opcode::try_from(instruction) {
         Ok(Opcode::Add) => {
             calc_add(intcode, &modes, prog_counter);
-            run_intcode(intcode, prog_counter + 4, input)
+            run_intcode(intcode, prog_counter + 4, input, outputs)
         }
         Ok(Opcode::Multiply) => {
             calc_multiply(intcode, &modes, prog_counter);
-            run_intcode(intcode, prog_counter + 4, input)
+            run_intcode(intcode, prog_counter + 4, input, outputs)
         }
         Ok(Opcode::Store) => {
             calc_store(intcode, prog_counter, input);
-            run_intcode(intcode, prog_counter + 2, input)
+            run_intcode(intcode, prog_counter + 2, input, outputs)
         }
         Ok(Opcode::Load) => {
-            calc_load(intcode, &modes, prog_counter);
-            run_intcode(intcode, prog_counter + 2, input)
+            let output = calc_load(intcode, &modes, prog_counter);
+            outputs.push(output);
+            run_intcode(intcode, prog_counter + 2, input, outputs)
         }
         Ok(Opcode::Halt) => intcode,
         Err(_) => panic!("Unexpected Opcode {}", intcode[prog_counter]),
@@ -88,10 +89,10 @@ pub fn calc_store(intcode: &mut [isize], prog_counter: usize, input: Option<isiz
     };
 }
 
-pub fn calc_load(intcode: &mut [isize], modes: &[isize], prog_counter: usize) {
+pub fn calc_load(intcode: &mut [isize], modes: &[isize], prog_counter: usize) -> isize {
     let param_1 = intcode[prog_counter + 1];
     let load = get_parameter_value(intcode, param_1, *modes.get(0).unwrap_or(&0));
-    println!("Load: {load:?}");
+    load
 }
 
 // Helper function to resolve parameter value based on mode
