@@ -29,7 +29,7 @@ fn parse_input(input_file: &str) -> Input {
                         .map(|c| match c {
                             '.' => LockPin::Empty,
                             '#' => LockPin::Filled,
-                            _ => panic!("Unexpected character: {}", c),
+                            _ => panic!("Unexpected character: {c}"),
                         })
                         .collect()
                 })

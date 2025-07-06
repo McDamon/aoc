@@ -3,12 +3,11 @@
 use std::collections::HashMap;
 
 use petgraph::{
-    algo,
+    Graph, algo,
     graph::{DiGraph, NodeIndex},
-    Graph,
 };
 
-use crate::utils::{get_lines, Direction};
+use crate::utils::{Direction, get_lines};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct Move {

@@ -3,7 +3,7 @@
 use core::panic;
 use std::collections::{HashSet, VecDeque};
 
-use crate::utils::{get_lines, MoveDir};
+use crate::utils::{MoveDir, get_lines};
 
 #[derive(Debug, PartialEq, Eq, Hash, Default, Clone)]
 struct Move {

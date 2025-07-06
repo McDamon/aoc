@@ -6,12 +6,11 @@ use std::{
 };
 
 use petgraph::{
-    algo,
+    Graph, algo,
     graph::{DiGraph, NodeIndex},
-    Graph,
 };
 
-use crate::utils::{get_lines, manhattan_distance, Direction};
+use crate::utils::{Direction, get_lines, manhattan_distance};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct Move {

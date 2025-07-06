@@ -168,7 +168,7 @@ fn run_program(registers: &mut Registers, program: &[u64]) -> (Registers, Vec<u6
                 ins_ptr += 2;
             }
             _ => {
-                panic!("unknown opcode {}", opcode);
+                panic!("unknown opcode {opcode}");
             }
         }
     }
@@ -191,7 +191,7 @@ pub fn get_joined_vals(input_file: &str) -> (Registers, String) {
 
     let program = input.program;
 
-    println!("program {:?}", program);
+    println!("program {program:?}");
 
     let (out_registers, out_vals) = run_program(&mut registers, &program);
 

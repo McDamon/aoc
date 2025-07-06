@@ -2,9 +2,9 @@
 
 use std::collections::HashSet;
 
-use crate::utils::get_lines;
 use crate::utils::Direction;
 use crate::utils::ListNode;
+use crate::utils::get_lines;
 
 #[derive(Debug, Default, PartialEq, Eq, Copy, Clone)]
 #[repr(u8)]
@@ -49,7 +49,7 @@ fn parse_map(map_lines: Vec<String>) -> Vec<Vec<MapEntry>> {
         for map_entry in map_line.chars() {
             match MapEntry::try_from(map_entry as u8) {
                 Ok(pipe) => map_entries.push(pipe),
-                Err(_) => panic!("Invalid map entry {}", map_entry),
+                Err(_) => panic!("Invalid map entry {map_entry}"),
             }
         }
         map.push(map_entries);

@@ -80,7 +80,7 @@ fn parse_input(input_file: &str) -> Input {
                 if !gates.contains(&gate) {
                     gates.push(gate.clone());
                 } else {
-                    panic!("Duplicate gate found: {:?}", gate);
+                    panic!("Duplicate gate found: {gate:?}");
                 }
             }
         } else {
@@ -211,7 +211,7 @@ pub fn get_z_decimal_num(input_file: &str) -> usize {
 
     let z_output_vals = get_z_output_vals(&gate_calcs);
 
-    println!("Z output vals: {:?}", z_output_vals);
+    println!("Z output vals: {z_output_vals:?}");
 
     bin_to_dec(&z_output_vals)
 }
@@ -251,7 +251,7 @@ pub fn get_swapped_wires(input_file: &str) -> String {
     let input = parse_input(input_file);
 
     let num_bits = input.init_wires.len() / 2;
-    println!("num_bits: {:?}", num_bits);
+    println!("num_bits: {num_bits:?}");
 
     let mut a_bits = vec![];
     let mut b_bits = vec![];
@@ -268,13 +268,13 @@ pub fn get_swapped_wires(input_file: &str) -> String {
         }
     }
 
-    println!("a_bits: {:?}", a_bits);
-    println!("b_bits: {:?}", b_bits);
+    println!("a_bits: {a_bits:?}");
+    println!("b_bits: {b_bits:?}");
 
     let (sums, c_outs) = ripple_adder(&a_bits, &b_bits);
 
-    println!("sums: {:?}", sums);
-    println!("c_outs: {:?}", c_outs);
+    println!("sums: {sums:?}");
+    println!("c_outs: {c_outs:?}");
 
     swap_wires(&input.gates.clone()).to_string()
 }
@@ -290,7 +290,7 @@ fn swap_wires(gates: &[Gate]) -> String {
     }
 
     for initial_invalid_gate in initial_invalid_gates.clone() {
-        println!("Initial invalid gate: {:?}", initial_invalid_gate);
+        println!("Initial invalid gate: {initial_invalid_gate:?}");
     }
 
     let output_wires = initial_invalid_gates
@@ -300,7 +300,7 @@ fn swap_wires(gates: &[Gate]) -> String {
         .collect::<Vec<_>>()
         .join(","); // Join the sorted output wires with commas
 
-    println!("Output wires: {:?}", output_wires);
+    println!("Output wires: {output_wires:?}");
 
     output_wires // Return the comma-separated string
 }

@@ -13,7 +13,7 @@ impl TryFrom<isize> for Opcode {
             1 => Ok(Opcode::Add),
             2 => Ok(Opcode::Multiply),
             99 => Ok(Opcode::Halt),
-            _ => Err(format!("Invalid opcode: {}", value)),
+            _ => Err(format!("Invalid opcode: {value}")),
         }
     }
 }
