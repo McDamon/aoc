@@ -261,6 +261,33 @@ pub fn manhattan_distance_i(from: (isize, isize), to: (isize, isize)) -> isize {
     (from_x - to_x).abs() + (from_y - to_y).abs()
 }
 
+pub fn digits_to_int(digits: &[isize]) -> isize {
+    digits
+        .iter()
+        .map(|&d| d.to_string())
+        .collect::<String>()
+        .parse::<isize>()
+        .unwrap_or(0)
+}
+
+pub fn int_to_digits(int: isize) -> Vec<isize> {
+    int.to_string()
+        .chars()
+        .map(|d| d.to_digit(10).unwrap() as isize)
+        .collect::<Vec<_>>()
+}
+
+pub fn int_to_instruction(int: isize) -> isize {
+    int % 100
+}
+
+pub fn int_to_modes(int: isize) -> Vec<isize> {
+    let mut digits = int_to_digits(int);
+    digits.drain(digits.len() - 2..);
+    digits.reverse();
+    digits
+}
+
 #[cfg(test)]
 mod tests {
     use petgraph::Graph;
@@ -355,5 +382,47 @@ mod tests {
         let paths = get_all_paths(&graph, &costs, a, a);
         assert_eq!(paths.len(), 1);
         assert_eq!(paths[0], vec![a]);
+    }
+
+    #[test]
+    fn test_digits_to_int() {
+        let digits = vec![1, 0, 0, 2];
+        let result = digits_to_int(&digits);
+        assert_eq!(result, 1002);
+    }
+
+    #[test]
+    fn test_int_to_digits() {
+        let number = 1002;
+        let result = int_to_digits(number);
+        assert_eq!(result, vec![1, 0, 0, 2]);
+    }
+
+    #[test]
+    fn test_int_to_instruction_one() {
+        let number = 1002;
+        let result = int_to_instruction(number);
+        assert_eq!(result, 2);
+    }
+
+    #[test]
+    fn test_int_to_instruction_two() {
+        let number = 1010101003;
+        let result = int_to_instruction(number);
+        assert_eq!(result, 3);
+    }
+    
+    #[test]
+    fn test_int_to_modes_one() {
+        let number = 1002;
+        let result = int_to_modes(number);
+        assert_eq!(result, [1, 0].into_iter().rev().collect::<Vec<_>>());
+    }
+    
+    #[test]
+    fn test_int_to_modes_two() {
+        let number = 1010101003;
+        let result = int_to_modes(number);
+        assert_eq!(result, [1, 0, 1, 0, 1, 0, 1, 0].into_iter().rev().collect::<Vec<_>>());
     }
 }

@@ -1,7 +1,11 @@
+use crate::utils::{int_to_instruction, int_to_modes};
+
 #[derive(Debug)]
 pub enum Opcode {
     Add = 1isize,
     Multiply = 2isize,
+    Store = 3isize,
+    Load = 4isize,
     Halt = 99isize,
 }
 
@@ -12,6 +16,8 @@ impl TryFrom<isize> for Opcode {
         match value {
             1 => Ok(Opcode::Add),
             2 => Ok(Opcode::Multiply),
+            3 => Ok(Opcode::Store),
+            4 => Ok(Opcode::Load),
             99 => Ok(Opcode::Halt),
             _ => Err(format!("Invalid opcode: {value}")),
         }
@@ -27,38 +33,103 @@ pub fn parse_intcode_input(input_file: &str) -> Vec<isize> {
         .collect()
 }
 
-pub fn run_intcode(intcode: &mut [isize], prog_counter: usize) -> &[isize] {
-    match Opcode::try_from(intcode[prog_counter]) {
+pub fn run_intcode(intcode: &mut [isize], prog_counter: usize, input: Option<isize>) -> &[isize] {
+    let instruction = int_to_instruction(intcode[prog_counter]);
+    let modes = int_to_modes(intcode[prog_counter]);
+    match Opcode::try_from(instruction) {
         Ok(Opcode::Add) => {
-            calc_add(intcode, prog_counter);
-            run_intcode(intcode, prog_counter + 4)
+            calc_add(intcode, &modes, prog_counter);
+            run_intcode(intcode, prog_counter + 4, input)
         }
         Ok(Opcode::Multiply) => {
-            calc_multiply(intcode, prog_counter);
-            run_intcode(intcode, prog_counter + 4)
+            calc_multiply(intcode, &modes, prog_counter);
+            run_intcode(intcode, prog_counter + 4, input)
+        }
+        Ok(Opcode::Store) => {
+            calc_store(intcode, prog_counter, input);
+            run_intcode(intcode, prog_counter + 2, input)
+        }
+        Ok(Opcode::Load) => {
+            calc_load(intcode, &modes, prog_counter);
+            run_intcode(intcode, prog_counter + 2, input)
         }
         Ok(Opcode::Halt) => intcode,
-        Err(_) => panic!(),
+        Err(_) => panic!("Unexpected Opcode {}", intcode[prog_counter]),
     }
 }
 
-pub fn get_param_pos(intcode: &mut [isize], prog_counter: usize) -> (usize, usize, usize) {
-    let param_pos1 = intcode[prog_counter + 1];
-    let param_pos2 = intcode[prog_counter + 2];
-    let param_pos3 = intcode[prog_counter + 3];
-    (
-        param_pos1 as usize,
-        param_pos2 as usize,
-        param_pos3 as usize,
-    )
+pub fn calc_add(intcode: &mut [isize], modes: &[isize], prog_counter: usize) {
+    let (param_1, param_2, param_3) = (
+        intcode[prog_counter + 1],
+        intcode[prog_counter + 2],
+        intcode[prog_counter + 3],
+    );
+    let operand_lhs = if let Some(&mode) = modes.first() {
+        if mode == 0 {
+            intcode[param_1 as usize]
+        } else {
+            param_1
+        }
+    } else {
+        panic!("Mode not provided for LHS operand")
+    };
+    let operand_rhs = if let Some(&mode) = modes.get(1) {
+        if mode == 0 {
+            intcode[param_2 as usize]
+        } else {
+            param_2
+        }
+    } else {
+        panic!("Mode not provided for LHS operand")
+    };
+    intcode[param_3 as usize] = operand_lhs + operand_rhs;
 }
 
-pub fn calc_add(intcode: &mut [isize], prog_counter: usize) {
-    let param_pos = get_param_pos(intcode, prog_counter);
-    intcode[param_pos.2] = intcode[param_pos.0] + intcode[param_pos.1];
+pub fn calc_multiply(intcode: &mut [isize], modes: &[isize], prog_counter: usize) {
+    let (param_1, param_2, param_3) = (
+        intcode[prog_counter + 1],
+        intcode[prog_counter + 2],
+        intcode[prog_counter + 3],
+    );
+    let operand_lhs = if let Some(&mode) = modes.first() {
+        if mode == 0 {
+            intcode[param_1 as usize]
+        } else {
+            param_1
+        }
+    } else {
+        panic!("Mode not provided for LHS operand")
+    };
+    let operand_rhs = if let Some(&mode) = modes.get(1) {
+        if mode == 0 {
+            intcode[param_2 as usize]
+        } else {
+            param_2
+        }
+    } else {
+        panic!("Mode not provided for LHS operand")
+    };
+    intcode[param_3 as usize] = operand_lhs * operand_rhs;
 }
 
-pub fn calc_multiply(intcode: &mut [isize], prog_counter: usize) {
-    let param_pos = get_param_pos(intcode, prog_counter);
-    intcode[param_pos.2] = intcode[param_pos.0] * intcode[param_pos.1];
+pub fn calc_store(intcode: &mut [isize], prog_counter: usize, input: Option<isize>) {
+    let param_1 = intcode[prog_counter + 1];
+    intcode[param_1 as usize] = match input {
+        Some(value) => value,
+        None => panic!("No input provided for Store operation"),
+    };
+}
+
+pub fn calc_load(intcode: &mut [isize], modes: &[isize], prog_counter: usize) {
+    let param_1 = intcode[prog_counter + 1];
+    let load = if let Some(&mode) = modes.first() {
+        if mode == 0 {
+            intcode[param_1 as usize]
+        } else {
+            param_1
+        }
+    } else {
+        panic!("Mode not provided for LHS operand")
+    };
+    println!("Load: {load:?}");
 }
