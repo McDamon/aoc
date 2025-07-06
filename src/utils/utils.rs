@@ -283,6 +283,9 @@ pub fn int_to_instruction(int: isize) -> isize {
 
 pub fn int_to_modes(int: isize) -> Vec<isize> {
     let mut digits = int_to_digits(int);
+    if digits.len() < 2 {
+        return vec![];
+    }
     digits.drain(digits.len() - 2..);
     digits.reverse();
     digits

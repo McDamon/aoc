@@ -64,24 +64,8 @@ pub fn calc_add(intcode: &mut [isize], modes: &[isize], prog_counter: usize) {
         intcode[prog_counter + 2],
         intcode[prog_counter + 3],
     );
-    let operand_lhs = if let Some(&mode) = modes.first() {
-        if mode == 0 {
-            intcode[param_1 as usize]
-        } else {
-            param_1
-        }
-    } else {
-        panic!("Mode not provided for LHS operand")
-    };
-    let operand_rhs = if let Some(&mode) = modes.get(1) {
-        if mode == 0 {
-            intcode[param_2 as usize]
-        } else {
-            param_2
-        }
-    } else {
-        panic!("Mode not provided for LHS operand")
-    };
+    let operand_lhs = get_parameter_value(intcode, param_1, *modes.get(0).unwrap_or(&0));
+    let operand_rhs = get_parameter_value(intcode, param_2, *modes.get(1).unwrap_or(&0));
     intcode[param_3 as usize] = operand_lhs + operand_rhs;
 }
 
@@ -91,24 +75,8 @@ pub fn calc_multiply(intcode: &mut [isize], modes: &[isize], prog_counter: usize
         intcode[prog_counter + 2],
         intcode[prog_counter + 3],
     );
-    let operand_lhs = if let Some(&mode) = modes.first() {
-        if mode == 0 {
-            intcode[param_1 as usize]
-        } else {
-            param_1
-        }
-    } else {
-        panic!("Mode not provided for LHS operand")
-    };
-    let operand_rhs = if let Some(&mode) = modes.get(1) {
-        if mode == 0 {
-            intcode[param_2 as usize]
-        } else {
-            param_2
-        }
-    } else {
-        panic!("Mode not provided for LHS operand")
-    };
+    let operand_lhs = get_parameter_value(intcode, param_1, *modes.get(0).unwrap_or(&0));
+    let operand_rhs = get_parameter_value(intcode, param_2, *modes.get(1).unwrap_or(&0));
     intcode[param_3 as usize] = operand_lhs * operand_rhs;
 }
 
@@ -122,14 +90,15 @@ pub fn calc_store(intcode: &mut [isize], prog_counter: usize, input: Option<isiz
 
 pub fn calc_load(intcode: &mut [isize], modes: &[isize], prog_counter: usize) {
     let param_1 = intcode[prog_counter + 1];
-    let load = if let Some(&mode) = modes.first() {
-        if mode == 0 {
-            intcode[param_1 as usize]
-        } else {
-            param_1
-        }
-    } else {
-        panic!("Mode not provided for LHS operand")
-    };
+    let load = get_parameter_value(intcode, param_1, *modes.get(0).unwrap_or(&0));
     println!("Load: {load:?}");
+}
+
+// Helper function to resolve parameter value based on mode
+fn get_parameter_value(intcode: &[isize], param: isize, mode: isize) -> isize {
+    match mode {
+        0 => intcode[param as usize], // Position mode
+        1 => param,                   // Immediate mode
+        _ => panic!("Invalid parameter mode: {mode}"),
+    }
 }
