@@ -1,6 +1,7 @@
 // https://adventofcode.com/2019/day/4
 
 use crate::utils::get_lines;
+use hashbrown::HashMap;
 use itertools::Itertools;
 
 struct Input {
@@ -46,9 +47,23 @@ pub fn is_valid_password_part_two(password: &[usize]) -> bool {
         return false;
     }
 
-    let is_adj_equal = password.iter().filter_map(|s| {
-        Some(s)
-    });
+    let mut is_adj_equal = false;
+    let mut repeats = HashMap::new();
+    for (prev, next) in password.iter().tuple_windows() {
+        if next == prev {
+            if repeats.contains_key(prev) {
+                *repeats.get_mut(prev).unwrap() += 1;
+            } else {
+                repeats.insert(*prev, 2);
+            }
+        }
+    }
+    for &count in repeats.values() {
+        if count == 2 {
+            is_adj_equal = true;
+            break;
+        }
+    }
 
     let mut is_any_dec = false;
     for (prev, next) in password.iter().tuple_windows() {
@@ -122,6 +137,11 @@ mod tests {
     #[test]
     fn test_is_valid_password_part_two_third() {
         assert_eq!(true, is_valid_password_part_two(&[1, 1, 1, 1, 2, 2]));
+    }
+
+    #[test]
+    fn test_is_valid_password_part_two_fourth() {
+        assert_eq!(false, is_valid_password_part_two(&[1, 2, 2, 2, 2, 4]));
     }
 
     #[test]
