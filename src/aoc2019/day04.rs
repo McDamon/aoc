@@ -151,6 +151,6 @@ mod tests {
 
     #[test]
     fn test_is_valid_password_range_part_two() {
-        assert_eq!(0, is_valid_password_range("input/2019/day04.txt", true));
+        assert_eq!(1306, is_valid_password_range("input/2019/day04.txt", true));
     }
 }
