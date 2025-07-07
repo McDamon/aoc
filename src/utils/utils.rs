@@ -414,18 +414,24 @@ mod tests {
         let result = int_to_instruction(number);
         assert_eq!(result, 3);
     }
-    
+
     #[test]
     fn test_int_to_modes_one() {
         let number = 1002;
         let result = int_to_modes(number);
         assert_eq!(result, [1, 0].into_iter().rev().collect::<Vec<_>>());
     }
-    
+
     #[test]
     fn test_int_to_modes_two() {
         let number = 1010101003;
         let result = int_to_modes(number);
-        assert_eq!(result, [1, 0, 1, 0, 1, 0, 1, 0].into_iter().rev().collect::<Vec<_>>());
+        assert_eq!(
+            result,
+            [1, 0, 1, 0, 1, 0, 1, 0]
+                .into_iter()
+                .rev()
+                .collect::<Vec<_>>()
+        );
     }
 }

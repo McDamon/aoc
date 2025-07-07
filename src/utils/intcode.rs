@@ -33,7 +33,12 @@ pub fn parse_intcode_input(input_file: &str) -> Vec<isize> {
         .collect()
 }
 
-pub fn run_intcode<'a>(intcode: &'a mut [isize], prog_counter: usize, input: Option<isize>, outputs: &mut Vec<isize>) -> &'a [isize] {
+pub fn run_intcode<'a>(
+    intcode: &'a mut [isize],
+    prog_counter: usize,
+    input: Option<isize>,
+    outputs: &mut Vec<isize>,
+) -> &'a [isize] {
     let instruction = int_to_instruction(intcode[prog_counter]);
     let modes = int_to_modes(intcode[prog_counter]);
     match Opcode::try_from(instruction) {
@@ -91,7 +96,7 @@ pub fn calc_store(intcode: &mut [isize], prog_counter: usize, input: Option<isiz
 
 pub fn calc_load(intcode: &mut [isize], modes: &[isize], prog_counter: usize) -> isize {
     let param_1 = intcode[prog_counter + 1];
-    
+
     get_parameter_value(intcode, param_1, *modes.first().unwrap_or(&0))
 }
 
