@@ -33,7 +33,7 @@ pub fn parse_intcode_input(input_file: &str) -> Vec<isize> {
         .collect()
 }
 
-pub fn run_intcode<'a>(intcode: &'a mut [isize], prog_counter: usize, input: Option<isize>, outputs: &'a mut Vec<isize>) -> &'a [isize] {
+pub fn run_intcode<'a>(intcode: &'a mut [isize], prog_counter: usize, input: Option<isize>, outputs: &mut Vec<isize>) -> &'a [isize] {
     let instruction = int_to_instruction(intcode[prog_counter]);
     let modes = int_to_modes(intcode[prog_counter]);
     match Opcode::try_from(instruction) {
