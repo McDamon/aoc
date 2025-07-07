@@ -65,7 +65,7 @@ pub fn calc_add(intcode: &mut [isize], modes: &[isize], prog_counter: usize) {
         intcode[prog_counter + 2],
         intcode[prog_counter + 3],
     );
-    let operand_lhs = get_parameter_value(intcode, param_1, *modes.get(0).unwrap_or(&0));
+    let operand_lhs = get_parameter_value(intcode, param_1, *modes.first().unwrap_or(&0));
     let operand_rhs = get_parameter_value(intcode, param_2, *modes.get(1).unwrap_or(&0));
     intcode[param_3 as usize] = operand_lhs + operand_rhs;
 }
@@ -76,7 +76,7 @@ pub fn calc_multiply(intcode: &mut [isize], modes: &[isize], prog_counter: usize
         intcode[prog_counter + 2],
         intcode[prog_counter + 3],
     );
-    let operand_lhs = get_parameter_value(intcode, param_1, *modes.get(0).unwrap_or(&0));
+    let operand_lhs = get_parameter_value(intcode, param_1, *modes.first().unwrap_or(&0));
     let operand_rhs = get_parameter_value(intcode, param_2, *modes.get(1).unwrap_or(&0));
     intcode[param_3 as usize] = operand_lhs * operand_rhs;
 }
@@ -91,8 +91,8 @@ pub fn calc_store(intcode: &mut [isize], prog_counter: usize, input: Option<isiz
 
 pub fn calc_load(intcode: &mut [isize], modes: &[isize], prog_counter: usize) -> isize {
     let param_1 = intcode[prog_counter + 1];
-    let load = get_parameter_value(intcode, param_1, *modes.get(0).unwrap_or(&0));
-    load
+    
+    get_parameter_value(intcode, param_1, *modes.first().unwrap_or(&0))
 }
 
 // Helper function to resolve parameter value based on mode
