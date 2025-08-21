@@ -48,8 +48,8 @@ pub fn get_unique_lock_key_pairs(input_file: &str) -> u32 {
     let mut keys: Vec<Vec<[LockPin; 5]>> = vec![];
 
     for schematic in input.schematics {
-        if let Some(first_line) = schematic.first() {
-            if first_line.iter().all(|&pin| pin == LockPin::Filled) {
+        if let Some(first_line) = schematic.first()
+            && first_line.iter().all(|&pin| pin == LockPin::Filled) {
                 locks.push(
                     schematic
                         .iter()
@@ -61,9 +61,8 @@ pub fn get_unique_lock_key_pairs(input_file: &str) -> u32 {
                         .collect(),
                 );
             }
-        }
-        if let Some(last_line) = schematic.last() {
-            if last_line.iter().all(|&pin| pin == LockPin::Filled) {
+        if let Some(last_line) = schematic.last()
+            && last_line.iter().all(|&pin| pin == LockPin::Filled) {
                 keys.push(
                     schematic
                         .iter()
@@ -75,7 +74,6 @@ pub fn get_unique_lock_key_pairs(input_file: &str) -> u32 {
                         .collect(),
                 );
             }
-        }
     }
 
     let lock_pin_heights = locks

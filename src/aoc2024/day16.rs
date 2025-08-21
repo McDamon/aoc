@@ -81,8 +81,8 @@ fn build_graph(input: &Input) -> (Graph<Move, f64>, HashMap<Move, NodeIndex>) {
                 // Forward movement
                 let (dx, dy) = dir.to_delta();
                 let (next_x, next_y) = (x + dx, y + dy);
-                if let Some(&next_c) = input.maze.get(&(next_x, next_y)) {
-                    if next_c != '#' {
+                if let Some(&next_c) = input.maze.get(&(next_x, next_y))
+                    && next_c != '#' {
                         let next_move = Move {
                             pos: (next_x, next_y),
                             dir,
@@ -95,7 +95,6 @@ fn build_graph(input: &Input) -> (Graph<Move, f64>, HashMap<Move, NodeIndex>) {
                             next_idx.index()
                         );*/
                     }
-                }
 
                 // Turn edges
                 let left_move = Move {

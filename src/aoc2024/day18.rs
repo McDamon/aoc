@@ -79,8 +79,8 @@ fn build_graph(
                 // Forward movement
                 let (dx, dy) = dir.to_delta();
                 let (next_x, next_y) = (x + dx, y + dy);
-                if let Some(&next_c) = mem_map.get(&(next_x, next_y)) {
-                    if next_c != '#' {
+                if let Some(&next_c) = mem_map.get(&(next_x, next_y))
+                    && next_c != '#' {
                         let next_move = Move {
                             pos: (next_x, next_y),
                         };
@@ -88,7 +88,6 @@ fn build_graph(
                         graph.add_edge(node_idx, next_idx, 1.0);
                         //println!("Added edge {:?} -> {:?}", graph[node_idx], graph[next_idx]);
                     }
-                }
             }
         }
     }

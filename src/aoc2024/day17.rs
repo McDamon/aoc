@@ -222,11 +222,10 @@ pub fn get_lowest_positive_reg_a(input_file: &str) -> u64 {
                 //println!("out_registers: {:?}", out_registers);
                 //println!("out_vals: {:?}", out_vals);
 
-                if let Some(first_out_vals) = out_vals.first() {
-                    if num == first_out_vals {
+                if let Some(first_out_vals) = out_vals.first()
+                    && num == first_out_vals {
                         new_poss_reg_a_vals.insert(poss_reg_a);
                     }
-                }
             }
         }
         poss_reg_a_vals = new_poss_reg_a_vals;

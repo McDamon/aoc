@@ -36,7 +36,7 @@ fn get_new_stones(stone: usize) -> Vec<usize> {
             // Replace with stone engraved with the number 1
             new_stones.push(1);
         }
-        _ if stone.to_string().len() % 2 == 0 => {
+        _ if stone.to_string().len().is_multiple_of(2) => {
             // Replace with two stones (split each number string in half)
             let stone_str = stone.to_string();
             let (first_half, second_half) = stone_str.split_at(stone_str.len() / 2);
@@ -89,7 +89,7 @@ fn count_stones(
 
     let num_stones: usize = match stone {
         0 => count_stones(1, blinks - 1, stones_cache),
-        _ if stone.to_string().len() % 2 == 0 => {
+        _ if stone.to_string().len().is_multiple_of(2) => {
             let stone_str = stone.to_string();
             let (first_half, second_half) = stone_str.split_at(stone_str.len() / 2);
             count_stones(
