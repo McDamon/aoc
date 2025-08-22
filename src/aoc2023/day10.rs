@@ -288,7 +288,7 @@ pub fn get_enclosed_by_loop(input_file: &str) -> usize {
 }
 
 fn clean_tiles_simple(
-    tiles: &Vec<Vec<Pipe>>,
+    tiles: &[Vec<Pipe>],
     loop_set: &std::collections::HashSet<(usize, usize)>,
     start: (usize, usize),
 ) -> Vec<Vec<Pipe>> {

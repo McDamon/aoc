@@ -10,7 +10,7 @@ pub mod day09;
 pub mod day10;
 pub mod day11;
 pub mod day12;
-// pub mod day13;  // Requires grid crate
+pub mod day13; // Requires grid crate
 // pub mod day14;  // Requires grid crate
 // pub mod day15;  // Requires csv crate
 // pub mod day16;  // Requires grid crate

@@ -6,29 +6,32 @@ use std::{
     iter::zip,
 };
 
-use grid::Grid;
 use itertools::Itertools;
 
 use crate::utils::get_lines;
 
 #[derive(Debug, Default, Clone, Copy, Hash, PartialEq, Eq)]
-enum Ground {
+pub enum Ground {
     #[default]
     Ash,
     Rocks,
 }
 
-#[derive(Debug)]
-struct Input {
-    mirrors: Vec<Grid<Ground>>,
+pub fn get_column(matrix: &[Vec<Ground>], col_index: usize) -> Vec<Ground> {
+    matrix.iter().map(|row| row[col_index]).collect()
 }
 
-fn parse_input(input_file: &str) -> Input {
+#[derive(Debug)]
+pub struct Input {
+    pub mirrors: Vec<Vec<Vec<Ground>>>,
+}
+
+pub fn parse_input(input_file: &str) -> Input {
     let lines = get_lines(input_file);
 
     let iter = lines.split(|e| e.is_empty());
 
-    let mut mirrors: Vec<Grid<Ground>> = vec![];
+    let mut mirrors: Vec<Vec<Vec<Ground>>> = vec![];
     for ground_strs in iter {
         let mirror = parse_ground(ground_strs.iter().collect_vec());
         mirrors.push(mirror);
@@ -36,8 +39,8 @@ fn parse_input(input_file: &str) -> Input {
     Input { mirrors }
 }
 
-fn parse_ground(ground_lines: Vec<&String>) -> Grid<Ground> {
-    let mut ground = Grid::new(0, 0);
+pub fn parse_ground(ground_lines: Vec<&String>) -> Vec<Vec<Ground>> {
+    let mut ground = Vec::new();
     for ground_line in ground_lines.into_iter() {
         let mut ground_entries: Vec<Ground> = Vec::new();
         for ground_entry in ground_line.chars() {
@@ -47,15 +50,15 @@ fn parse_ground(ground_lines: Vec<&String>) -> Grid<Ground> {
                 _ => panic!("invalid ground"),
             }
         }
-        ground.push_row(ground_entries)
+        ground.push(ground_entries)
     }
     ground
 }
 
-fn get_reflections(
+pub fn get_reflections(
     row_cache: &mut HashSet<(usize, usize)>,
     col_cache: &mut HashSet<(usize, usize)>,
-    mirror: &Grid<Ground>,
+    mirror: &[Vec<Ground>],
     find_different: bool,
 ) -> u32 {
     let mut row_reflection_lens: HashMap<usize, usize> = HashMap::new();
@@ -64,28 +67,34 @@ fn get_reflections(
     let mut reflections = 0;
 
     let mut row_reflections: Vec<usize> = vec![];
-    for (row_index, (row_a, row_b)) in mirror.iter_rows().tuple_windows().enumerate() {
+    for (row_index, (row_a, row_b)) in mirror.iter().tuple_windows().enumerate() {
         if find_different
-            && off_by_one_or_equal(row_a.clone().collect_vec(), row_b.clone().collect_vec())
+            && off_by_one_or_equal(row_a.iter().collect_vec(), row_b.iter().collect_vec())
         {
             row_reflections.push(row_index);
         }
 
-        if !find_different && row_a.collect_vec() == row_b.collect_vec() {
+        if !find_different && row_a.iter().collect_vec() == row_b.iter().collect_vec() {
             row_reflections.push(row_index);
         }
     }
     println!("row_reflections: {:?}", row_reflections);
 
     let mut col_reflections: Vec<usize> = vec![];
-    for (col_index, (col_a, col_b)) in mirror.iter_cols().tuple_windows().enumerate() {
+    for col_index in 0..mirror[0].len() {
+        let col_a = get_column(mirror, col_index);
+        let col_b = if col_index + 1 < mirror[0].len() {
+            get_column(mirror, col_index + 1)
+        } else {
+            continue;
+        };
         if find_different
-            && off_by_one_or_equal(col_a.clone().collect_vec(), col_b.clone().collect_vec())
+            && off_by_one_or_equal(col_a.iter().collect_vec(), col_b.iter().collect_vec())
         {
             col_reflections.push(col_index);
         }
 
-        if !find_different && col_a.collect_vec() == col_b.collect_vec() {
+        if !find_different && col_a == col_b {
             col_reflections.push(col_index);
         }
     }
@@ -94,19 +103,19 @@ fn get_reflections(
     for row_reflection_index in row_reflections {
         let mut row_reflection_len = 0;
         let up_range = (0..row_reflection_index + 1).rev();
-        let down_range = row_reflection_index + 1..mirror.rows();
+        let down_range = row_reflection_index + 1..mirror.len();
         for (row_a, row_b) in zip(up_range.clone(), down_range.clone()) {
             if find_different
                 && off_by_one_or_equal(
-                    mirror.iter_row(row_a).clone().collect_vec(),
-                    mirror.iter_row(row_b).clone().collect_vec(),
+                    mirror[row_a].iter().collect_vec(),
+                    mirror[row_b].iter().collect_vec(),
                 )
             {
                 row_reflection_len += 1;
             }
 
             if !find_different
-                && mirror.iter_row(row_a).collect_vec() == mirror.iter_row(row_b).collect_vec()
+                && mirror[row_a].iter().collect_vec() == mirror[row_b].iter().collect_vec()
             {
                 row_reflection_len += 1;
             }
@@ -121,20 +130,18 @@ fn get_reflections(
     for col_reflection_index in col_reflections {
         let mut col_reflection_len = 0;
         let left_range = (0..col_reflection_index + 1).rev();
-        let right_range = col_reflection_index + 1..mirror.cols();
+        let right_range = col_reflection_index + 1..mirror[0].len();
         for (col_a, col_b) in zip(left_range.clone(), right_range.clone()) {
             if find_different
                 && off_by_one_or_equal(
-                    mirror.iter_col(col_a).clone().collect_vec(),
-                    mirror.iter_col(col_b).clone().collect_vec(),
+                    get_column(mirror, col_a).iter().collect_vec(),
+                    get_column(mirror, col_b).iter().collect_vec(),
                 )
             {
                 col_reflection_len += 1;
             }
 
-            if !find_different
-                && mirror.iter_col(col_a).collect_vec() == mirror.iter_col(col_b).collect_vec()
-            {
+            if !find_different && get_column(mirror, col_a) == get_column(mirror, col_b) {
                 col_reflection_len += 1;
             }
         }
@@ -157,18 +164,18 @@ fn get_reflections(
             reflections = (num_left_cols + 1) as u32;
             col_cache.insert((max_col_reflection_len, *num_left_cols));
         }
-    } else if !row_reflection_lens.is_empty() {
-        if let Some(num_above_rows) = row_reflection_lens.get(&max_row_reflection_len) {
-            println!("num_above_rows: {:?}", num_above_rows + 1);
-            reflections = 100 * (num_above_rows + 1) as u32;
-            row_cache.insert((max_row_reflection_len, *num_above_rows));
-        }
+    } else if !row_reflection_lens.is_empty()
+        && let Some(num_above_rows) = row_reflection_lens.get(&max_row_reflection_len)
+    {
+        println!("num_above_rows: {:?}", num_above_rows + 1);
+        reflections = 100 * (num_above_rows + 1) as u32;
+        row_cache.insert((max_row_reflection_len, *num_above_rows));
     }
 
     reflections
 }
 
-fn get_sum_reflections(input_file: &str, find_different: bool) -> u32 {
+pub fn get_sum_reflections(input_file: &str, find_different: bool) -> u32 {
     let mut sum_reflections: u32 = 0;
 
     let input = parse_input(input_file);
