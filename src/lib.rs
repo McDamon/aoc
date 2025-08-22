@@ -4,6 +4,7 @@
 extern crate lazy_static;
 
 pub mod aoc2019;
+pub mod aoc2022;
 pub mod aoc2024;
 
 #[path = "./utils/utils.rs"]

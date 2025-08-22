@@ -1,0 +1,10 @@
+$ cd /
+$ ls
+dir a
+404 file
+$ cd a
+$ ls
+dir c
+$ cd c
+$ ls
+123 file2
