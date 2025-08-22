@@ -195,6 +195,7 @@ fn get_dir_move_entry(direction: Direction) -> Button {
         Direction::S => Button::Down,
         Direction::E => Button::Right,
         Direction::W => Button::Left,
+        Direction::Stop => panic!("Direction::Stop is not a valid move"),
     }
 }
 

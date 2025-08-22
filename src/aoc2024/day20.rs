@@ -88,15 +88,15 @@ fn build_graph(
                 // Forward movement
                 let (dx, dy) = dir.to_delta();
                 let (next_x, next_y) = (x as isize + dx, y as isize + dy);
-                if let Some(&next_c) = track.get(&(next_x as usize, next_y as usize)) {
-                    if next_c != '#' {
-                        let next_move = Move {
-                            pos: (next_x as usize, next_y as usize),
-                        };
-                        let next_idx = node_indices[&next_move];
-                        graph.add_edge(node_idx, next_idx, 1.0);
-                        //println!("Added edge {:?} -> {:?}", graph[node_idx], graph[next_idx]);
-                    }
+                if let Some(&next_c) = track.get(&(next_x as usize, next_y as usize))
+                    && next_c != '#'
+                {
+                    let next_move = Move {
+                        pos: (next_x as usize, next_y as usize),
+                    };
+                    let next_idx = node_indices[&next_move];
+                    graph.add_edge(node_idx, next_idx, 1.0);
+                    //println!("Added edge {:?} -> {:?}", graph[node_idx], graph[next_idx]);
                 }
             }
         }

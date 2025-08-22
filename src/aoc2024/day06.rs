@@ -209,6 +209,9 @@ fn build_list(
                 },
             );
         }
+        Direction::Stop => {
+            // Handle the Stop direction, e.g., terminate processing
+        }
     }
 }
 
