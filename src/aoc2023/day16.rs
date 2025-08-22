@@ -2,7 +2,7 @@
 
 use std::collections::HashSet;
 
-use crate::utils::{get_lines, Direction};
+use crate::utils::{Direction, get_lines};
 
 #[derive(Debug)]
 pub struct Input {
@@ -179,7 +179,11 @@ pub fn print_tiles(tiles: &[Vec<Tile>]) {
     }
 }
 
-pub fn get_energized_tiles_count(pos: (usize, usize), dir: Direction, tiles: &[Vec<Tile>]) -> usize {
+pub fn get_energized_tiles_count(
+    pos: (usize, usize),
+    dir: Direction,
+    tiles: &[Vec<Tile>],
+) -> usize {
     let mut visited_tiles: HashSet<(usize, usize, Direction)> = HashSet::new();
     let mut rt = Raytracer {
         tiles: tiles.to_vec(),

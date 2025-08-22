@@ -83,19 +83,14 @@ pub fn get_least_heat_loss<const MIN: usize, const MAX: usize>(input_file: &str)
             }
         };
         open.extend(
-            [
-                Direction::N,
-                Direction::E,
-                Direction::S,
-                Direction::W,
-            ]
-            .iter()
-            .filter_map(|&d| {
-                let (same_dir, opp_dir) = match dir {
-                    Some(pdir) => (pdir == d, pdir.opposite() == d),
-                    None => (true, false),
-                };
-                if (distance < MIN && !same_dir)
+            [Direction::N, Direction::E, Direction::S, Direction::W]
+                .iter()
+                .filter_map(|&d| {
+                    let (same_dir, opp_dir) = match dir {
+                        Some(pdir) => (pdir == d, pdir.opposite() == d),
+                        None => (true, false),
+                    };
+                    if (distance < MIN && !same_dir)
                     || (distance > MAX - 1 && same_dir) // constraints
                     || opp_dir // no backtracking.
                     || match d { // don't go outside grid.
@@ -104,32 +99,31 @@ pub fn get_least_heat_loss<const MIN: usize, const MAX: usize>(input_file: &str)
                     Direction::S => pos / cols == rows - 1,
                     Direction::W => pos % cols == 0,
                     Direction::Stop => false, // Stop does not move outside the grid.
+                    } {
+                        return None;
                     }
-                {
-                    return None;
-                }
-                let npos = match d {
-                    Direction::N => pos - cols,
-                    Direction::E => pos + 1,
-                    Direction::S => pos + cols,
-                    Direction::W => pos - 1,
-                    Direction::Stop => pos, // Handle Stop by keeping the position unchanged.
-                };
-                let ndist = 1 + if same_dir { distance } else { 0 };
-                let nkey = npos * (4 * MAX) + d.index() * MAX + ndist;
-                let ncost = cost + tiles[npos];
-                let (visited, prevcost) = history[nkey];
-                if visited || prevcost <= ncost {
-                    return None;
-                }
-                history[nkey].1 = ncost;
-                Some(Node {
-                    pos: npos,
-                    dir: Some(d),
-                    distance: ndist,
-                    cost: ncost,
-                })
-            }),
+                    let npos = match d {
+                        Direction::N => pos - cols,
+                        Direction::E => pos + 1,
+                        Direction::S => pos + cols,
+                        Direction::W => pos - 1,
+                        Direction::Stop => pos, // Handle Stop by keeping the position unchanged.
+                    };
+                    let ndist = 1 + if same_dir { distance } else { 0 };
+                    let nkey = npos * (4 * MAX) + d.index() * MAX + ndist;
+                    let ncost = cost + tiles[npos];
+                    let (visited, prevcost) = history[nkey];
+                    if visited || prevcost <= ncost {
+                        return None;
+                    }
+                    history[nkey].1 = ncost;
+                    Some(Node {
+                        pos: npos,
+                        dir: Some(d),
+                        distance: ndist,
+                        cost: ncost,
+                    })
+                }),
         );
     }
     // Get min cost of last tile.
