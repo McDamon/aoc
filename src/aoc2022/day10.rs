@@ -65,9 +65,10 @@ pub fn get_sum_signal_strengths(input_file: &str) -> i32 {
                     let signal_strength = get_signal_strength(cycle, x);
                     signal_strength_sum += signal_strength;
                     if i == 1
-                        && let Some(val) = instruction.instruction_val {
-                            x += val;
-                        }
+                        && let Some(val) = instruction.instruction_val
+                    {
+                        x += val;
+                    }
                     render_cycle(cycle, x);
                     cycle += 1;
                 }
@@ -109,7 +110,10 @@ mod tests {
 
     #[test]
     fn test_get_sum_signal_strengths_test02() {
-        assert_eq!(13140, get_sum_signal_strengths("input/2022/day10_test02.txt"));
+        assert_eq!(
+            13140,
+            get_sum_signal_strengths("input/2022/day10_test02.txt")
+        );
     }
 
     #[test]

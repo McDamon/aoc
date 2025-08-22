@@ -176,37 +176,58 @@ mod tests {
 
     #[test]
     fn test_sum_spring_arrangements_test01() {
-        assert_eq!(21, sum_spring_arrangements("input/2023/day12_test01.txt", false));
+        assert_eq!(
+            21,
+            sum_spring_arrangements("input/2023/day12_test01.txt", false)
+        );
     }
 
     #[test]
     fn test_sum_spring_arrangements_test02() {
-        assert_eq!(1, sum_spring_arrangements("input/2023/day12_test02.txt", false));
+        assert_eq!(
+            1,
+            sum_spring_arrangements("input/2023/day12_test02.txt", false)
+        );
     }
 
     #[test]
     fn test_sum_spring_arrangements_test03() {
-        assert_eq!(4, sum_spring_arrangements("input/2023/day12_test03.txt", false));
+        assert_eq!(
+            4,
+            sum_spring_arrangements("input/2023/day12_test03.txt", false)
+        );
     }
 
     #[test]
     fn test_sum_spring_arrangements_test04() {
-        assert_eq!(1, sum_spring_arrangements("input/2023/day12_test04.txt", false));
+        assert_eq!(
+            1,
+            sum_spring_arrangements("input/2023/day12_test04.txt", false)
+        );
     }
 
     #[test]
     fn test_sum_spring_arrangements_test05() {
-        assert_eq!(1, sum_spring_arrangements("input/2023/day12_test05.txt", false));
+        assert_eq!(
+            1,
+            sum_spring_arrangements("input/2023/day12_test05.txt", false)
+        );
     }
 
     #[test]
     fn test_sum_spring_arrangements_test06() {
-        assert_eq!(4, sum_spring_arrangements("input/2023/day12_test06.txt", false));
+        assert_eq!(
+            4,
+            sum_spring_arrangements("input/2023/day12_test06.txt", false)
+        );
     }
 
     #[test]
     fn test_sum_spring_arrangements_test07() {
-        assert_eq!(10, sum_spring_arrangements("input/2023/day12_test07.txt", false));
+        assert_eq!(
+            10,
+            sum_spring_arrangements("input/2023/day12_test07.txt", false)
+        );
     }
 
     #[test]

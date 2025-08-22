@@ -1,6 +1,6 @@
 // https://adventofcode.com/2023/day/10
 
-use crate::utils::{get_lines, Direction};
+use crate::utils::{Direction, get_lines};
 
 #[derive(Debug, Default, PartialEq, Eq, Copy, Clone)]
 #[repr(u8)]
@@ -97,27 +97,29 @@ fn find_main_loop(tiles: &[Vec<Pipe>], start: (usize, usize)) -> Vec<(usize, usi
     let mut path = vec![start];
     let mut current = start;
     let mut came_from: Option<(usize, usize)> = None;
-    
+
     loop {
         let mut found_next = false;
-        
+
         // Check all 4 directions
         for direction in [Direction::N, Direction::S, Direction::E, Direction::W] {
-            if let Some(next_pos) = get_next_position(current, direction, tiles.len(), tiles[0].len()) {
+            if let Some(next_pos) =
+                get_next_position(current, direction, tiles.len(), tiles[0].len())
+            {
                 // Don't go back where we came from
                 if Some(next_pos) == came_from {
                     continue;
                 }
-                
+
                 let current_pipe = tiles[current.0][current.1];
                 let next_pipe = tiles[next_pos.0][next_pos.1];
-                
+
                 if is_pipe_connected(current_pipe, next_pipe, direction) {
                     // If we've reached the start again, we've completed the loop
                     if next_pos == start && path.len() > 2 {
                         return path;
                     }
-                    
+
                     // If we haven't visited this position yet, continue
                     if !path.contains(&next_pos) {
                         came_from = Some(current);
@@ -129,16 +131,21 @@ fn find_main_loop(tiles: &[Vec<Pipe>], start: (usize, usize)) -> Vec<(usize, usi
                 }
             }
         }
-        
+
         if !found_next {
             break;
         }
     }
-    
+
     path
 }
 
-fn get_next_position(pos: (usize, usize), direction: Direction, max_row: usize, max_col: usize) -> Option<(usize, usize)> {
+fn get_next_position(
+    pos: (usize, usize),
+    direction: Direction,
+    max_row: usize,
+    max_col: usize,
+) -> Option<(usize, usize)> {
     let (row, col) = pos;
     match direction {
         Direction::N => {
@@ -258,7 +265,7 @@ pub fn get_enclosed_by_loop(input_file: &str) -> usize {
     if let Some(start) = start_pos {
         let loop_path = find_main_loop(&input.tiles, start);
         let loop_set: std::collections::HashSet<(usize, usize)> = loop_path.into_iter().collect();
-        
+
         let cleaned_tiles = clean_tiles_simple(&input.tiles, &loop_set, start);
 
         // Use the ray casting approach to count inside tiles
@@ -280,11 +287,15 @@ pub fn get_enclosed_by_loop(input_file: &str) -> usize {
     }
 }
 
-fn clean_tiles_simple(tiles: &Vec<Vec<Pipe>>, loop_set: &std::collections::HashSet<(usize, usize)>, start: (usize, usize)) -> Vec<Vec<Pipe>> {
+fn clean_tiles_simple(
+    tiles: &Vec<Vec<Pipe>>,
+    loop_set: &std::collections::HashSet<(usize, usize)>,
+    start: (usize, usize),
+) -> Vec<Vec<Pipe>> {
     let rows = tiles.len();
     let cols = if rows > 0 { tiles[0].len() } else { 0 };
     let mut cleaned_tiles: Vec<Vec<Pipe>> = vec![vec![Pipe::Ground; cols]; rows];
-    
+
     for (row, tile_row) in tiles.iter().enumerate() {
         for (col, pipe) in tile_row.iter().enumerate() {
             let pos = (row, col);
@@ -303,7 +314,7 @@ fn clean_tiles_simple(tiles: &Vec<Vec<Pipe>>, loop_set: &std::collections::HashS
 
 fn infer_start_pipe(tiles: &[Vec<Pipe>], start: (usize, usize)) -> Pipe {
     let mut connections = Vec::new();
-    
+
     // Check all four directions to see what connects to the start
     for direction in [Direction::N, Direction::S, Direction::E, Direction::W] {
         if let Some(next_pos) = get_next_position(start, direction, tiles.len(), tiles[0].len()) {
@@ -313,7 +324,7 @@ fn infer_start_pipe(tiles: &[Vec<Pipe>], start: (usize, usize)) -> Pipe {
             }
         }
     }
-    
+
     // Determine the pipe type based on connections
     match connections.as_slice() {
         [Direction::N, Direction::S] | [Direction::S, Direction::N] => Pipe::VerticalNS,

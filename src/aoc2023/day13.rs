@@ -209,12 +209,18 @@ mod tests {
 
     #[test]
     fn test_get_sum_reflections_test02() {
-        assert_eq!(400, get_sum_reflections("input/2023/day13_test02.txt", false));
+        assert_eq!(
+            400,
+            get_sum_reflections("input/2023/day13_test02.txt", false)
+        );
     }
 
     #[test]
     fn test_get_sum_reflections_test03() {
-        assert_eq!(405, get_sum_reflections("input/2023/day13_test03.txt", false));
+        assert_eq!(
+            405,
+            get_sum_reflections("input/2023/day13_test03.txt", false)
+        );
     }
 
     #[test]
@@ -224,7 +230,10 @@ mod tests {
 
     #[test]
     fn test_get_sum_reflections_test05() {
-        assert_eq!(100, get_sum_reflections("input/2023/day13_test05.txt", false));
+        assert_eq!(
+            100,
+            get_sum_reflections("input/2023/day13_test05.txt", false)
+        );
     }
 
     #[test]
@@ -239,17 +248,26 @@ mod tests {
 
     #[test]
     fn test_get_sum_reflections_part02_test01() {
-        assert_eq!(300, get_sum_reflections("input/2023/day13_test01.txt", true));
+        assert_eq!(
+            300,
+            get_sum_reflections("input/2023/day13_test01.txt", true)
+        );
     }
 
     #[test]
     fn test_get_sum_reflections_part02_test02() {
-        assert_eq!(100, get_sum_reflections("input/2023/day13_test02.txt", true));
+        assert_eq!(
+            100,
+            get_sum_reflections("input/2023/day13_test02.txt", true)
+        );
     }
 
     #[test]
     fn test_get_sum_reflections_part02_test03() {
-        assert_eq!(400, get_sum_reflections("input/2023/day13_test03.txt", true));
+        assert_eq!(
+            400,
+            get_sum_reflections("input/2023/day13_test03.txt", true)
+        );
     }
 
     #[test]
@@ -264,7 +282,10 @@ mod tests {
 
     #[test]
     fn test_get_sum_reflections_part02_test06() {
-        assert_eq!(1400, get_sum_reflections("input/2023/day13_test06.txt", true));
+        assert_eq!(
+            1400,
+            get_sum_reflections("input/2023/day13_test06.txt", true)
+        );
     }
 
     #[test]

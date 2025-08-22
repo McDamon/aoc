@@ -62,22 +62,34 @@ mod tests {
 
     #[test]
     fn test_get_multiple_beaten_records_test01() {
-        assert_eq!(288, get_multiple_beaten_records("input/2023/day06_test01.txt"));
+        assert_eq!(
+            288,
+            get_multiple_beaten_records("input/2023/day06_test01.txt")
+        );
     }
 
     #[test]
     fn test_get_multiple_beaten_records_test02() {
-        assert_eq!(4, get_multiple_beaten_records("input/2023/day06_test02.txt"));
+        assert_eq!(
+            4,
+            get_multiple_beaten_records("input/2023/day06_test02.txt")
+        );
     }
 
     #[test]
     fn test_get_multiple_beaten_records_test03() {
-        assert_eq!(8, get_multiple_beaten_records("input/2023/day06_test03.txt"));
+        assert_eq!(
+            8,
+            get_multiple_beaten_records("input/2023/day06_test03.txt")
+        );
     }
 
     #[test]
     fn test_get_multiple_beaten_records_test04() {
-        assert_eq!(9, get_multiple_beaten_records("input/2023/day06_test04.txt"));
+        assert_eq!(
+            9,
+            get_multiple_beaten_records("input/2023/day06_test04.txt")
+        );
     }
 
     #[test]

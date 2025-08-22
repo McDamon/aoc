@@ -104,11 +104,17 @@ mod tests {
 
     #[test]
     fn test_sum_calibration_values_part01() {
-        assert_eq!(54390, get_sum_calibration_values("input/2023/day01.txt", false));
+        assert_eq!(
+            54390,
+            get_sum_calibration_values("input/2023/day01.txt", false)
+        );
     }
 
     #[test]
     fn test_sum_calibration_values_part02() {
-        assert_eq!(54277, get_sum_calibration_values("input/2023/day01.txt", true));
+        assert_eq!(
+            54277,
+            get_sum_calibration_values("input/2023/day01.txt", true)
+        );
     }
 }

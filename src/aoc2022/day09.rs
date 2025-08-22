@@ -4,7 +4,7 @@ use std::collections::HashSet;
 
 use regex::Regex;
 
-use crate::utils::{get_lines, MoveDir};
+use crate::utils::{MoveDir, get_lines};
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum MoveCondition {
@@ -125,14 +125,14 @@ impl PlankTracker {
                     if knot.x > knot_next.x + 1 {
                         knot_next.x += 1;
                     }
-                    
+
                     // .....    .....
                     // ..HT. -> .HtT.
                     // .....    .....
                     if knot.x < knot_next.x - 1 {
                         knot_next.x -= 1;
                     }
-                  
+
                     // ...    ...
                     // ...    .H.
                     // .H. -> .t.
@@ -141,7 +141,7 @@ impl PlankTracker {
                     if knot.y > knot_next.y + 1 {
                         knot_next.y += 1;
                     }
-                    
+
                     // ...    ...
                     // .T.    .T.
                     // .H. -> .t.
@@ -149,7 +149,7 @@ impl PlankTracker {
                     // ...    ...
                     if knot.y < knot_next.y - 1 {
                         knot_next.y -= 1;
-                    }  
+                    }
                 }
                 MoveCondition::Diagonal => {
                     // ......
@@ -157,7 +157,7 @@ impl PlankTracker {
                     // .Ht...
                     // ...T..
                     // ......
-                    
+
                     if knot.x < knot_next.x - 1 && knot.y > knot_next.y {
                         knot_next.x -= 1;
                         knot_next.y += 1;
@@ -201,7 +201,7 @@ impl PlankTracker {
                     // ..t...
                     // ...T..
                     // ......
-                    
+
                     if knot.x < knot_next.x && knot.y > knot_next.y + 1 {
                         knot_next.x -= 1;
                         knot_next.y += 1;
@@ -223,7 +223,7 @@ impl PlankTracker {
                     // ..T...
                     // ...t..
                     // ...H..
-                    
+
                     if knot.x > knot_next.x && knot.y < knot_next.y - 1 {
                         knot_next.x += 1;
                         knot_next.y -= 1;
@@ -234,7 +234,7 @@ impl PlankTracker {
                     // ..T...
                     // .t....
                     // .H....
-                    
+
                     if knot.x < knot_next.x && knot.y < knot_next.y - 1 {
                         knot_next.x -= 1;
                         knot_next.y -= 1;
@@ -299,7 +299,10 @@ mod tests {
 
     #[test]
     fn test_get_rope_tail_visits_example() {
-        assert_eq!(13, get_rope_tail_visits(2, "input/2022/day09_test_example.txt"));
+        assert_eq!(
+            13,
+            get_rope_tail_visits(2, "input/2022/day09_test_example.txt")
+        );
     }
 
     #[test]
@@ -320,7 +323,10 @@ mod tests {
 
     #[test]
     fn test_get_rope_tail_visits_direct_up() {
-        assert_eq!(2, get_rope_tail_visits(2, "input/2022/day09_test_direct_up.txt"));
+        assert_eq!(
+            2,
+            get_rope_tail_visits(2, "input/2022/day09_test_direct_up.txt")
+        );
     }
 
     #[test]
@@ -418,7 +424,10 @@ mod tests {
 
     #[test]
     fn test_get_rope_tail_visits_part_2_test02() {
-        assert_eq!(1, get_rope_tail_visits(10, "input/2022/day09_part02_test02.txt"));
+        assert_eq!(
+            1,
+            get_rope_tail_visits(10, "input/2022/day09_part02_test02.txt")
+        );
     }
 
     // Initial state
@@ -560,7 +569,10 @@ mod tests {
 
     #[test]
     fn test_get_rope_tail_visits_part_2_test03() {
-        assert_eq!(2, get_rope_tail_visits(10, "input/2022/day09_part02_test03.txt"));
+        assert_eq!(
+            2,
+            get_rope_tail_visits(10, "input/2022/day09_part02_test03.txt")
+        );
     }
 
     #[test]

@@ -236,7 +236,10 @@ mod tests {
 
     #[test]
     fn test_get_total_winnings_test01() {
-        assert_eq!(6440, get_total_winnings("input/2023/day07_test01.txt", false));
+        assert_eq!(
+            6440,
+            get_total_winnings("input/2023/day07_test01.txt", false)
+        );
     }
 
     #[test]
@@ -256,7 +259,10 @@ mod tests {
 
     #[test]
     fn test_get_total_winnings_joker_test01() {
-        assert_eq!(5905, get_total_winnings("input/2023/day07_test01.txt", true));
+        assert_eq!(
+            5905,
+            get_total_winnings("input/2023/day07_test01.txt", true)
+        );
     }
 
     #[test]

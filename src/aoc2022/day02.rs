@@ -74,18 +74,20 @@ pub fn get_total_rps_score_part_two(input_file: &str) -> i32 {
 
         let opp_play = rps_strategy.next().unwrap();
 
-        let my_play_result = my_play_result_table.get(rps_strategy.next().unwrap()).unwrap();
+        let my_play_result = my_play_result_table
+            .get(rps_strategy.next().unwrap())
+            .unwrap();
 
         let my_play = match (opp_play, my_play_result) {
             ("A", RpsResult::Lose) => "Z", // Opp plays Rock, my play should be Scissors
             ("A", RpsResult::Draw) => "X", // Opp plays Rock, my play should be Rock
-            ("A", RpsResult::Win) => "Y", // Opp plays Rock, my play should be Paper
+            ("A", RpsResult::Win) => "Y",  // Opp plays Rock, my play should be Paper
             ("B", RpsResult::Lose) => "X", // Opp plays Paper, my play should be Rock
             ("B", RpsResult::Draw) => "Y", // Opp plays Paper, my play should be Paper
-            ("B", RpsResult::Win) => "Z", // Opp plays Paper, my play should be Scissors
+            ("B", RpsResult::Win) => "Z",  // Opp plays Paper, my play should be Scissors
             ("C", RpsResult::Lose) => "Y", // Opp plays Scissors, my play should be Paper
             ("C", RpsResult::Draw) => "Z", // Opp plays Scissors, my play should be Scissors
-            ("C", RpsResult::Win) => "X", // Opp plays Scissors, my play should be Rock
+            ("C", RpsResult::Win) => "X",  // Opp plays Scissors, my play should be Rock
             (&_, _) => "",
         };
 

@@ -99,7 +99,6 @@ fn print_trench(trench: &Grid<Tile>) {
 fn get_cubic_meters_lava(input_file: &str) -> usize {
     let input = parse_input(input_file);
 
-
     let (mut row, mut col): (i64, i64) = (0, 0);
     let (mut max_row, mut max_col): (i64, i64) = (0, 0);
 

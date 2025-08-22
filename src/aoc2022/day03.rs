@@ -104,7 +104,10 @@ mod tests {
 
     #[test]
     fn test_get_sum_priorities_of_item_types() {
-        assert_eq!(7568, get_sum_priorities_of_item_types("input/2022/day03.txt"));
+        assert_eq!(
+            7568,
+            get_sum_priorities_of_item_types("input/2022/day03.txt")
+        );
     }
 
     #[test]

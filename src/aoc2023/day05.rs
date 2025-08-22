@@ -256,17 +256,26 @@ mod tests {
 
     #[test]
     fn test_get_lowest_location_test01() {
-        assert_eq!(35, get_lowest_location("input/2023/day05_test01.txt", false));
+        assert_eq!(
+            35,
+            get_lowest_location("input/2023/day05_test01.txt", false)
+        );
     }
 
     #[test]
     fn test_get_lowest_location_test02() {
-        assert_eq!(13, get_lowest_location("input/2023/day05_test02.txt", false));
+        assert_eq!(
+            13,
+            get_lowest_location("input/2023/day05_test02.txt", false)
+        );
     }
 
     #[test]
     fn test_get_lowest_location_score() {
-        assert_eq!(388071289, get_lowest_location("input/2023/day05.txt", false));
+        assert_eq!(
+            388071289,
+            get_lowest_location("input/2023/day05.txt", false)
+        );
     }
 
     #[test]

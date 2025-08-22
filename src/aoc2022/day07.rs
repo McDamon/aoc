@@ -158,9 +158,11 @@ pub(crate) fn parse_input(input_file: &str) -> DirectoryTreeNode {
                 _ => {
                     root.dfs(&mut |node| {
                         if let Some(parent) = &node.parent
-                            && node.value.name == path && parent.id == current.id {
-                                current = node.value.clone();
-                            }
+                            && node.value.name == path
+                            && parent.id == current.id
+                        {
+                            current = node.value.clone();
+                        }
                     });
                 }
             }
@@ -200,13 +202,13 @@ pub(crate) fn parse_input(input_file: &str) -> DirectoryTreeNode {
 
 pub fn get_sum_of_directories(input_file: &str) -> i32 {
     let mut root = parse_input(input_file);
-    
+
     root.get_sum_of_directories()
 }
 
 pub fn get_all_directory_sizes(input_file: &str) -> Vec<i32> {
     let mut root = parse_input(input_file);
-    
+
     root.get_all_directory_sizes()
 }
 
@@ -258,9 +260,6 @@ mod tests {
 
     #[test]
     fn test_get_all_directory_sizes() {
-        assert_eq!(
-            8998590,
-            get_size_deleted_directory("input/2022/day07.txt")
-        );
+        assert_eq!(8998590, get_size_deleted_directory("input/2022/day07.txt"));
     }
 }

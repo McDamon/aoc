@@ -110,11 +110,14 @@ fn num_adj_sym(row: i32, col: i32, engine_schematic: &[Vec<SchematicEntry>]) -> 
     let mut num_adj_sym: u32 = 0;
     for i in (row - 1)..(row + 2) {
         for j in (col - 1)..(col + 2) {
-            let entry = engine_schematic.get(i as usize).and_then(|r| r.get(j as usize));
+            let entry = engine_schematic
+                .get(i as usize)
+                .and_then(|r| r.get(j as usize));
             if let Some(entry) = entry
-                && entry.is_symbol {
-                    num_adj_sym += 1;
-                };
+                && entry.is_symbol
+            {
+                num_adj_sym += 1;
+            };
         }
     }
     num_adj_sym
@@ -162,7 +165,7 @@ pub fn get_sum_gear_ratios(input_file: &str) -> u32 {
         num_adj_stars.clear();
         num_queue.clear();
     }
-    
+
     for (_, values) in gear_entries.iter() {
         if values.len() == 2 {
             sum_gear_ratios += values[0] * values[1]
@@ -179,11 +182,14 @@ fn add_adj_stars(
     let mut num = Vec::<(usize, usize)>::new();
     for i in (row - 1)..(row + 2) {
         for j in (col - 1)..(col + 2) {
-            let entry = engine_schematic.get(i as usize).and_then(|r| r.get(j as usize));
+            let entry = engine_schematic
+                .get(i as usize)
+                .and_then(|r| r.get(j as usize));
             if let Some(entry) = entry
-                && entry.is_gear {
-                    num.push((i as usize, j as usize));
-                };
+                && entry.is_gear
+            {
+                num.push((i as usize, j as usize));
+            };
         }
     }
     num

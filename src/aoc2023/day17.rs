@@ -172,29 +172,41 @@ mod tests {
 
     #[test]
     fn test_get_least_heat_loss_test01() {
-        assert_eq!(102, get_least_heat_loss::<0, 3>("input/2023/day17_test01.txt"));
+        assert_eq!(
+            102,
+            get_least_heat_loss::<0, 3>("input/2023/day17_test01.txt")
+        );
     }
 
     #[test]
     fn test_get_least_heat_loss_test02() {
-        assert_eq!(14, get_least_heat_loss::<0, 3>("input/2023/day17_test02.txt"));
+        assert_eq!(
+            14,
+            get_least_heat_loss::<0, 3>("input/2023/day17_test02.txt")
+        );
     }
 
     #[test]
     fn test_get_least_heat_loss_test03() {
-        assert_eq!(28, get_least_heat_loss::<0, 3>("input/2023/day17_test03.txt"));
+        assert_eq!(
+            28,
+            get_least_heat_loss::<0, 3>("input/2023/day17_test03.txt")
+        );
     }
 
     #[test]
     fn test_get_least_heat_loss_test04() {
-        assert_eq!(11, get_least_heat_loss::<0, 3>("input/2023/day17_test04.txt"));
+        assert_eq!(
+            11,
+            get_least_heat_loss::<0, 3>("input/2023/day17_test04.txt")
+        );
     }
 
     #[test]
     fn test_get_least_heat_loss_part01() {
         assert_eq!(1099, get_least_heat_loss::<0, 3>("input/2023/day17.txt"));
     }
-    
+
     #[test]
     fn test_get_least_heat_loss_part02() {
         assert_eq!(1266, get_least_heat_loss::<4, 10>("input/2023/day17.txt"));

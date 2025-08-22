@@ -82,19 +82,20 @@ fn build_graph(input: &Input) -> (Graph<Move, f64>, HashMap<Move, NodeIndex>) {
                 let (dx, dy) = dir.to_delta();
                 let (next_x, next_y) = (x + dx, y + dy);
                 if let Some(&next_c) = input.maze.get(&(next_x, next_y))
-                    && next_c != '#' {
-                        let next_move = Move {
-                            pos: (next_x, next_y),
-                            dir,
-                        };
-                        let next_idx = node_indices[&next_move];
-                        graph.add_edge(node_idx, next_idx, 1.0);
-                        /*println!(
-                            "Added forward edge {} -> {} (weight 1)",
-                            node_idx.index(),
-                            next_idx.index()
-                        );*/
-                    }
+                    && next_c != '#'
+                {
+                    let next_move = Move {
+                        pos: (next_x, next_y),
+                        dir,
+                    };
+                    let next_idx = node_indices[&next_move];
+                    graph.add_edge(node_idx, next_idx, 1.0);
+                    /*println!(
+                        "Added forward edge {} -> {} (weight 1)",
+                        node_idx.index(),
+                        next_idx.index()
+                    );*/
+                }
 
                 // Turn edges
                 let left_move = Move {

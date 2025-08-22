@@ -35,7 +35,6 @@ pub fn is_unique<T: PartialEq>(slice: &[T]) -> bool {
 pub fn get_num_chars_before_sop_marker_file<const N: usize>(input_file: &str) -> i32 {
     let lines = get_lines(input_file);
 
-    
     get_num_chars_before_sop_marker::<N>(&lines[0])
 }
 

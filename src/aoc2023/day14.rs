@@ -120,8 +120,7 @@ fn get_total_load(input_file: &str, dir: Direction, pre_cycle_len: u32, part_two
             loads.push(e_load);
 
             if rocks_states.contains_key(&rocks_str) {
-                let remaining = 
-                (1_000_000_000 - i) % (i - rocks_states.get(&rocks_str).unwrap());
+                let remaining = (1_000_000_000 - i) % (i - rocks_states.get(&rocks_str).unwrap());
                 println!("Found same state at {:?}, remaining {:?}", i, remaining);
                 if remaining == 1 {
                     break;

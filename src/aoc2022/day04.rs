@@ -57,7 +57,7 @@ pub fn count_overlap_assignment_pairs(input_file: &str) -> i32 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_create_range() {
         assert_eq!(2..9, create_range("2-8"));
@@ -65,7 +65,10 @@ mod tests {
 
     #[test]
     fn test_count_contained_assignment_pairs() {
-        assert_eq!(453, count_contained_assignment_pairs("input/2022/day04.txt"));
+        assert_eq!(
+            453,
+            count_contained_assignment_pairs("input/2022/day04.txt")
+        );
     }
 
     #[test]
