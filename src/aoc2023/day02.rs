@@ -77,7 +77,6 @@ pub fn parse_games(games_lines: Vec<String>) -> Vec<(u32, Vec<CubeCount>)> {
 
 pub fn get_sum_ids_of_valid_games(input_file: &str) -> u32 {
     let input = parse_input(input_file);
-    println!("{:?}", input);
     let mut sum_ids: u32 = 0;
     for (game_id, cube_counts) in input.games {
         if possible_game(cube_counts) {

@@ -44,14 +44,11 @@ pub fn extrapolate_next_value(report: &Vec<i64>) -> i64 {
         .collect::<Vec<_>>();
 
     let next_val = if next_report.iter().all(|x| *x == 0) {
-        println!("{:?}", next_report);
         *report.last().unwrap()
     } else {
         let val = extrapolate_next_value(&next_report);
         *report.last().unwrap() + val
     };
-
-    println!("{:?} {}", report, next_val);
 
     next_val
 }

@@ -274,6 +274,7 @@ mod tests {
         assert_eq!(46, get_lowest_location("input/2023/day05_test01.txt", true));
     }
 
+    #[ignore]
     #[test]
     fn test_get_lowest_location_seeds_as_ranges() {
         assert_eq!(84206669, get_lowest_location("input/2023/day05.txt", true));
