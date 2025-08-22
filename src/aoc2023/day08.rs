@@ -110,9 +110,9 @@ pub fn get_num_steps_end_with_z(input_file: &str) -> u64 {
         }
     }
 
-    let lcm = num_steps_vec.into_iter().fold(1, lcm);
+    
 
-    lcm
+    num_steps_vec.into_iter().fold(1, lcm)
 }
 
 fn gcd(a: u64, b: u64) -> u64 {

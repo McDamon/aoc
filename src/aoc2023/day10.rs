@@ -93,7 +93,7 @@ pub fn get_farthest_steps(input_file: &str) -> usize {
 }
 
 // Find the main loop by following connected pipes
-fn find_main_loop(tiles: &Vec<Vec<Pipe>>, start: (usize, usize)) -> Vec<(usize, usize)> {
+fn find_main_loop(tiles: &[Vec<Pipe>], start: (usize, usize)) -> Vec<(usize, usize)> {
     let mut path = vec![start];
     let mut current = start;
     let mut came_from: Option<(usize, usize)> = None;
@@ -301,7 +301,7 @@ fn clean_tiles_simple(tiles: &Vec<Vec<Pipe>>, loop_set: &std::collections::HashS
     cleaned_tiles
 }
 
-fn infer_start_pipe(tiles: &Vec<Vec<Pipe>>, start: (usize, usize)) -> Pipe {
+fn infer_start_pipe(tiles: &[Vec<Pipe>], start: (usize, usize)) -> Pipe {
     let mut connections = Vec::new();
     
     // Check all four directions to see what connects to the start

@@ -36,21 +36,21 @@ pub fn get_sum_extrapolated_values(input_file: &str) -> i64 {
     extrapolated_values.iter().sum()
 }
 
-pub fn extrapolate_next_value(report: &Vec<i64>) -> i64 {
+pub fn extrapolate_next_value(report: &[i64]) -> i64 {
     let next_report: Vec<i64> = report
         .iter()
         .zip(report.iter().skip(1))
         .map(|(a, b)| b - a)
         .collect::<Vec<_>>();
 
-    let next_val = if next_report.iter().all(|x| *x == 0) {
+    
+
+    if next_report.iter().all(|x| *x == 0) {
         *report.last().unwrap()
     } else {
         let val = extrapolate_next_value(&next_report);
         *report.last().unwrap() + val
-    };
-
-    next_val
+    }
 }
 
 pub fn get_sum_back_extrapolated_values(input_file: &str) -> i64 {
