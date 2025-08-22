@@ -34,20 +34,20 @@ pub(crate) fn get_counter() -> usize {
 
 impl DirectoryTreeNode {
     pub fn new_dir(name: String, parent: Option<FileNode>) -> DirectoryTreeNode {
-        return DirectoryTreeNode {
+        DirectoryTreeNode {
             value: FileNode {
                 id: get_counter(),
                 kind: FileKind::Directory,
-                name: name,
+                name,
                 size: None,
             },
             children: vec![],
             parent,
-        };
+        }
     }
 
     pub fn new_file(name: String, size: usize, parent: Option<FileNode>) -> DirectoryTreeNode {
-        return DirectoryTreeNode {
+        DirectoryTreeNode {
             value: FileNode {
                 id: get_counter(),
                 kind: FileKind::File,
@@ -56,7 +56,7 @@ impl DirectoryTreeNode {
             },
             children: vec![],
             parent,
-        };
+        }
     }
 
     pub fn add_child(&mut self, child_node: DirectoryTreeNode) {
@@ -70,7 +70,7 @@ impl DirectoryTreeNode {
 
     pub fn get_sum_of_directories(&mut self) -> i32 {
         let mut sum: i32 = 0;
-        self.dfs(&mut |node| -> () {
+        self.dfs(&mut |node| {
             if node.value.kind == FileKind::Directory {
                 let size = node.get_size_of_directory();
                 if size <= 100000 {
@@ -83,7 +83,7 @@ impl DirectoryTreeNode {
 
     pub fn get_size_of_directory(&mut self) -> i32 {
         let mut sum: i32 = 0;
-        self.dfs(&mut |node| -> () {
+        self.dfs(&mut |node| {
             if node.value.kind == FileKind::File {
                 sum += node.value.size.unwrap() as i32;
             }
@@ -93,7 +93,7 @@ impl DirectoryTreeNode {
 
     fn get_all_directory_sizes(&mut self) -> Vec<i32> {
         let mut sizes: Vec<i32> = vec![];
-        self.dfs(&mut |node| -> () {
+        self.dfs(&mut |node| {
             if node.value.kind == FileKind::Directory {
                 sizes.push(node.get_size_of_directory());
             }
@@ -144,7 +144,7 @@ pub(crate) fn parse_input(input_file: &str) -> DirectoryTreeNode {
                 }
                 // Set our current node to current parent
                 ".." => {
-                    root.dfs(&mut |node| -> () {
+                    root.dfs(&mut |node| {
                         if node.value.id == current.id {
                             if let Some(parent) = &node.parent {
                                 current = parent.clone();
@@ -156,12 +156,11 @@ pub(crate) fn parse_input(input_file: &str) -> DirectoryTreeNode {
                 }
                 // Otherwise we set our current node to the new directory
                 _ => {
-                    root.dfs(&mut |node| -> () {
-                        if let Some(parent) = &node.parent {
-                            if node.value.name == path && parent.id == current.id {
+                    root.dfs(&mut |node| {
+                        if let Some(parent) = &node.parent
+                            && node.value.name == path && parent.id == current.id {
                                 current = node.value.clone();
                             }
-                        }
                     });
                 }
             }
@@ -172,7 +171,7 @@ pub(crate) fn parse_input(input_file: &str) -> DirectoryTreeNode {
         if let Some(caps_dir) = RE_DIR.captures(&line) {
             let dir = &caps_dir["dir"];
 
-            root.dfs(&mut |node| -> () {
+            root.dfs(&mut |node| {
                 if node.value.id == current.id {
                     node.add_child(DirectoryTreeNode::new_dir(
                         dir.to_string(),
@@ -185,7 +184,7 @@ pub(crate) fn parse_input(input_file: &str) -> DirectoryTreeNode {
             let size: usize = caps_file["size"].parse().unwrap();
             let file = &caps_file["file"];
 
-            root.dfs(&mut |node| -> () {
+            root.dfs(&mut |node| {
                 if node.value.id == current.id {
                     node.add_child(DirectoryTreeNode::new_file(
                         file.to_string(),
@@ -201,14 +200,14 @@ pub(crate) fn parse_input(input_file: &str) -> DirectoryTreeNode {
 
 pub fn get_sum_of_directories(input_file: &str) -> i32 {
     let mut root = parse_input(input_file);
-    let sum = root.get_sum_of_directories();
-    sum
+    
+    root.get_sum_of_directories()
 }
 
 pub fn get_all_directory_sizes(input_file: &str) -> Vec<i32> {
     let mut root = parse_input(input_file);
-    let sizes = root.get_all_directory_sizes();
-    sizes
+    
+    root.get_all_directory_sizes()
 }
 
 pub fn get_size_deleted_directory(input_file: &str) -> i32 {

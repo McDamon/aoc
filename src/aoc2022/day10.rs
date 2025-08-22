@@ -64,11 +64,10 @@ pub fn get_sum_signal_strengths(input_file: &str) -> i32 {
                 for i in 0..2 {
                     let signal_strength = get_signal_strength(cycle, x);
                     signal_strength_sum += signal_strength;
-                    if i == 1 {
-                        if let Some(val) = instruction.instruction_val {
+                    if i == 1
+                        && let Some(val) = instruction.instruction_val {
                             x += val;
                         }
-                    }
                     render_cycle(cycle, x);
                     cycle += 1;
                 }
@@ -87,7 +86,7 @@ fn render_cycle(cycle: i32, x: i32) {
         print!(".");
     }
     if cycle % 40 == 0 {
-        print!("\n");
+        println!();
     }
 }
 

@@ -10,7 +10,8 @@ pub fn parse_input(input_file: &str) -> Vec<u32> {
 
     let grid: Vec<u32> = vec![0; rows * cols];
 
-    let grid = lines
+    
+    lines
         .into_iter()
         .enumerate()
         .fold(grid, |mut x, (i, line)| {
@@ -20,8 +21,7 @@ pub fn parse_input(input_file: &str) -> Vec<u32> {
                 &line.chars().map(|c| c.to_digit(10).unwrap()).collect::<Vec<u32>>(),
             );
             x
-        });
-    grid
+        })
 }
 
 pub fn get_visible_trees(input_file: &str) -> u32 {
@@ -49,19 +49,19 @@ pub fn get_visible_trees(input_file: &str) -> u32 {
                 let slice_up = &col_view[0..i];
                 let slice_down = &col_view[i + 1..];
 
-                if val > slice_left.into_iter().max() {
+                if val > slice_left.iter().max() {
                     inner_visible_trees += 1;
                     continue;
                 }
-                if val > slice_right.into_iter().max() {
+                if val > slice_right.iter().max() {
                     inner_visible_trees += 1;
                     continue;
                 }
-                if val > slice_up.into_iter().max() {
+                if val > slice_up.iter().max() {
                     inner_visible_trees += 1;
                     continue;
                 }
-                if val > slice_down.into_iter().max() {
+                if val > slice_down.iter().max() {
                     inner_visible_trees += 1;
                     continue;
                 }
@@ -103,7 +103,7 @@ pub fn get_highest_scenic_score(input_file: &str) -> u32 {
 
             let viewing_distance_left = get_viewing_distance(
                 *val.unwrap(),
-                slice_left.to_vec().into_iter().rev().collect(),
+                slice_left.iter().copied().rev().collect(),
             );
             let viewing_distance_right = get_viewing_distance(*val.unwrap(), slice_right.to_vec());
             let viewing_distance_up = get_viewing_distance(

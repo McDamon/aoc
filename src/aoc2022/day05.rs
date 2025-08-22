@@ -25,12 +25,12 @@ pub fn parse_input(input_file: &str) -> Input {
 
     let mut iter = lines.split(|e| e.is_empty());
 
-    let input = Input {
+    
+
+    Input {
         crates: parse_crates(iter.next().unwrap().to_owned()),
         moves: parse_moves(iter.next().unwrap().to_owned()),
-    };
-
-    input
+    }
 }
 
 pub fn parse_crates(crates_lines: Vec<String>) -> HashMap<u32, Vec<char>> {
@@ -140,18 +140,17 @@ pub fn get_supply_stack(input_file: &str) -> String {
 
             let to_stack = input.crates.get_mut(&move_step.to);
 
-            if let Some(to_stack) = to_stack {
-                if let Some(pop_value) = pop_value {
+            if let Some(to_stack) = to_stack
+                && let Some(pop_value) = pop_value {
                     to_stack.push(pop_value);
                 }
-            }
         }
     }
 
     println!("{:?}", input.crates);
 
-    let result_stack = get_result_stack(input.crates);
-    result_stack
+    
+    get_result_stack(input.crates)
 }
 
 pub fn get_supply_stack_alt(input_file: &str) -> String {
@@ -171,17 +170,16 @@ pub fn get_supply_stack_alt(input_file: &str) -> String {
 
         let to_stack = input.crates.get_mut(&move_step.to);
 
-        if let Some(to_stack) = to_stack {
-            if let Some(drainage_values) = drainage_values {
+        if let Some(to_stack) = to_stack
+            && let Some(drainage_values) = drainage_values {
                 to_stack.extend(drainage_values);
             }
-        }
 
         println!("AFTER: {:?}", input.crates);
     }
 
-    let result_stack = get_result_stack(input.crates);
-    result_stack
+    
+    get_result_stack(input.crates)
 }
 
 #[cfg(test)]

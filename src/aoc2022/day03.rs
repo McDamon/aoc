@@ -52,7 +52,7 @@ pub fn get_sum_of_priorities_of_item_types_part2(input_file: &str) -> i32 {
     for group in lines.chunks(3) {
         // Create a group of hash sets
         let group_sets = group
-            .into_iter()
+            .iter()
             .map(|line| HashSet::from_iter(line.chars()))
             .collect::<Vec<HashSet<char>>>();
 
@@ -62,7 +62,7 @@ pub fn get_sum_of_priorities_of_item_types_part2(input_file: &str) -> i32 {
             .reduce(|a, b| a.intersection(&b).cloned().collect())
             .unwrap();
 
-        sum_priorities += get_priority_for_char(intersect.iter().next().unwrap().clone());
+        sum_priorities += get_priority_for_char(*intersect.iter().next().unwrap());
     }
 
     sum_priorities

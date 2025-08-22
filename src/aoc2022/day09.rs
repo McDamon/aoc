@@ -71,21 +71,13 @@ impl Point2D {
     pub fn is_diagonal_move(&self, rhs: &Point2D) -> bool {
         let dist = self.manhattan_distance(rhs);
 
-        if dist > 2 && (self.x != rhs.x && self.y != rhs.y) {
-            true
-        } else {
-            false
-        }
+        dist > 2 && (self.x != rhs.x && self.y != rhs.y)
     }
 
     pub fn is_lateral_move(&self, rhs: &Point2D) -> bool {
         let dist = self.manhattan_distance(rhs);
 
-        if dist > 1 && (self.x == rhs.x || self.y == rhs.y) {
-            true
-        } else {
-            false
-        }
+        dist > 1 && (self.x == rhs.x || self.y == rhs.y)
     }
 }
 
@@ -100,16 +92,16 @@ impl PlankTracker {
         fn move_head(move_dir: MoveDir, knot: &mut Point2D) {
             match move_dir {
                 MoveDir::Left => {
-                    knot.x = knot.x - 1;
+                    knot.x -= 1;
                 }
                 MoveDir::Right => {
-                    knot.x = knot.x + 1;
+                    knot.x += 1;
                 }
                 MoveDir::Up => {
-                    knot.y = knot.y + 1;
+                    knot.y += 1;
                 }
                 MoveDir::Down => {
-                    knot.y = knot.y - 1;
+                    knot.y -= 1;
                 }
             }
         }
@@ -131,14 +123,14 @@ impl PlankTracker {
                     // .TH.. -> .TtH.
                     // .....    .....
                     if knot.x > knot_next.x + 1 {
-                        knot_next.x = knot_next.x + 1;
+                        knot_next.x += 1;
                     }
                     
                     // .....    .....
                     // ..HT. -> .HtT.
                     // .....    .....
                     if knot.x < knot_next.x - 1 {
-                        knot_next.x = knot_next.x - 1;
+                        knot_next.x -= 1;
                     }
                   
                     // ...    ...
@@ -147,7 +139,7 @@ impl PlankTracker {
                     // .T.    .T.
                     // ...    ...
                     if knot.y > knot_next.y + 1 {
-                        knot_next.y = knot_next.y + 1;
+                        knot_next.y += 1;
                     }
                     
                     // ...    ...
@@ -156,7 +148,7 @@ impl PlankTracker {
                     // ...    .H.
                     // ...    ...
                     if knot.y < knot_next.y - 1 {
-                        knot_next.y = knot_next.y - 1;
+                        knot_next.y -= 1;
                     }  
                 }
                 MoveCondition::Diagonal => {
@@ -167,8 +159,8 @@ impl PlankTracker {
                     // ......
                     
                     if knot.x < knot_next.x - 1 && knot.y > knot_next.y {
-                        knot_next.x = knot_next.x - 1;
-                        knot_next.y = knot_next.y + 1;
+                        knot_next.x -= 1;
+                        knot_next.y += 1;
                     }
 
                     // ......
@@ -178,8 +170,8 @@ impl PlankTracker {
                     // .Ht...
 
                     if knot.x < knot_next.x - 1 && knot.y < knot_next.y {
-                        knot_next.x = knot_next.x - 1;
-                        knot_next.y = knot_next.y - 1;
+                        knot_next.x -= 1;
+                        knot_next.y -= 1;
                     }
 
                     // ......
@@ -189,8 +181,8 @@ impl PlankTracker {
                     // ......
 
                     if knot.x > knot_next.x + 1 && knot.y > knot_next.y {
-                        knot_next.x = knot_next.x + 1;
-                        knot_next.y = knot_next.y + 1;
+                        knot_next.x += 1;
+                        knot_next.y += 1;
                     }
 
                     // ......
@@ -200,8 +192,8 @@ impl PlankTracker {
                     // ....tH
 
                     if knot.x > knot_next.x + 1 && knot.y < knot_next.y {
-                        knot_next.x = knot_next.x + 1;
-                        knot_next.y = knot_next.y - 1;
+                        knot_next.x += 1;
+                        knot_next.y -= 1;
                     }
 
                     // ......
@@ -211,8 +203,8 @@ impl PlankTracker {
                     // ......
                     
                     if knot.x < knot_next.x && knot.y > knot_next.y + 1 {
-                        knot_next.x = knot_next.x - 1;
-                        knot_next.y = knot_next.y + 1;
+                        knot_next.x -= 1;
+                        knot_next.y += 1;
                     }
 
                     // ......
@@ -222,8 +214,8 @@ impl PlankTracker {
                     // ......
 
                     if knot.x > knot_next.x && knot.y > knot_next.y + 1 {
-                        knot_next.x = knot_next.x + 1;
-                        knot_next.y = knot_next.y + 1;
+                        knot_next.x += 1;
+                        knot_next.y += 1;
                     }
 
                     // ......
@@ -233,8 +225,8 @@ impl PlankTracker {
                     // ...H..
                     
                     if knot.x > knot_next.x && knot.y < knot_next.y - 1 {
-                        knot_next.x = knot_next.x + 1;
-                        knot_next.y = knot_next.y - 1;
+                        knot_next.x += 1;
+                        knot_next.y -= 1;
                     }
 
                     // ......
@@ -244,8 +236,8 @@ impl PlankTracker {
                     // .H....
                     
                     if knot.x < knot_next.x && knot.y < knot_next.y - 1 {
-                        knot_next.x = knot_next.x - 1;
-                        knot_next.y = knot_next.y - 1;
+                        knot_next.x -= 1;
+                        knot_next.y -= 1;
                     }
                 }
                 MoveCondition::Adjacent => {}
