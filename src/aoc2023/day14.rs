@@ -85,7 +85,7 @@ pub fn get_total_load(input_file: &str, dir: Direction, pre_cycle_len: u32, part
         let mut rocks_states: HashMap<String, u32> = HashMap::new();
         let mut rocks = input.rocks.clone();
         let mut loads: Vec<u32> = vec![];
-        
+
         for i in 0..pre_cycle_len {
             let (n_rocks, _n_load) = process_cycle(&rocks, Direction::N);
             rocks = n_rocks;
@@ -150,13 +150,13 @@ fn process_cycle(rocks: &[Vec<Rock>], dir: Direction) -> (Vec<Vec<Rock>>, u32) {
                         rock_indices.push(pos);
                     }
                 }
-                
-                let col_vec: Vec<Rock> = col.iter().cloned().collect();
+
+                let col_vec: Vec<Rock> = col.to_vec();
                 let split_col_vecs: Vec<Vec<Rock>> = col_vec
                     .split(|x| *x == Rock::Cube)
                     .map(|x| x.to_vec())
                     .collect();
-                
+
                 let mut col_ord: Vec<Rock> = vec![];
                 for mut split_col_vec in split_col_vecs {
                     split_col_vec.sort();
@@ -172,7 +172,7 @@ fn process_cycle(rocks: &[Vec<Rock>], dir: Direction) -> (Vec<Vec<Rock>>, u32) {
 
                 rocks_ord.push(col_ord);
             }
-            
+
             // Transpose back to rows
             rocks_ord = iter_cols(&rocks_ord);
         }
@@ -185,13 +185,13 @@ fn process_cycle(rocks: &[Vec<Rock>], dir: Direction) -> (Vec<Vec<Rock>>, u32) {
                         rock_indices.push(pos);
                     }
                 }
-                
-                let row_vec: Vec<Rock> = row.iter().cloned().collect();
+
+                let row_vec: Vec<Rock> = row.to_vec();
                 let split_row_vecs: Vec<Vec<Rock>> = row_vec
                     .split(|x| *x == Rock::Cube)
                     .map(|x| x.to_vec())
                     .collect();
-                
+
                 let mut row_ord: Vec<Rock> = vec![];
                 for mut split_row_vec in split_row_vecs {
                     split_row_vec.sort();

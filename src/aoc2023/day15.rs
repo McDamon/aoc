@@ -8,30 +8,30 @@ use regex::Regex;
 use crate::utils::get_lines;
 
 #[derive(Debug)]
-struct Input {
-    steps: Vec<String>,
+pub struct Input {
+    pub steps: Vec<String>,
 }
 
 #[derive(Debug)]
-enum Operation {
+pub enum Operation {
     Dash,
     Equals,
 }
 
 #[derive(Debug)]
-struct Step {
-    label: String,
-    operation: Operation,
-    focal: Option<u32>,
+pub struct Step {
+    pub label: String,
+    pub operation: Operation,
+    pub focal: Option<u32>,
 }
 
 #[derive(Debug)]
-struct Slot {
-    label: String,
-    focal: u32,
+pub struct Slot {
+    pub label: String,
+    pub focal: u32,
 }
 
-fn parse_input(input_file: &str) -> Input {
+pub fn parse_input(input_file: &str) -> Input {
     let lines = get_lines(input_file);
 
     let mut steps: Vec<String> = vec![];
@@ -54,7 +54,7 @@ fn parse_input(input_file: &str) -> Input {
     Input { steps }
 }
 
-fn get_sum_steps(input_file: &str) -> u32 {
+pub fn get_sum_steps(input_file: &str) -> u32 {
     let input = parse_input(input_file);
 
     let mut sum_steps = 0;
@@ -65,7 +65,7 @@ fn get_sum_steps(input_file: &str) -> u32 {
     sum_steps
 }
 
-fn compute_hash(step: &str) -> u32 {
+pub fn compute_hash(step: &str) -> u32 {
     let mut current_value: u32 = 0;
 
     for char in step.chars() {
@@ -80,7 +80,7 @@ fn compute_hash(step: &str) -> u32 {
     current_value
 }
 
-fn get_focusing_power(input_file: &str) -> u32 {
+pub fn get_focusing_power(input_file: &str) -> u32 {
     lazy_static! {
         static ref RE_HASHMAP: Regex =
             Regex::new(r"(?P<label>[a-z]+)(?P<operation>-|={1})(?P<focal>\d*)").unwrap();
