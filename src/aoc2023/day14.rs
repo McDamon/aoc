@@ -208,6 +208,10 @@ fn process_cycle(rocks: &[Vec<Rock>], dir: Direction) -> (Vec<Vec<Rock>>, u32) {
                 rocks_ord.push(row_ord);
             }
         }
+        Direction::Stop => {
+            // Handle Stop direction
+            rocks_ord = rocks.to_vec();
+        }
     }
 
     let mut total_load: u32 = 0;

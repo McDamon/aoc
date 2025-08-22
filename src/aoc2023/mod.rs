@@ -13,6 +13,6 @@ pub mod day12;
 pub mod day13;
 pub mod day14;
 pub mod day15;
-// pub mod day16;  // Requires grid crate
-// pub mod day17;  // Requires grid crate
-// pub mod day18;  // Requires colorsys, grid crates
+pub mod day16;
+pub mod day17;
+pub mod day18;

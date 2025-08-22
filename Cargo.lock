@@ -21,6 +21,7 @@ checksum = "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
 name = "aoc"
 version = "0.1.0"
 dependencies = [
+ "colorsys",
  "csv",
  "enum-iterator",
  "hashbrown",
@@ -67,6 +68,12 @@ name = "cfg-if"
 version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2fd1289c04a9ea8cb22300a459a72a385d7c73d3259e2ed7dcb2af674838cfa9"
+
+[[package]]
+name = "colorsys"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aee37dd2dc25d67ce9bca2709c384843c46d1582158ed5e2483d52b6da30e7d8"
 
 [[package]]
 name = "csv"

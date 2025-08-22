@@ -30,12 +30,27 @@ pub fn get_lines(input_file: &str) -> Vec<String> {
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Copy, Clone, Default)]
+#[repr(u8)]
 pub enum MoveDir {
     #[default]
-    Up,
-    Down,
-    Left,
-    Right,
+    Up = b'U',
+    Down = b'D',
+    Left = b'L',
+    Right = b'R',
+}
+
+impl TryFrom<u8> for MoveDir {
+    type Error = ();
+
+    fn try_from(v: u8) -> Result<Self, Self::Error> {
+        match v {
+            x if x == MoveDir::Up as u8 => Ok(MoveDir::Up),
+            x if x == MoveDir::Down as u8 => Ok(MoveDir::Down),
+            x if x == MoveDir::Left as u8 => Ok(MoveDir::Left),
+            x if x == MoveDir::Right as u8 => Ok(MoveDir::Right),
+            _ => Err(()),
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Copy, Clone, Ord, PartialOrd)]
@@ -44,6 +59,7 @@ pub enum Direction {
     S,
     E,
     W,
+    Stop,
 }
 
 impl Direction {
@@ -53,6 +69,7 @@ impl Direction {
             Direction::S => (0, 1),
             Direction::W => (-1, 0),
             Direction::N => (0, -1),
+            Direction::Stop => (0, 0),
         }
     }
 
@@ -62,6 +79,7 @@ impl Direction {
             Direction::S => Direction::E,
             Direction::W => Direction::S,
             Direction::N => Direction::W,
+            Direction::Stop => Direction::Stop,
         }
     }
 
@@ -71,6 +89,27 @@ impl Direction {
             Direction::S => Direction::W,
             Direction::W => Direction::N,
             Direction::N => Direction::E,
+            Direction::Stop => Direction::Stop,
+        }
+    }
+
+    pub fn opposite(&self) -> Self {
+        match self {
+            Direction::N => Direction::S,
+            Direction::S => Direction::N,
+            Direction::E => Direction::W,
+            Direction::W => Direction::E,
+            Direction::Stop => Direction::Stop,
+        }
+    }
+
+    pub fn index(&self) -> usize {
+        match self {
+            Direction::N => 0,
+            Direction::E => 1,
+            Direction::S => 2,
+            Direction::W => 3,
+            Direction::Stop => 4,
         }
     }
 

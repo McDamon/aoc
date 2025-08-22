@@ -176,6 +176,7 @@ fn get_next_position(
                 None
             }
         }
+        Direction::Stop => None, // Handle the Stop case
     }
 }
 
@@ -241,6 +242,7 @@ fn is_pipe_connected(current_pipe: Pipe, next_pipe: Pipe, next_direction: Direct
             Direction::E => is_east_pipe(next_pipe),
             Direction::S => is_south_pipe(next_pipe),
             Direction::W => is_west_pipe(next_pipe),
+            Direction::Stop => false, // Handle the Stop case
         },
         _ => false,
     }
