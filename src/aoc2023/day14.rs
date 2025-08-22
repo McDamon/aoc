@@ -2,8 +2,6 @@
 
 use std::collections::HashMap;
 
-use itertools::Itertools;
-
 use crate::utils::{Direction, get_lines};
 
 #[derive(Debug, Default, Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Hash)]
@@ -87,6 +85,7 @@ pub fn get_total_load(input_file: &str, dir: Direction, pre_cycle_len: u32, part
         let mut rocks_states: HashMap<String, u32> = HashMap::new();
         let mut rocks = input.rocks.clone();
         let mut loads: Vec<u32> = vec![];
+        
         for i in 0..pre_cycle_len {
             let (n_rocks, _n_load) = process_cycle(&rocks, Direction::N);
             rocks = n_rocks;
@@ -98,21 +97,23 @@ pub fn get_total_load(input_file: &str, dir: Direction, pre_cycle_len: u32, part
             rocks = e_rocks;
 
             let rocks_str = rocks_to_str(&rocks);
-
             loads.push(e_load);
 
-            if rocks_states.contains_key(&rocks_str) {
-                let remaining = (1_000_000_000 - i) % (i - rocks_states.get(&rocks_str).unwrap());
-                println!("Found same state at {:?}, remaining {:?}", i, remaining);
-                if remaining == 1 {
-                    break;
-                }
+            if let Some(&cycle_start) = rocks_states.get(&rocks_str) {
+                // Found a cycle!
+                let cycle_length = i - cycle_start;
+                let remaining_cycles = (1_000_000_000 - 1 - cycle_start) % cycle_length;
+                let target_index = cycle_start + remaining_cycles;
+                total_load = loads[target_index as usize];
+                break;
             }
 
             rocks_states.insert(rocks_str, i);
         }
 
-        total_load = *loads.last().unwrap()
+        if total_load == 0 {
+            total_load = *loads.last().unwrap();
+        }
     } else {
         let (n_rocks, load) = process_cycle(&input.rocks, dir);
         print_rocks(&n_rocks);
@@ -140,25 +141,29 @@ fn process_cycle(rocks: &[Vec<Rock>], dir: Direction) -> (Vec<Vec<Rock>>, u32) {
 
     match dir {
         Direction::N | Direction::S => {
-            for col in iter_cols(rocks) {
+            // For North/South, we process columns
+            let cols = iter_cols(rocks);
+            for col in cols {
                 let mut rock_indices: Vec<usize> = vec![];
                 for (pos, rock) in col.iter().enumerate() {
                     if *rock == Rock::Cube {
                         rock_indices.push(pos);
                     }
                 }
-                let col_vec = col.iter().cloned().collect_vec();
+                
+                let col_vec: Vec<Rock> = col.iter().cloned().collect();
                 let split_col_vecs: Vec<Vec<Rock>> = col_vec
                     .split(|x| *x == Rock::Cube)
-                    .map(|x| x.into())
+                    .map(|x| x.to_vec())
                     .collect();
+                
                 let mut col_ord: Vec<Rock> = vec![];
                 for mut split_col_vec in split_col_vecs {
                     split_col_vec.sort();
                     if dir == Direction::N {
                         split_col_vec.reverse();
                     }
-                    col_ord.append(&mut split_col_vec);
+                    col_ord.extend(split_col_vec);
                 }
 
                 for rock_index in rock_indices {
@@ -167,27 +172,33 @@ fn process_cycle(rocks: &[Vec<Rock>], dir: Direction) -> (Vec<Vec<Rock>>, u32) {
 
                 rocks_ord.push(col_ord);
             }
+            
+            // Transpose back to rows
+            rocks_ord = iter_cols(&rocks_ord);
         }
         Direction::E | Direction::W => {
+            // For East/West, we process rows directly
             for row in rocks.iter() {
                 let mut rock_indices: Vec<usize> = vec![];
-                for (pos, rock) in row.clone().iter().enumerate() {
+                for (pos, rock) in row.iter().enumerate() {
                     if *rock == Rock::Cube {
                         rock_indices.push(pos);
                     }
                 }
-                let row_vec = row.iter().cloned().collect_vec();
+                
+                let row_vec: Vec<Rock> = row.iter().cloned().collect();
                 let split_row_vecs: Vec<Vec<Rock>> = row_vec
                     .split(|x| *x == Rock::Cube)
-                    .map(|x| x.into())
+                    .map(|x| x.to_vec())
                     .collect();
+                
                 let mut row_ord: Vec<Rock> = vec![];
                 for mut split_row_vec in split_row_vecs {
                     split_row_vec.sort();
                     if dir == Direction::W {
                         split_row_vec.reverse();
                     }
-                    row_ord.append(&mut split_row_vec);
+                    row_ord.extend(split_row_vec);
                 }
 
                 for rock_index in rock_indices {
