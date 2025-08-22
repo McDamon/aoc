@@ -35,9 +35,14 @@ fn parse_input(input_file: &str) -> Input {
     Input { objects, orbits }
 }
 
-pub fn get_total_orbits(input_file: &str) -> u32 {
-    let input = parse_input(input_file);
-
+fn build_graph(
+    input: &Input,
+) -> (
+    Graph<String, u32>,
+    Option<petgraph::graph::NodeIndex>,
+    Option<petgraph::graph::NodeIndex>,
+    Option<petgraph::graph::NodeIndex>,
+) {
     let mut graph = Graph::<String, u32>::new();
 
     for object in &input.objects {
@@ -45,8 +50,10 @@ pub fn get_total_orbits(input_file: &str) -> u32 {
     }
 
     let mut maybe_com_index = None;
+    let mut maybe_san_index = None;
+    let mut maybe_you_index = None;
 
-    for orbit in input.orbits {
+    for orbit in &input.orbits {
         let maybe_body_index = graph.node_indices().find(|i| graph[*i] == orbit.body);
         let maybe_satellite_index = graph.node_indices().find(|i| graph[*i] == orbit.satellite);
         if let Some(body) = maybe_body_index
@@ -55,10 +62,24 @@ pub fn get_total_orbits(input_file: &str) -> u32 {
             if orbit.body == "COM" {
                 maybe_com_index = Some(body);
             }
+            if orbit.body == "SAN" {
+                maybe_san_index = Some(body);
+            }
+            if orbit.body == "YOU" {
+                maybe_you_index = Some(body);
+            }
 
             graph.add_edge(body, satellite, 1); // Assign a weight of 1 for each edge
         }
     }
+
+    (graph, maybe_com_index, maybe_san_index, maybe_you_index)
+}
+
+pub fn get_total_orbits(input_file: &str) -> u32 {
+    let input = parse_input(input_file);
+
+    let (graph, maybe_com_index, _, _) = build_graph(&input);
 
     let mut total_orbits = 0;
 
@@ -81,6 +102,28 @@ pub fn get_total_orbits(input_file: &str) -> u32 {
     total_orbits
 }
 
+pub fn get_total_orbital_transfers(input_file: &str) -> u32 {
+    let input = parse_input(input_file);
+
+    let (graph, _, maybe_san_index, maybe_you_index) = build_graph(&input);
+
+    let mut total_orbit_transfers = 0;
+    if let Some(san_index) = maybe_san_index
+        && let Some(you_index) = maybe_you_index
+        && let Some((distance, _path)) = algo::astar(
+            &graph,
+            you_index,
+            |finish| finish == san_index,
+            |e| *e.weight(), // Use the edge weight for the cost calculation
+            |_| 0,
+        )
+    {
+        total_orbit_transfers += distance;
+    }
+
+    total_orbit_transfers
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -93,5 +136,15 @@ mod tests {
     #[test]
     fn test_get_total_orbits() {
         assert_eq!(273985, get_total_orbits("input/2019/day06.txt"));
+    }
+
+    #[test]
+    fn test_get_total_orbital_transfers_test02() {
+        assert_eq!(4, get_total_orbital_transfers("input/2019/day06_test02.txt"));
+    }
+
+    #[test]
+    fn test_get_total_orbital_transfers() {
+        assert_eq!(0, get_total_orbital_transfers("input/2019/day06.txt"));
     }
 }
