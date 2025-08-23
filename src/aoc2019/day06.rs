@@ -1,7 +1,7 @@
 // https://adventofcode.com/2019/day/6
 
 use hashbrown::HashSet;
-use petgraph::{Graph, algo};
+use petgraph::{algo, graph::UnGraph};
 
 use crate::utils::get_lines;
 
@@ -38,12 +38,12 @@ fn parse_input(input_file: &str) -> Input {
 fn build_graph(
     input: &Input,
 ) -> (
-    Graph<String, u32>,
+    UnGraph<String, u32>,
     Option<petgraph::graph::NodeIndex>,
     Option<petgraph::graph::NodeIndex>,
     Option<petgraph::graph::NodeIndex>,
 ) {
-    let mut graph = Graph::<String, u32>::new();
+    let mut graph = UnGraph::new_undirected();
 
     for object in &input.objects {
         graph.add_node(object.to_string());
@@ -62,10 +62,10 @@ fn build_graph(
             if orbit.body == "COM" {
                 maybe_com_index = Some(body);
             }
-            if orbit.body == "SAN" {
+            if orbit.satellite == "SAN" {
                 maybe_san_index = Some(body);
             }
-            if orbit.body == "YOU" {
+            if orbit.satellite == "YOU" {
                 maybe_you_index = Some(body);
             }
 
@@ -112,8 +112,8 @@ pub fn get_total_orbital_transfers(input_file: &str) -> u32 {
         && let Some(you_index) = maybe_you_index
         && let Some((distance, _path)) = algo::astar(
             &graph,
-            you_index,
-            |finish| finish == san_index,
+            san_index,
+            |finish| finish == you_index,
             |e| *e.weight(), // Use the edge weight for the cost calculation
             |_| 0,
         )
@@ -145,6 +145,6 @@ mod tests {
 
     #[test]
     fn test_get_total_orbital_transfers() {
-        assert_eq!(0, get_total_orbital_transfers("input/2019/day06.txt"));
+        assert_eq!(460, get_total_orbital_transfers("input/2019/day06.txt"));
     }
 }
