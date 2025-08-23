@@ -12,7 +12,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode,
-            run_intcode(&mut input_intcode, 0, None, &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![], &mut outputs)
         );
     }
 
@@ -23,7 +23,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode,
-            run_intcode(&mut input_intcode, 0, None, &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![], &mut outputs)
         );
     }
 
@@ -34,7 +34,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode,
-            run_intcode(&mut input_intcode, 0, None, &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![], &mut outputs)
         );
     }
 
@@ -45,7 +45,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode,
-            run_intcode(&mut input_intcode, 0, None, &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![], &mut outputs)
         );
     }
 
@@ -56,7 +56,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode,
-            run_intcode(&mut input_intcode, 0, None, &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![], &mut outputs)
         );
     }
 
@@ -66,7 +66,7 @@ mod tests {
         input_intcode[1] = 12;
         input_intcode[2] = 2;
         let mut outputs = vec![];
-        let result_intcode = run_intcode(&mut input_intcode, 0, None, &mut outputs);
+        let result_intcode = run_intcode(&mut input_intcode, &mut 0, &mut vec![], &mut outputs);
         assert_eq!(10566835, result_intcode[0]);
     }
 
@@ -79,7 +79,7 @@ mod tests {
                 let mut intcode = input_intcode.clone();
                 intcode[1] = noun;
                 intcode[2] = verb;
-                let result_intcode = run_intcode(&mut intcode, 0, None, &mut outputs);
+                let result_intcode = run_intcode(&mut intcode, &mut 0, &mut vec![], &mut outputs);
                 if result_intcode[0] == 19690720 {
                     assert_eq!(2347, 100 * noun + verb)
                 }
