@@ -140,7 +140,10 @@ mod tests {
 
     #[test]
     fn test_get_total_orbital_transfers_test02() {
-        assert_eq!(4, get_total_orbital_transfers("input/2019/day06_test02.txt"));
+        assert_eq!(
+            4,
+            get_total_orbital_transfers("input/2019/day06_test02.txt")
+        );
     }
 
     #[test]
