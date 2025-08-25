@@ -213,6 +213,9 @@ mod tests {
 
     #[test]
     fn test_get_highest_signal_part_two() {
-        assert_eq!(39016654, get_highest_signal_part_two("input/2019/day07.txt"));
+        assert_eq!(
+            39016654,
+            get_highest_signal_part_two("input/2019/day07.txt")
+        );
     }
 }

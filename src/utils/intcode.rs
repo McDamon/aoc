@@ -69,7 +69,10 @@ pub fn run_intcode<'a>(
                 *prog_counter += 2;
                 run_intcode(intcode, prog_counter, inputs, outputs)
             } else {
-                println!("No input provided for Store operation at position: {}", *prog_counter);
+                println!(
+                    "No input provided for Store operation at position: {}",
+                    *prog_counter
+                );
                 intcode
             }
         }
