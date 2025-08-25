@@ -12,7 +12,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode,
-            run_intcode(&mut input_intcode, 0, Some(1), &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![1], &mut outputs)
         );
     }
 
@@ -23,7 +23,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode,
-            run_intcode(&mut input_intcode, 0, None, &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![], &mut outputs)
         );
     }
 
@@ -34,7 +34,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode,
-            run_intcode(&mut input_intcode, 0, None, &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![], &mut outputs)
         );
     }
 
@@ -42,7 +42,7 @@ mod tests {
     fn test_run_diagnostic_code_part_one() {
         let mut input_intcode = parse_intcode_input("input/2019/day05.txt");
         let mut outputs = vec![];
-        run_intcode(&mut input_intcode, 0, Some(1), &mut outputs);
+        run_intcode(&mut input_intcode, &mut 0, &mut vec![1], &mut outputs);
         assert_eq!(*outputs.last().unwrap(), 4601506);
     }
 
@@ -53,7 +53,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode_eq,
-            run_intcode(&mut input_intcode, 0, Some(8), &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![8], &mut outputs)
         );
         assert_eq!(*outputs.last().unwrap(), 1);
     }
@@ -65,7 +65,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode_neq,
-            run_intcode(&mut input_intcode, 0, Some(7), &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![7], &mut outputs)
         );
         assert_eq!(*outputs.last().unwrap(), 0);
     }
@@ -77,7 +77,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode_lt,
-            run_intcode(&mut input_intcode, 0, Some(7), &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![7], &mut outputs)
         );
         assert_eq!(*outputs.last().unwrap(), 1);
     }
@@ -89,7 +89,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode_gt,
-            run_intcode(&mut input_intcode, 0, Some(9), &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![9], &mut outputs)
         );
         assert_eq!(*outputs.last().unwrap(), 0);
     }
@@ -101,7 +101,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode_eq,
-            run_intcode(&mut input_intcode, 0, Some(8), &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![8], &mut outputs)
         );
         assert_eq!(*outputs.last().unwrap(), 1);
     }
@@ -113,7 +113,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode_neq,
-            run_intcode(&mut input_intcode, 0, Some(7), &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![7], &mut outputs)
         );
         assert_eq!(*outputs.last().unwrap(), 0);
     }
@@ -125,7 +125,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode_lt,
-            run_intcode(&mut input_intcode, 0, Some(7), &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![7], &mut outputs)
         );
         assert_eq!(*outputs.last().unwrap(), 1);
     }
@@ -137,7 +137,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode_gt,
-            run_intcode(&mut input_intcode, 0, Some(9), &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![9], &mut outputs)
         );
         assert_eq!(*outputs.last().unwrap(), 0);
     }
@@ -149,7 +149,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode_zero,
-            run_intcode(&mut input_intcode, 0, Some(0), &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![0], &mut outputs)
         );
         assert_eq!(*outputs.last().unwrap(), 0);
     }
@@ -161,7 +161,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode_nonzero,
-            run_intcode(&mut input_intcode, 0, Some(1), &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![1], &mut outputs)
         );
         assert_eq!(*outputs.last().unwrap(), 1);
     }
@@ -173,7 +173,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode_zero,
-            run_intcode(&mut input_intcode, 0, Some(0), &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![0], &mut outputs)
         );
         assert_eq!(*outputs.last().unwrap(), 0);
     }
@@ -185,7 +185,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode_nonzero,
-            run_intcode(&mut input_intcode, 0, Some(1), &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![1], &mut outputs)
         );
         assert_eq!(*outputs.last().unwrap(), 1);
     }
@@ -201,7 +201,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode_lt,
-            run_intcode(&mut input_intcode, 0, Some(7), &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![7], &mut outputs)
         );
         assert_eq!(*outputs.last().unwrap(), 999);
     }
@@ -217,7 +217,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode_eq,
-            run_intcode(&mut input_intcode, 0, Some(8), &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![8], &mut outputs)
         );
         assert_eq!(*outputs.last().unwrap(), 1000);
     }
@@ -233,7 +233,7 @@ mod tests {
         let mut outputs = vec![];
         assert_eq!(
             expected_intcode_gt,
-            run_intcode(&mut input_intcode, 0, Some(9), &mut outputs)
+            run_intcode(&mut input_intcode, &mut 0, &mut vec![9], &mut outputs)
         );
         assert_eq!(*outputs.last().unwrap(), 1001);
     }
@@ -242,7 +242,7 @@ mod tests {
     fn test_run_diagnostic_code_part_two() {
         let mut input_intcode = parse_intcode_input("input/2019/day05.txt");
         let mut outputs = vec![];
-        run_intcode(&mut input_intcode, 0, Some(5), &mut outputs);
+        run_intcode(&mut input_intcode, &mut 0, &mut vec![5], &mut outputs);
         assert_eq!(*outputs.last().unwrap(), 5525561);
     }
 }

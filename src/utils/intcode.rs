@@ -1,6 +1,6 @@
 use crate::utils::{int_to_instruction, int_to_modes};
 
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Opcode {
     Add = 1isize,
     Multiply = 2isize,
@@ -43,58 +43,83 @@ pub fn parse_intcode_input(input_file: &str) -> Vec<isize> {
 
 pub fn run_intcode<'a>(
     intcode: &'a mut [isize],
-    prog_counter: usize,
-    input: Option<isize>,
+    prog_counter: &mut usize,
+    inputs: &mut Vec<isize>,
     outputs: &mut Vec<isize>,
 ) -> &'a [isize] {
-    let instruction = int_to_instruction(intcode[prog_counter]);
-    let modes = int_to_modes(intcode[prog_counter]);
+    let instruction = int_to_instruction(intcode[*prog_counter]);
+    let modes = int_to_modes(intcode[*prog_counter]);
     match Opcode::try_from(instruction) {
         Ok(Opcode::Add) => {
-            calc_add(intcode, &modes, prog_counter);
-            run_intcode(intcode, prog_counter + 4, input, outputs)
+            println!("Add at position {}", *prog_counter);
+            calc_add(intcode, &modes, *prog_counter);
+            *prog_counter += 4;
+            run_intcode(intcode, prog_counter, inputs, outputs)
         }
         Ok(Opcode::Multiply) => {
-            calc_multiply(intcode, &modes, prog_counter);
-            run_intcode(intcode, prog_counter + 4, input, outputs)
+            println!("Multiply at position {}", *prog_counter);
+            calc_multiply(intcode, &modes, *prog_counter);
+            *prog_counter += 4;
+            run_intcode(intcode, prog_counter, inputs, outputs)
         }
         Ok(Opcode::Store) => {
-            calc_store(intcode, prog_counter, input);
-            run_intcode(intcode, prog_counter + 2, input, outputs)
+            if let Some(input) = inputs.pop() {
+                println!("Store at position {}, input: {:?}", *prog_counter, input);
+                calc_store(intcode, *prog_counter, input);
+                *prog_counter += 2;
+                run_intcode(intcode, prog_counter, inputs, outputs)
+            } else {
+                println!(
+                    "No input provided for Store operation at position: {}",
+                    *prog_counter
+                );
+                intcode
+            }
         }
         Ok(Opcode::Load) => {
-            let output = calc_load(intcode, &modes, prog_counter);
+            println!("Load at position {}", *prog_counter);
+            let output = calc_load(intcode, &modes, *prog_counter);
             outputs.push(output);
-            run_intcode(intcode, prog_counter + 2, input, outputs)
+            *prog_counter += 2;
+            run_intcode(intcode, prog_counter, inputs, outputs)
         }
         Ok(Opcode::JumpIfTrue) => {
-            let maybe_jump_counter = calc_jump_if_true(intcode, &modes, prog_counter);
-            let new_prog_counter = if let Some(jump_counter) = maybe_jump_counter {
+            let maybe_jump_counter = calc_jump_if_true(intcode, &modes, *prog_counter);
+            *prog_counter = if let Some(jump_counter) = maybe_jump_counter {
                 jump_counter
             } else {
-                prog_counter + 3
+                *prog_counter + 3
             };
-            run_intcode(intcode, new_prog_counter, input, outputs)
+            println!("JumpIfTrue at position {}", *prog_counter);
+            run_intcode(intcode, prog_counter, inputs, outputs)
         }
         Ok(Opcode::JumpIfFalse) => {
-            let maybe_jump_counter = calc_jump_if_false(intcode, &modes, prog_counter);
-            let new_prog_counter = if let Some(jump_counter) = maybe_jump_counter {
+            let maybe_jump_counter = calc_jump_if_false(intcode, &modes, *prog_counter);
+            *prog_counter = if let Some(jump_counter) = maybe_jump_counter {
                 jump_counter
             } else {
-                prog_counter + 3
+                *prog_counter + 3
             };
-            run_intcode(intcode, new_prog_counter, input, outputs)
+            println!("JumpIfFalse at position {}", *prog_counter);
+            run_intcode(intcode, prog_counter, inputs, outputs)
         }
         Ok(Opcode::LessThan) => {
-            calc_less_than(intcode, &modes, prog_counter);
-            run_intcode(intcode, prog_counter + 4, input, outputs)
+            println!("LessThan at position {}", *prog_counter);
+            calc_less_than(intcode, &modes, *prog_counter);
+            *prog_counter += 4;
+            run_intcode(intcode, prog_counter, inputs, outputs)
         }
         Ok(Opcode::Equals) => {
-            calc_equals(intcode, &modes, prog_counter);
-            run_intcode(intcode, prog_counter + 4, input, outputs)
+            println!("Equals at position {}", *prog_counter);
+            calc_equals(intcode, &modes, *prog_counter);
+            *prog_counter += 4;
+            run_intcode(intcode, prog_counter, inputs, outputs)
         }
-        Ok(Opcode::Halt) => intcode,
-        Err(_) => panic!("Unexpected Opcode {}", intcode[prog_counter]),
+        Ok(Opcode::Halt) => {
+            println!("Halt at position {}", *prog_counter);
+            intcode
+        }
+        Err(_) => panic!("Unexpected Opcode {}", intcode[*prog_counter]),
     }
 }
 
@@ -116,14 +141,11 @@ pub fn calc_multiply(intcode: &mut [isize], modes: &[isize], prog_counter: usize
     intcode[param_3 as usize] = operand_lhs * operand_rhs;
 }
 
-pub fn calc_store(intcode: &mut [isize], prog_counter: usize, input: Option<isize>) {
+pub fn calc_store(intcode: &mut [isize], prog_counter: usize, input: isize) {
     let params = get_parameters(intcode, prog_counter, 1);
     let param_1 = params[0];
 
-    intcode[param_1 as usize] = match input {
-        Some(value) => value,
-        None => panic!("No input provided for Store operation"),
-    };
+    intcode[param_1 as usize] = input;
 }
 
 pub fn calc_load(intcode: &mut [isize], modes: &[isize], prog_counter: usize) -> isize {
