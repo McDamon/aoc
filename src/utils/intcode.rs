@@ -1,6 +1,6 @@
 use crate::utils::{int_to_instruction, int_to_modes};
 
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Opcode {
     Add = 1isize,
     Multiply = 2isize,
@@ -108,7 +108,10 @@ pub fn run_intcode<'a>(
             *prog_counter += 4;
             run_intcode(intcode, prog_counter, inputs, outputs)
         }
-        Ok(Opcode::Halt) => intcode,
+        Ok(Opcode::Halt) => {
+            println!("Halt at position {}", *prog_counter);
+            intcode
+        }
         Err(_) => panic!("Unexpected Opcode {}", intcode[*prog_counter]),
     }
 }
