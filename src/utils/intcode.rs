@@ -63,11 +63,15 @@ pub fn run_intcode<'a>(
             run_intcode(intcode, prog_counter, inputs, outputs)
         }
         Ok(Opcode::Store) => {
-            let input = inputs.pop();
-            println!("Store at position {}, input: {:?}", *prog_counter, input);
-            calc_store(intcode, *prog_counter, input);
-            *prog_counter += 2;
-            run_intcode(intcode, prog_counter, inputs, outputs)
+            if let Some(input) = inputs.pop() {
+                println!("Store at position {}, input: {:?}", *prog_counter, input);
+                calc_store(intcode, *prog_counter, input);
+                *prog_counter += 2;
+                run_intcode(intcode, prog_counter, inputs, outputs)
+            } else {
+                println!("No input provided for Store operation at position: {}", *prog_counter);
+                intcode
+            }
         }
         Ok(Opcode::Load) => {
             println!("Load at position {}", *prog_counter);
@@ -134,14 +138,11 @@ pub fn calc_multiply(intcode: &mut [isize], modes: &[isize], prog_counter: usize
     intcode[param_3 as usize] = operand_lhs * operand_rhs;
 }
 
-pub fn calc_store(intcode: &mut [isize], prog_counter: usize, input: Option<isize>) {
+pub fn calc_store(intcode: &mut [isize], prog_counter: usize, input: isize) {
     let params = get_parameters(intcode, prog_counter, 1);
     let param_1 = params[0];
 
-    intcode[param_1 as usize] = match input {
-        Some(value) => value,
-        None => panic!("No input provided for Store operation"),
-    };
+    intcode[param_1 as usize] = input;
 }
 
 pub fn calc_load(intcode: &mut [isize], modes: &[isize], prog_counter: usize) -> isize {
