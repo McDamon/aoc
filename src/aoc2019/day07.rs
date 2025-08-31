@@ -19,7 +19,7 @@ pub fn run_amplifier(
 
     println!("inputs: {:?}", inputs);
 
-    run_intcode(intcode, prog_counter, &mut inputs, &mut outputs);
+    run_intcode(intcode, prog_counter, &mut 0, &mut inputs, &mut outputs);
 
     println!("outputs: {:?}", outputs);
 
