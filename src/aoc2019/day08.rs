@@ -1,5 +1,6 @@
 // https://adventofcode.com/2019/day/8
 
+use hashbrown::HashMap;
 use itertools::Itertools;
 
 use crate::utils::get_lines;
@@ -69,6 +70,45 @@ pub fn get_num_of_one_digits_mult_num_two_digits(
     }
 }
 
+pub fn decode_image(input_file: &str, width: usize, height: usize) -> Vec<Vec<u32>> {
+    let input = parse_input(input_file, width, height);
+
+    let mut image_map: HashMap<(usize, usize), u32> = HashMap::new();
+    for layer in input.layers.iter() {
+        for (i, row) in layer.iter().enumerate() {
+            for (j, pixel) in row.iter().enumerate() {
+                if let Some(top_pixel) = image_map.get(&(i, j)) {
+                    if *top_pixel == 2 {
+                        image_map.insert((i, j), *pixel);
+                    }
+                } else {
+                    image_map.insert((i, j), *pixel);
+                }
+            }
+        }
+    }
+
+    let mut image = vec![];
+
+    for i in 0..height {
+        let mut row = vec![];
+        for j in 0..width {
+            if let Some(pixel) = image_map.get(&(i, j)) {
+                if *pixel == 1 {
+                    print!("{:?}", pixel);
+                } else {
+                    print!(" ");
+                }
+                row.push(*pixel);
+            }
+        }
+        println!();
+        image.push(row);
+    }
+
+    image
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -86,6 +126,41 @@ mod tests {
         assert_eq!(
             1820,
             get_num_of_one_digits_mult_num_two_digits("input/2019/day08.txt", 25, 6)
+        );
+    }
+
+    #[test]
+    fn test_decode_image_test02() {
+        assert_eq!(
+            vec![vec![0, 1], vec![1, 0]],
+            decode_image("input/2019/day08_test02.txt", 2, 2)
+        );
+    }
+
+    #[test]
+    fn test_decode_image() {
+        assert_eq!(
+            vec![
+                vec![
+                    1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0
+                ],
+                vec![
+                    0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0
+                ],
+                vec![
+                    0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0
+                ],
+                vec![
+                    0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0
+                ],
+                vec![
+                    1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0
+                ],
+                vec![
+                    1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0
+                ],
+            ],
+            decode_image("input/2019/day08.txt", 25, 6)
         );
     }
 }
