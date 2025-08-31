@@ -11,16 +11,14 @@ mod tests {
             109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99,
         ];
         let mut input_intcode = parse_intcode_input("input/2019/day09_test01.txt");
+        input_intcode.extend(vec![0; 1000]);
         let mut outputs = vec![];
-        assert_eq!(
-            expected_intcode,
-            run_intcode(
-                &mut input_intcode,
-                &mut 0,
-                &mut 0,
-                &mut vec![],
-                &mut outputs
-            )
+        run_intcode(
+            &mut input_intcode,
+            &mut 0,
+            &mut 0,
+            &mut vec![],
+            &mut outputs,
         );
         assert_eq!(expected_intcode, outputs)
     }
@@ -64,16 +62,15 @@ mod tests {
     #[test]
     fn test_run_intcode_part01() {
         let mut input_intcode = parse_intcode_input("input/2019/day09.txt");
-        input_intcode[1] = 12;
-        input_intcode[2] = 2;
+        input_intcode.extend(vec![0; 1000]);
         let mut outputs = vec![];
-        let result_intcode = run_intcode(
+        run_intcode(
             &mut input_intcode,
             &mut 0,
             &mut 0,
-            &mut vec![],
+            &mut vec![1],
             &mut outputs,
         );
-        assert_eq!(0, result_intcode[0]);
+        println!("Outputs: {:?}", outputs);
     }
 }

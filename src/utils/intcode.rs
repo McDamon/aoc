@@ -1,3 +1,5 @@
+use std::cmp;
+
 use crate::utils::{int_to_instruction, int_to_modes};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -30,6 +32,25 @@ impl TryFrom<isize> for Opcode {
             9 => Ok(Opcode::RelativeBaseOffset),
             99 => Ok(Opcode::Halt),
             _ => Err(format!("Invalid opcode: {value}")),
+        }
+    }
+}
+
+pub enum Mode {
+    Position = 0isize,
+    Immediate = 1isize,
+    Relative = 2isize,
+}
+
+impl TryFrom<isize> for Mode {
+    type Error = String;
+
+    fn try_from(value: isize) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(Mode::Position),
+            1 => Ok(Mode::Immediate),
+            2 => Ok(Mode::Relative),
+            _ => Err(format!("Invalid mode: {value}")),
         }
     }
 }
@@ -68,7 +89,7 @@ pub fn run_intcode<'a>(
         Ok(Opcode::Store) => {
             if let Some(input) = inputs.pop() {
                 println!("Store at position {}, input: {:?}", *prog_counter, input);
-                calc_store(intcode, *prog_counter, input);
+                calc_store(intcode, &modes, *prog_counter, *relative_base, input);
                 *prog_counter += 2;
                 run_intcode(intcode, prog_counter, relative_base, inputs, outputs)
             } else {
@@ -125,7 +146,8 @@ pub fn run_intcode<'a>(
             let relative_base_offset =
                 calc_relative_base_offset(intcode, &modes, *prog_counter, *relative_base);
             *relative_base += relative_base_offset;
-            intcode
+            *prog_counter += 2;
+            run_intcode(intcode, prog_counter, relative_base, inputs, outputs)
         }
         Ok(Opcode::Halt) => {
             println!("Halt at position {}", *prog_counter);
@@ -147,7 +169,9 @@ pub fn calc_add(intcode: &mut [isize], modes: &[isize], prog_counter: usize, rel
     );
     let operand_rhs =
         get_parameter_value(intcode, param_2, *modes.get(1).unwrap_or(&0), relative_base);
-    intcode[param_3 as usize] = operand_lhs + operand_rhs;
+    if param_3 >= 0 {
+        intcode[param_3 as usize] = operand_lhs + operand_rhs;
+    }
 }
 
 pub fn calc_multiply(
@@ -167,14 +191,33 @@ pub fn calc_multiply(
     );
     let operand_rhs =
         get_parameter_value(intcode, param_2, *modes.get(1).unwrap_or(&0), relative_base);
-    intcode[param_3 as usize] = operand_lhs * operand_rhs;
+    if param_3 >= 0 {
+        intcode[param_3 as usize] = operand_lhs * operand_rhs;
+    }
 }
 
-pub fn calc_store(intcode: &mut [isize], prog_counter: usize, input: isize) {
+pub fn calc_store(
+    intcode: &mut [isize],
+    modes: &[isize],
+    prog_counter: usize,
+    relative_base: isize,
+    input: isize,
+) {
     let params = get_parameters(intcode, prog_counter, 1);
     let param_1 = params[0];
-
-    intcode[param_1 as usize] = input;
+    let mode_val = *modes.first().unwrap_or(&0);
+    match Mode::try_from(mode_val) {
+        Ok(mode) => match mode {
+            Mode::Position => {
+                intcode[param_1 as usize] = input;
+            }
+            Mode::Immediate => panic!("Invalid parameter mode: {mode_val}"),
+            Mode::Relative => {
+                intcode[param_1 as usize + relative_base as usize] = input;
+            }
+        },
+        Err(_) => panic!("Invalid parameter mode: {mode_val}"),
+    }
 }
 
 pub fn calc_load(
@@ -260,9 +303,13 @@ pub fn calc_less_than(
     let operand_rhs =
         get_parameter_value(intcode, param_2, *modes.get(1).unwrap_or(&0), relative_base);
     if operand_lhs < operand_rhs {
-        intcode[param_3 as usize] = 1
+        if param_3 >= 0 {
+            intcode[param_3 as usize] = 1
+        }
     } else {
-        intcode[param_3 as usize] = 0
+        if param_3 >= 0 {
+            intcode[param_3 as usize] = 0
+        }
     }
 }
 
@@ -284,9 +331,13 @@ pub fn calc_equals(
     let operand_rhs =
         get_parameter_value(intcode, param_2, *modes.get(1).unwrap_or(&0), relative_base);
     if operand_lhs == operand_rhs {
-        intcode[param_3 as usize] = 1
+        if param_3 >= 0 {
+            intcode[param_3 as usize] = 1
+        }
     } else {
-        intcode[param_3 as usize] = 0
+        if param_3 >= 0 {
+            intcode[param_3 as usize] = 0
+        }
     }
 }
 
@@ -298,13 +349,13 @@ pub fn calc_relative_base_offset(
 ) -> isize {
     let params = get_parameters(intcode, prog_counter, 1);
     let param_1 = params[0];
-    let operand_1 = get_parameter_value(
+
+    get_parameter_value(
         intcode,
         param_1,
         *modes.first().unwrap_or(&0),
         relative_base,
-    );
-    operand_1
+    )
 }
 
 // Helper function to extract parameters from intcode at given offsets
@@ -318,13 +369,28 @@ fn get_parameters(intcode: &[isize], prog_counter: usize, count: usize) -> Vec<i
 fn get_parameter_value(
     intcode: &[isize],
     param: isize,
-    mode: isize,
+    mode_val: isize,
     relative_base: isize,
 ) -> isize {
-    match mode {
-        0 => intcode[param as usize],                          // Position mode
-        1 => param,                                            // Immediate mode
-        2 => intcode[param as usize + relative_base as usize], // Relative mode
-        _ => panic!("Invalid parameter mode: {mode}"),
+    match Mode::try_from(mode_val) {
+        Ok(mode) => match mode {
+            Mode::Position => {
+                let index = param as usize;
+                let param_val = intcode[index];
+                println!("Position mode. Index {}. Param Val {}", index, param_val);
+                param_val
+            }
+            Mode::Immediate => {
+                println!("Immediate mode. Param Val {}", param);
+                param
+            }
+            Mode::Relative => {
+                let index = param + relative_base;
+                let param_val = intcode[index as usize];
+                println!("Relative mode. Index {}. Param Val {}", index, param_val);
+                param_val
+            }
+        },
+        Err(_) => panic!("Invalid parameter mode: {mode_val}"),
     }
 }
