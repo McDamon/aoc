@@ -60,6 +60,118 @@ mod tests {
     }
 
     #[test]
+    fn test_run_intcode_test04() {
+        let mut input_intcode = vec![109, -1, 4, 1, 99];
+        let mut outputs = vec![];
+        run_intcode(
+            &mut input_intcode,
+            &mut 0,
+            &mut 0,
+            &mut vec![],
+            &mut outputs,
+        );
+        assert_eq!(vec![-1], outputs)
+    }
+
+    #[test]
+    fn test_run_intcode_test05() {
+        let mut input_intcode = vec![109, -1, 104, 1, 99];
+        let mut outputs = vec![];
+        run_intcode(
+            &mut input_intcode,
+            &mut 0,
+            &mut 0,
+            &mut vec![],
+            &mut outputs,
+        );
+        assert_eq!(vec![1], outputs)
+    }
+
+    #[test]
+    fn test_run_intcode_test06() {
+        let mut input_intcode = vec![109, -1, 204, 1, 99];
+        let mut outputs = vec![];
+        run_intcode(
+            &mut input_intcode,
+            &mut 0,
+            &mut 0,
+            &mut vec![],
+            &mut outputs,
+        );
+        assert_eq!(vec![109], outputs)
+    }
+
+    #[test]
+    fn test_run_intcode_test07() {
+        let mut input_intcode = vec![109, 1, 9, 2, 204, -6, 99];
+        let mut outputs = vec![];
+        run_intcode(
+            &mut input_intcode,
+            &mut 0,
+            &mut 0,
+            &mut vec![],
+            &mut outputs,
+        );
+        assert_eq!(vec![204], outputs)
+    }
+
+    #[test]
+    fn test_run_intcode_test08() {
+        let mut input_intcode = vec![109, 1, 109, 9, 204, -6, 99];
+        let mut outputs = vec![];
+        run_intcode(
+            &mut input_intcode,
+            &mut 0,
+            &mut 0,
+            &mut vec![],
+            &mut outputs,
+        );
+        assert_eq!(vec![204], outputs)
+    }
+
+    #[test]
+    fn test_run_intcode_test09() {
+        let mut input_intcode = vec![109, 1, 209, -1, 204, -106, 99];
+        let mut outputs = vec![];
+        run_intcode(
+            &mut input_intcode,
+            &mut 0,
+            &mut 0,
+            &mut vec![],
+            &mut outputs,
+        );
+        assert_eq!(vec![204], outputs)
+    }
+
+    #[test]
+    fn test_run_intcode_test10() {
+        let mut input_intcode = vec![109, 1, 3, 3, 204, 2, 99];
+        let mut outputs = vec![];
+        run_intcode(
+            &mut input_intcode,
+            &mut 0,
+            &mut 0,
+            &mut vec![1],
+            &mut outputs,
+        );
+        assert_eq!(vec![1], outputs)
+    }
+
+    #[test]
+    fn test_run_intcode_test11() {
+        let mut input_intcode = vec![109, 1, 203, 2, 204, 2, 99];
+        let mut outputs = vec![];
+        run_intcode(
+            &mut input_intcode,
+            &mut 0,
+            &mut 0,
+            &mut vec![1],
+            &mut outputs,
+        );
+        assert_eq!(vec![1], outputs)
+    }
+
+    #[test]
     fn test_run_intcode_part01() {
         let mut input_intcode = parse_intcode_input("input/2019/day09.txt");
         input_intcode.extend(vec![0; 1000]);

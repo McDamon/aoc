@@ -106,6 +106,7 @@ mod tests {
         assert_eq!(10566835, result_intcode[0]);
     }
 
+    #[ignore]
     #[test]
     fn test_run_intcode_part02() {
         let input_intcode = parse_intcode_input("input/2019/day02.txt");

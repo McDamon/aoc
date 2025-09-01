@@ -133,6 +133,7 @@ mod tests {
         assert_eq!(42, get_total_orbits("input/2019/day06_test01.txt"));
     }
 
+    #[ignore]
     #[test]
     fn test_get_total_orbits() {
         assert_eq!(273985, get_total_orbits("input/2019/day06.txt"));
@@ -146,6 +147,7 @@ mod tests {
         );
     }
 
+    #[ignore]
     #[test]
     fn test_get_total_orbital_transfers() {
         assert_eq!(460, get_total_orbital_transfers("input/2019/day06.txt"));

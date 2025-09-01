@@ -7,19 +7,16 @@ mod tests {
 
     #[test]
     fn test_run_intcode_test01() {
-        let expected_intcode = vec![1, 0, 4, 0, 99];
         let mut input_intcode = parse_intcode_input("input/2019/day05_test01.txt");
         let mut outputs = vec![];
-        assert_eq!(
-            expected_intcode,
-            run_intcode(
-                &mut input_intcode,
-                &mut 0,
-                &mut 0,
-                &mut vec![1],
-                &mut outputs
-            )
+        run_intcode(
+            &mut input_intcode,
+            &mut 0,
+            &mut 0,
+            &mut vec![1],
+            &mut outputs,
         );
+        assert_eq!(vec![1], outputs)
     }
 
     #[test]
