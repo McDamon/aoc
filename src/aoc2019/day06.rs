@@ -1,6 +1,7 @@
 // https://adventofcode.com/2019/day/6
 
-use hashbrown::HashSet;
+use std::collections::HashSet;
+
 use petgraph::{algo, graph::UnGraph};
 
 use crate::utils::get_lines;

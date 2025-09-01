@@ -1,6 +1,7 @@
 // https://adventofcode.com/2019/day/8
 
-use hashbrown::HashMap;
+use std::collections::HashMap;
+
 use itertools::Itertools;
 
 use crate::utils::get_lines;

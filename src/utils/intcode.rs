@@ -160,28 +160,9 @@ pub fn run_intcode<'a>(
 }
 
 pub fn calc_add(intcode: &mut [isize], modes: &[isize], prog_counter: usize, relative_base: isize) {
-    let params = get_parameters(intcode, prog_counter, 3);
-    let (param_1, param_2, param_3) = (params[0], params[1], params[2]);
-
-    let mode_lhs = get_mode(*modes.first().unwrap_or(&0));
-    let operand_lhs = get_parameter_value(intcode, param_1, mode_lhs, relative_base);
-    let mode_rhs = get_mode(*modes.get(1).unwrap_or(&0));
-    let operand_rhs = get_parameter_value(intcode, param_2, mode_rhs, relative_base);
-
-    match mode_rhs {
-        Mode::Position => {
-            if param_3 >= 0 {
-                intcode[param_3 as usize] = operand_lhs + operand_rhs;
-            }
-        }
-        Mode::Immediate => {}
-        Mode::Relative => {
-            let index = param_3 + relative_base;
-            if index >= 0 {
-                intcode[index as usize] = operand_lhs + operand_rhs;
-            }
-        }
-    }
+    let (operand_lhs, operand_rhs, dest_param, dest_mode) =
+        get_two_operands_and_dest(intcode, modes, prog_counter, relative_base);
+    write_parameter(intcode, dest_param, dest_mode, relative_base, operand_lhs + operand_rhs);
 }
 
 pub fn calc_multiply(
@@ -190,28 +171,15 @@ pub fn calc_multiply(
     prog_counter: usize,
     relative_base: isize,
 ) {
-    let params = get_parameters(intcode, prog_counter, 3);
-    let (param_1, param_2, param_3) = (params[0], params[1], params[2]);
-
-    let mode_lhs = get_mode(*modes.first().unwrap_or(&0));
-    let operand_lhs = get_parameter_value(intcode, param_1, mode_lhs, relative_base);
-    let mode_rhs = get_mode(*modes.get(1).unwrap_or(&0));
-    let operand_rhs = get_parameter_value(intcode, param_2, mode_rhs, relative_base);
-
-    match mode_rhs {
-        Mode::Position => {
-            if param_3 >= 0 {
-                intcode[param_3 as usize] = operand_lhs * operand_rhs;
-            }
-        }
-        Mode::Immediate => {}
-        Mode::Relative => {
-            let index = param_3 + relative_base;
-            if index >= 0 {
-                intcode[index as usize] = operand_lhs * operand_rhs;
-            }
-        }
-    }
+    let (operand_lhs, operand_rhs, dest_param, dest_mode) =
+        get_two_operands_and_dest(intcode, modes, prog_counter, relative_base);
+    write_parameter(
+        intcode,
+        dest_param,
+        dest_mode,
+        relative_base,
+        operand_lhs * operand_rhs,
+    );
 }
 
 pub fn calc_store(
@@ -224,21 +192,8 @@ pub fn calc_store(
     let params = get_parameters(intcode, prog_counter, 1);
     let param_1 = params[0];
     let mode_1 = get_mode(*modes.first().unwrap_or(&0));
-    let operand_1 = get_parameter_value(intcode, param_1, mode_1, relative_base);
-    match mode_1 {
-        Mode::Position => {
-            if operand_1 >= 0 {
-                intcode[operand_1 as usize] = input;
-            }
-        }
-        Mode::Immediate => {}
-        Mode::Relative => {
-            let index = operand_1 + relative_base;
-            if index >= 0 {
-                intcode[index as usize] = input;
-            }
-        }
-    }
+    // write input into the destination parameter (param_1) according to its mode
+    write_parameter(intcode, param_1, mode_1, relative_base, input);
 }
 
 pub fn calc_load(
@@ -300,40 +255,10 @@ pub fn calc_less_than(
     prog_counter: usize,
     relative_base: isize,
 ) {
-    let params = get_parameters(intcode, prog_counter, 3);
-    let (param_1, param_2, param_3) = (params[0], params[1], params[2]);
-
-    let mode_lhs = get_mode(*modes.first().unwrap_or(&0));
-    let operand_lhs = get_parameter_value(intcode, param_1, mode_lhs, relative_base);
-    let mode_rhs = get_mode(*modes.get(1).unwrap_or(&0));
-    let operand_rhs = get_parameter_value(intcode, param_2, mode_rhs, relative_base);
-
-    match mode_rhs {
-        Mode::Position => {
-            if operand_lhs < operand_rhs {
-                if param_3 >= 0 {
-                    intcode[param_3 as usize] = 1
-                }
-            } else {
-                if param_3 >= 0 {
-                    intcode[param_3 as usize] = 0
-                }
-            }
-        }
-        Mode::Immediate => {}
-        Mode::Relative => {
-            let index = param_3 + relative_base;
-            if operand_lhs < operand_rhs {
-                if index >= 0 {
-                    intcode[index as usize] = 1
-                }
-            } else {
-                if index >= 0 {
-                    intcode[index as usize] = 0
-                }
-            }
-        }
-    }
+    let (operand_lhs, operand_rhs, dest_param, dest_mode) =
+        get_two_operands_and_dest(intcode, modes, prog_counter, relative_base);
+    let result = if operand_lhs < operand_rhs { 1 } else { 0 };
+    write_parameter(intcode, dest_param, dest_mode, relative_base, result);
 }
 
 pub fn calc_equals(
@@ -342,40 +267,10 @@ pub fn calc_equals(
     prog_counter: usize,
     relative_base: isize,
 ) {
-    let params = get_parameters(intcode, prog_counter, 3);
-    let (param_1, param_2, param_3) = (params[0], params[1], params[2]);
-
-    let mode_lhs = get_mode(*modes.first().unwrap_or(&0));
-    let operand_lhs = get_parameter_value(intcode, param_1, mode_lhs, relative_base);
-    let mode_rhs = get_mode(*modes.get(1).unwrap_or(&0));
-    let operand_rhs = get_parameter_value(intcode, param_2, mode_rhs, relative_base);
-
-    match mode_rhs {
-        Mode::Position => {
-            if operand_lhs == operand_rhs {
-                if param_3 >= 0 {
-                    intcode[param_3 as usize] = 1
-                }
-            } else {
-                if param_3 >= 0 {
-                    intcode[param_3 as usize] = 0
-                }
-            }
-        }
-        Mode::Immediate => {}
-        Mode::Relative => {
-            let index = param_3 + relative_base;
-            if operand_lhs == operand_rhs {
-                if index >= 0 {
-                    intcode[index as usize] = 1
-                }
-            } else {
-                if index >= 0 {
-                    intcode[index as usize] = 0
-                }
-            }
-        }
-    }
+    let (operand_lhs, operand_rhs, dest_param, dest_mode) =
+        get_two_operands_and_dest(intcode, modes, prog_counter, relative_base);
+    let result = if operand_lhs == operand_rhs { 1 } else { 0 };
+    write_parameter(intcode, dest_param, dest_mode, relative_base, result);
 }
 
 pub fn calc_relative_base_offset(
@@ -423,6 +318,50 @@ fn get_parameter_value(intcode: &[isize], param: isize, mode: Mode, relative_bas
             let param_val = intcode[index as usize];
             println!("Relative mode. Index {}. Param Val {}", index, param_val);
             param_val
+        }
+    }
+}
+
+// Helper to read two operands and the destination parameter (and its mode)
+fn get_two_operands_and_dest(
+    intcode: &[isize],
+    modes: &[isize],
+    prog_counter: usize,
+    relative_base: isize,
+) -> (isize, isize, isize, Mode) {
+    let params = get_parameters(intcode, prog_counter, 3);
+    let (param_1, param_2, param_3) = (params[0], params[1], params[2]);
+
+    let mode_lhs = get_mode(*modes.first().unwrap_or(&0));
+    let operand_lhs = get_parameter_value(intcode, param_1, mode_lhs, relative_base);
+    let mode_rhs = get_mode(*modes.get(1).unwrap_or(&0));
+    let operand_rhs = get_parameter_value(intcode, param_2, mode_rhs, relative_base);
+    let dest_mode = get_mode(*modes.get(2).unwrap_or(&0));
+    (operand_lhs, operand_rhs, param_3, dest_mode)
+}
+
+// Helper to write a value into a parameter respecting its mode
+fn write_parameter(
+    intcode: &mut [isize],
+    param: isize,
+    mode: Mode,
+    relative_base: isize,
+    value: isize,
+) {
+    match mode {
+        Mode::Position => {
+            if param >= 0 {
+                intcode[param as usize] = value;
+            }
+        }
+        Mode::Immediate => {
+            // immediate mode should not be used as a destination; ignore
+        }
+        Mode::Relative => {
+            let index = param + relative_base;
+            if index >= 0 {
+                intcode[index as usize] = value;
+            }
         }
     }
 }
