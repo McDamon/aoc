@@ -1,7 +1,8 @@
 // https://adventofcode.com/2019/day/4
 
+use std::collections::HashMap;
+
 use crate::utils::get_lines;
-use hashbrown::HashMap;
 use itertools::Itertools;
 
 struct Input {

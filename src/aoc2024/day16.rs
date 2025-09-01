@@ -1,7 +1,6 @@
 // https://adventofcode.com/2024/day/16
 
 use hashbrown::{HashMap, HashSet};
-
 use petgraph::{
     Graph, algo,
     graph::{DiGraph, NodeIndex},

@@ -1,6 +1,6 @@
 // https://adventofcode.com/2024/day/21
 
-use hashbrown::HashMap;
+use std::collections::HashMap;
 
 use itertools::Itertools;
 use petgraph::{
