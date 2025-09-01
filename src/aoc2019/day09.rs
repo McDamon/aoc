@@ -183,6 +183,25 @@ mod tests {
             &mut vec![1],
             &mut outputs,
         );
-        println!("Outputs: {:?}", outputs);
+        assert_eq!(vec![2204990589], outputs);
+    }
+
+    #[ignore]
+    #[test]
+    fn test_run_intcode_part02() {
+        // Requires 1GB of stack space!
+        stacker::grow(1024 * 1024 * 1024, || {
+            let mut input_intcode = parse_intcode_input("input/2019/day09.txt");
+            input_intcode.extend(vec![0; 10000]);
+            let mut outputs = vec![];
+            run_intcode(
+                &mut input_intcode,
+                &mut 0,
+                &mut 0,
+                &mut vec![2],
+                &mut outputs,
+            );
+            assert_eq!(vec![50008], outputs);
+        });
     }
 }

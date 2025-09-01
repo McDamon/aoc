@@ -162,7 +162,13 @@ pub fn run_intcode<'a>(
 pub fn calc_add(intcode: &mut [isize], modes: &[isize], prog_counter: usize, relative_base: isize) {
     let (operand_lhs, operand_rhs, dest_param, dest_mode) =
         get_two_operands_and_dest(intcode, modes, prog_counter, relative_base);
-    write_parameter(intcode, dest_param, dest_mode, relative_base, operand_lhs + operand_rhs);
+    write_parameter(
+        intcode,
+        dest_param,
+        dest_mode,
+        relative_base,
+        operand_lhs + operand_rhs,
+    );
 }
 
 pub fn calc_multiply(
