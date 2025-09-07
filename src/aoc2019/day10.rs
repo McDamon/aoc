@@ -61,21 +61,27 @@ pub fn is_asteroid_detectable(
 
     loop {
         let (x, y) = (x0 as usize, y0 as usize);
-        match space[x][y] {
+
+        match space[y][x] {
             SpaceLocation::Asteroid => {
-                println!("Asteroid at (x, y) = ({}, {})", x0, y0);
                 if (x, y) != origin {
-                    if (x, y) == dest {
-                        println!("Asteroid is detectable!");
-                        return true;
+                    let y_change = y0 - (origin.1 as isize);
+                    let x_change = x0 - (origin.0 as isize);
+                    let grad = if x_change == 0 {
+                        f32::INFINITY
                     } else {
-                        println!("Asteroid is undetectable!");
-                        return false;
-                    }
+                        y_change as f32 / x_change as f32
+                    };
+                    println!(
+                        "Asteroid at (x, y) = ({}, {}), y_change = {}, x_change = {}, grad = {}",
+                        x0, y0, y_change, x_change, grad
+                    );
                 }
             }
             SpaceLocation::Space => {
-                println!("Space at (x, y) = ({}, {})", x0, y0);
+                if (x, y) != origin {
+                    println!("Space at (x, y) = ({}, {})", x0, y0);
+                }
             }
         }
 
@@ -84,15 +90,15 @@ pub fn is_asteroid_detectable(
             if x0 == x1 {
                 break;
             }
-            error = error + dy;
-            x0 = x0 + sx;
+            error += dy;
+            x0 += sx;
         }
         if e2 <= dx {
             if y0 == y1 {
                 break;
             }
-            error = error + dx;
-            y0 = y0 + sy;
+            error += dx;
+            y0 += sy;
         }
     }
 
