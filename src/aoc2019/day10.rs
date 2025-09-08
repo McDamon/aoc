@@ -105,22 +105,22 @@ pub fn is_asteroid_detectable(
         }
     }
 
-    if grads.len() > 1 {
-        if let Some(last_grad) = grads.last() {
-            let count = grads
-                .iter()
-                .filter(|&&grad| {
-                    if grad.is_infinite() && last_grad.is_infinite() {
-                        grad.is_sign_positive() == last_grad.is_sign_positive()
-                    } else {
-                        (grad - last_grad).abs() < f32::EPSILON
-                    }
-                })
-                .count();
-            if count > 1 {
-                //println!("Asteroid at (x, y) = ({}, {}) is invisible", dest.0, dest.1);
-                return false;
-            }
+    if grads.len() > 1
+        && let Some(last_grad) = grads.last()
+    {
+        let count = grads
+            .iter()
+            .filter(|&&grad| {
+                if grad.is_infinite() && last_grad.is_infinite() {
+                    grad.is_sign_positive() == last_grad.is_sign_positive()
+                } else {
+                    (grad - last_grad).abs() < f32::EPSILON
+                }
+            })
+            .count();
+        if count > 1 {
+            //println!("Asteroid at (x, y) = ({}, {}) is invisible", dest.0, dest.1);
+            return false;
         }
     }
 
