@@ -46,7 +46,7 @@ pub fn is_asteroid_detectable(
     origin: (usize, usize),
     dest: (usize, usize),
 ) -> bool {
-    println!("Origin: {:?}, Dest: {:?}", origin, dest);
+    //println!("Origin: {:?}, Dest: {:?}", origin, dest);
 
     // Bresenham's algo
 
@@ -58,6 +58,8 @@ pub fn is_asteroid_detectable(
     let dy = -(y1 - y0).abs();
     let sy = if y0 < y1 { 1 } else { -1 };
     let mut error = dx + dy;
+
+    let mut grads: Vec<f32> = vec![];
 
     loop {
         let (x, y) = (x0 as usize, y0 as usize);
@@ -72,16 +74,17 @@ pub fn is_asteroid_detectable(
                     } else {
                         y_change as f32 / x_change as f32
                     };
-                    println!(
+                    grads.push(grad);
+                    /*println!(
                         "Asteroid at (x, y) = ({}, {}), y_change = {}, x_change = {}, grad = {}",
                         x0, y0, y_change, x_change, grad
-                    );
+                    );*/
                 }
             }
             SpaceLocation::Space => {
-                if (x, y) != origin {
+                /*if (x, y) != origin {
                     println!("Space at (x, y) = ({}, {})", x0, y0);
-                }
+                }*/
             }
         }
 
@@ -102,7 +105,27 @@ pub fn is_asteroid_detectable(
         }
     }
 
-    false
+    if grads.len() > 1 {
+        if let Some(last_grad) = grads.last() {
+            let count = grads
+                .iter()
+                .filter(|&&grad| {
+                    if grad.is_infinite() && last_grad.is_infinite() {
+                        grad.is_sign_positive() == last_grad.is_sign_positive()
+                    } else {
+                        (grad - last_grad).abs() < f32::EPSILON
+                    }
+                })
+                .count();
+            if count > 1 {
+                //println!("Asteroid at (x, y) = ({}, {}) is invisible", dest.0, dest.1);
+                return false;
+            }
+        }
+    }
+
+    //println!("Asteroid at (x, y) = ({}, {}) is visible", dest.0, dest.1);
+    true
 }
 
 pub fn get_detected_asteroids_for_entry(
@@ -153,7 +176,7 @@ mod tests {
 
     #[test]
     fn test_get_detected_asteroids_test02() {
-        assert_eq!(33, get_detected_asteroids("input/2019/day10_test02.txt"));
+        assert_eq!(33, get_detected_asteroids("input/2019/day10_test02.txt"))
     }
 
     #[test]
@@ -173,11 +196,11 @@ mod tests {
 
     #[test]
     fn test_get_detected_asteroids_test06() {
-        assert_eq!(0, get_detected_asteroids("input/2019/day10_test06.txt"));
+        assert_eq!(3, get_detected_asteroids("input/2019/day10_test06.txt"));
     }
 
     #[test]
     fn test_get_detected_asteroids() {
-        assert_eq!(0, get_detected_asteroids("input/2019/day10.txt"));
+        assert_eq!(284, get_detected_asteroids("input/2019/day10.txt"));
     }
 }
