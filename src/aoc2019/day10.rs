@@ -42,9 +42,9 @@ fn parse_input(input_file: &str) -> Input {
 }
 
 /// Generates points along a line using Bresenham's line algorithm
-pub fn bresenham_line(start: (usize, usize), end: (usize, usize)) -> Vec<(usize, usize)> {
-    let (mut x0, mut y0) = (start.0 as isize, start.1 as isize);
-    let (x1, y1) = (end.0 as isize, end.1 as isize);
+pub fn bresenham_line(origin: (usize, usize), dest: (usize, usize)) -> Vec<(usize, usize)> {
+    let (mut x0, mut y0) = (origin.0 as isize, origin.1 as isize);
+    let (x1, y1) = (dest.0 as isize, dest.1 as isize);
 
     let dx = (x1 - x0).abs();
     let sx = if x0 < x1 { 1 } else { -1 };
@@ -189,7 +189,7 @@ pub fn get_detected_asteroids(input_file: &str) -> u32 {
     *detected_asteroids.iter().max().unwrap_or(&0)
 }
 
-pub fn get_vaporised_asteroids(input_file: &str) -> Option<u32> {
+pub fn get_vaporised_asteroids(input_file: &str) -> u32 {
     let input = parse_input(input_file);
 
     let mut detected_asteroids: Vec<(u32, (usize, usize))> = vec![];
@@ -209,20 +209,19 @@ pub fn get_vaporised_asteroids(input_file: &str) -> Option<u32> {
         detected_asteroids.iter().max()
     {
         println!("Max visible asteroids pos {:?}", *max_visible_asteroids_pos);
-        vaporise_asteroids(&mut input.space.clone(), max_visible_asteroids_pos);
+        return vaporise_asteroids(&mut input.space.clone(), *max_visible_asteroids_pos);
     }
 
-    None
+    0
 }
 
-fn vaporise_asteroids(
-    space: &mut [Vec<SpaceLocation>],
-    station_point: &(usize, usize),
-) -> Option<u32> {
+fn vaporise_asteroids(space: &mut [Vec<SpaceLocation>], station_point: (usize, usize)) -> u32 {
     let width = space.first().map_or(0, |row| row.len());
     let height = space.len();
 
     println!("width = {}, height = {}", width, height);
+
+    let mut vaporised_asteroids = 0;
 
     // Construct the list of points we need to visit
     let mut visit_points: Vec<(usize, usize)> = vec![];
@@ -254,9 +253,9 @@ fn vaporise_asteroids(
 
     loop {
         if let Some(visit_point) = visit_points.first() {
-            println!("Visiting: {:?}", visit_point);
-
-            let is_detected = is_asteroid_detectable(space, *station_point, *visit_point);
+            if vaporise_asteroid(space, station_point, *visit_point) {
+                vaporised_asteroids += 1;
+            }
         }
 
         visit_points.rotate_left(1);
@@ -264,7 +263,32 @@ fn vaporise_asteroids(
         break;
     }
 
-    None
+    vaporised_asteroids
+}
+
+fn vaporise_asteroid(
+    space: &mut [Vec<SpaceLocation>],
+    origin: (usize, usize),
+    dest: (usize, usize),
+) -> bool {
+    //println!("Origin: {:?}, Dest: {:?}", origin, dest);
+
+    let points = bresenham_line(origin, dest);
+
+    for &(x, y) in &points {
+        match space[y][x] {
+            SpaceLocation::Asteroid => {
+                if (x, y) != origin {
+                    space[y][x] = SpaceLocation::Space;
+                    return true;
+                }
+            }
+            SpaceLocation::Space => {
+            }
+        }
+    }
+
+    false
 }
 
 #[cfg(test)]
@@ -308,19 +332,16 @@ mod tests {
 
     #[test]
     fn test_get_vaporised_asteroids_test01() {
-        assert_eq!(None, get_vaporised_asteroids("input/2019/day10_test07.txt"));
+        assert_eq!(0, get_vaporised_asteroids("input/2019/day10_test07.txt"));
     }
 
     #[test]
     fn test_get_vaporised_asteroids_test02() {
-        assert_eq!(
-            Some(802),
-            get_vaporised_asteroids("input/2019/day10_test06.txt")
-        );
+        assert_eq!(802, get_vaporised_asteroids("input/2019/day10_test06.txt"));
     }
 
     #[test]
     fn test_get_vaporised_asteroids() {
-        assert_eq!(None, get_vaporised_asteroids("input/2019/day10.txt"));
+        assert_eq!(0, get_vaporised_asteroids("input/2019/day10.txt"));
     }
 }
