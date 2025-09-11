@@ -41,17 +41,10 @@ fn parse_input(input_file: &str) -> Input {
     Input { space }
 }
 
-pub fn is_asteroid_detectable(
-    space: &[Vec<SpaceLocation>],
-    origin: (usize, usize),
-    dest: (usize, usize),
-) -> bool {
-    //println!("Origin: {:?}, Dest: {:?}", origin, dest);
-
-    // Bresenham's algo
-
-    let (mut x0, mut y0) = (origin.0 as isize, origin.1 as isize);
-    let (x1, y1) = (dest.0 as isize, dest.1 as isize);
+/// Generates points along a line using Bresenham's line algorithm
+pub fn bresenham_line(start: (usize, usize), end: (usize, usize)) -> Vec<(usize, usize)> {
+    let (mut x0, mut y0) = (start.0 as isize, start.1 as isize);
+    let (x1, y1) = (end.0 as isize, end.1 as isize);
 
     let dx = (x1 - x0).abs();
     let sx = if x0 < x1 { 1 } else { -1 };
@@ -59,34 +52,10 @@ pub fn is_asteroid_detectable(
     let sy = if y0 < y1 { 1 } else { -1 };
     let mut error = dx + dy;
 
-    let mut grads: Vec<f32> = vec![];
+    let mut points = Vec::new();
 
     loop {
-        let (x, y) = (x0 as usize, y0 as usize);
-
-        match space[y][x] {
-            SpaceLocation::Asteroid => {
-                if (x, y) != origin {
-                    let y_change = y0 - (origin.1 as isize);
-                    let x_change = x0 - (origin.0 as isize);
-                    let grad = if x_change == 0 {
-                        f32::INFINITY
-                    } else {
-                        y_change as f32 / x_change as f32
-                    };
-                    grads.push(grad);
-                    /*println!(
-                        "Asteroid at (x, y) = ({}, {}), y_change = {}, x_change = {}, grad = {}",
-                        x0, y0, y_change, x_change, grad
-                    );*/
-                }
-            }
-            SpaceLocation::Space => {
-                /*if (x, y) != origin {
-                    println!("Space at (x, y) = ({}, {})", x0, y0);
-                }*/
-            }
-        }
+        points.push((x0 as usize, y0 as usize));
 
         let e2 = 2 * error;
         if e2 >= dy {
@@ -105,10 +74,29 @@ pub fn is_asteroid_detectable(
         }
     }
 
-    if grads.len() > 1
-        && let Some(last_grad) = grads.last()
-    {
-        let count = grads
+    points
+}
+
+/// Calculate the gradient between two points
+pub fn calculate_gradient(origin: (usize, usize), point: (usize, usize)) -> f32 {
+    let y_change = point.1 as isize - origin.1 as isize;
+    let x_change = point.0 as isize - origin.0 as isize;
+
+    if x_change == 0 {
+        f32::INFINITY
+    } else {
+        y_change as f32 / x_change as f32
+    }
+}
+
+/// Check if an asteroid is visible from the origin based on gradient analysis
+pub fn check_visibility(gradients: &[f32]) -> bool {
+    if gradients.len() <= 1 {
+        return true;
+    }
+
+    if let Some(last_grad) = gradients.last() {
+        let count = gradients
             .iter()
             .filter(|&&grad| {
                 if grad.is_infinite() && last_grad.is_infinite() {
@@ -118,14 +106,50 @@ pub fn is_asteroid_detectable(
                 }
             })
             .count();
-        if count > 1 {
-            //println!("Asteroid at (x, y) = ({}, {}) is invisible", dest.0, dest.1);
-            return false;
+
+        count <= 1
+    } else {
+        true
+    }
+}
+
+pub fn is_asteroid_detectable(
+    space: &[Vec<SpaceLocation>],
+    origin: (usize, usize),
+    dest: (usize, usize),
+) -> bool {
+    //println!("Origin: {:?}, Dest: {:?}", origin, dest);
+
+    let points = bresenham_line(origin, dest);
+    let mut grads: Vec<f32> = vec![];
+
+    for &(x, y) in &points {
+        match space[y][x] {
+            SpaceLocation::Asteroid => {
+                if (x, y) != origin {
+                    let grad = calculate_gradient(origin, (x, y));
+                    grads.push(grad);
+                    /*println!(
+                        "Asteroid at (x, y) = ({}, {}), grad = {}",
+                        x, y, grad
+                    );*/
+                }
+            }
+            SpaceLocation::Space => {
+                /*if (x, y) != origin {
+                    println!("Space at (x, y) = ({}, {})", x, y);
+                }*/
+            }
         }
     }
 
-    //println!("Asteroid at (x, y) = ({}, {}) is visible", dest.0, dest.1);
-    true
+    /*if is_visible {
+        println!("Asteroid at (x, y) = ({}, {}) is visible", dest.0, dest.1);
+    } else {
+        println!("Asteroid at (x, y) = ({}, {}) is invisible", dest.0, dest.1);
+    }*/
+
+    check_visibility(&grads)
 }
 
 pub fn get_detected_asteroids_for_entry(
@@ -165,6 +189,84 @@ pub fn get_detected_asteroids(input_file: &str) -> u32 {
     *detected_asteroids.iter().max().unwrap_or(&0)
 }
 
+pub fn get_vaporised_asteroids(input_file: &str) -> Option<u32> {
+    let input = parse_input(input_file);
+
+    let mut detected_asteroids: Vec<(u32, (usize, usize))> = vec![];
+
+    for (i, space_col) in input.space.iter().enumerate() {
+        for (j, space_entry) in space_col.iter().enumerate() {
+            if space_entry == &SpaceLocation::Asteroid {
+                detected_asteroids.push((
+                    get_detected_asteroids_for_entry(&input.space, (j, i)),
+                    (j, i),
+                ));
+            }
+        }
+    }
+
+    if let Some((_max_visible_asteroids, max_visible_asteroids_pos)) =
+        detected_asteroids.iter().max()
+    {
+        println!("Max visible asteroids pos {:?}", *max_visible_asteroids_pos);
+        vaporise_asteroids(&mut input.space.clone(), max_visible_asteroids_pos);
+    }
+
+    None
+}
+
+fn vaporise_asteroids(
+    space: &mut [Vec<SpaceLocation>],
+    station_point: &(usize, usize),
+) -> Option<u32> {
+    let width = space.first().map_or(0, |row| row.len());
+    let height = space.len();
+
+    println!("width = {}, height = {}", width, height);
+
+    // Construct the list of points we need to visit
+    let mut visit_points: Vec<(usize, usize)> = vec![];
+
+    // Loop top row, north from station, to east
+    for x in station_point.0..width {
+        visit_points.push((x, 0));
+    }
+
+    // Loop east most column, skipping the top entry
+    for y in 1..height {
+        visit_points.push((width - 1, y));
+    }
+
+    // Loop bottom row, from east to west, skipping rightmost entry
+    for x in (0..(width - 1)).rev() {
+        visit_points.push((x, height - 1));
+    }
+
+    // Loop west most column, skipping the bottom entry
+    for y in (0..(height - 1)).rev() {
+        visit_points.push((0, y));
+    }
+
+    // Loop top row from west to east, skipping the first column, up until the start point
+    for x in 1..station_point.0 {
+        visit_points.push((x, 0));
+    }
+
+    loop {
+        if let Some(visit_point) = visit_points.first() {
+            println!("Visiting: {:?}", visit_point);
+
+            let is_detected = is_asteroid_detectable(space, *station_point, *visit_point);
+        }
+
+        visit_points.rotate_left(1);
+
+        break;
+    }
+
+    None
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -202,5 +304,23 @@ mod tests {
     #[test]
     fn test_get_detected_asteroids() {
         assert_eq!(284, get_detected_asteroids("input/2019/day10.txt"));
+    }
+
+    #[test]
+    fn test_get_vaporised_asteroids_test01() {
+        assert_eq!(None, get_vaporised_asteroids("input/2019/day10_test07.txt"));
+    }
+
+    #[test]
+    fn test_get_vaporised_asteroids_test02() {
+        assert_eq!(
+            Some(802),
+            get_vaporised_asteroids("input/2019/day10_test06.txt")
+        );
+    }
+
+    #[test]
+    fn test_get_vaporised_asteroids() {
+        assert_eq!(None, get_vaporised_asteroids("input/2019/day10.txt"));
     }
 }
