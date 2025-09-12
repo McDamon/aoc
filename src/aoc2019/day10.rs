@@ -207,19 +207,36 @@ pub fn get_vaporised_asteroids(input_file: &str, stop_at: usize) -> Option<u32> 
         detected_asteroids.iter().max()
     {
         println!("Max visible asteroids pos {:?}", *max_visible_asteroids_pos);
-        return vaporise_asteroids(&mut input.space.clone(), *max_visible_asteroids_pos, stop_at);
+        return vaporise_asteroids(
+            &mut input.space.clone(),
+            *max_visible_asteroids_pos,
+            stop_at,
+        );
     }
 
     None
 }
 
-fn vaporise_asteroids(space: &mut [Vec<SpaceLocation>], station_point: (usize, usize), stop_at: usize) -> Option<u32> {
+fn vaporise_asteroids(
+    space: &mut [Vec<SpaceLocation>],
+    station_point: (usize, usize),
+    stop_at: usize,
+) -> Option<u32> {
     println!();
     print_space(space);
     println!();
 
     let width = space.first().map_or(0, |row| row.len());
     let height = space.len();
+
+    let mut num_asteroids = 0;
+    for space_row in space.iter() {
+        for cell in space_row.iter() {
+            if let SpaceLocation::Asteroid = cell {
+                num_asteroids += 1;
+            }
+        }
+    }
 
     println!("width = {}, height = {}", width, height);
 
@@ -254,8 +271,9 @@ fn vaporise_asteroids(space: &mut [Vec<SpaceLocation>], station_point: (usize, u
     }
 
     loop {
-        if vaporised_asteroids > width * height {
-            break
+        if vaporised_asteroids == num_asteroids - 1 {
+            println!("All possible asteroids vaporised!");
+            break;
         }
 
         if let Some(visit_point) = visit_points.first() {
@@ -279,9 +297,14 @@ fn vaporise_asteroid(
     origin: (usize, usize),
     dest: (usize, usize),
 ) -> bool {
-    //println!("Origin: {:?}, Dest: {:?}", origin, dest);
+    println!(
+        "Vaporising asteroid along vector: origin: {:?}, dest: {:?}",
+        origin, dest
+    );
 
     let points = bresenham_line(origin, dest);
+
+    println!("Path: {:?}", points);
 
     for (x, y) in points.iter().rev() {
         match space[*y][*x] {
@@ -361,12 +384,18 @@ mod tests {
 
     #[test]
     fn test_get_vaporised_asteroids_test01() {
-        assert_eq!(Some(802), get_vaporised_asteroids("input/2019/day10_test07.txt", 1));
+        assert_eq!(
+            Some(0),
+            get_vaporised_asteroids("input/2019/day10_test07.txt", 20)
+        );
     }
 
     #[test]
     fn test_get_vaporised_asteroids_test02() {
-        assert_eq!(None, get_vaporised_asteroids("input/2019/day10_test06.txt", 20));
+        assert_eq!(
+            Some(802),
+            get_vaporised_asteroids("input/2019/day10_test05.txt", 3)
+        );
     }
 
     #[test]
