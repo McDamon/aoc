@@ -187,7 +187,7 @@ pub fn get_detected_asteroids(input_file: &str) -> u32 {
     *detected_asteroids.iter().max().unwrap_or(&0)
 }
 
-pub fn get_vaporised_asteroids(input_file: &str) -> Option<u32> {
+pub fn get_vaporised_asteroids(input_file: &str, stop_at: usize) -> Option<u32> {
     let input = parse_input(input_file);
 
     let mut detected_asteroids: Vec<(u32, (usize, usize))> = vec![];
@@ -207,13 +207,13 @@ pub fn get_vaporised_asteroids(input_file: &str) -> Option<u32> {
         detected_asteroids.iter().max()
     {
         println!("Max visible asteroids pos {:?}", *max_visible_asteroids_pos);
-        return vaporise_asteroids(&mut input.space.clone(), *max_visible_asteroids_pos);
+        return vaporise_asteroids(&mut input.space.clone(), *max_visible_asteroids_pos, stop_at);
     }
 
     None
 }
 
-fn vaporise_asteroids(space: &mut [Vec<SpaceLocation>], station_point: (usize, usize)) -> Option<u32> {
+fn vaporise_asteroids(space: &mut [Vec<SpaceLocation>], station_point: (usize, usize), stop_at: usize) -> Option<u32> {
     println!();
     print_space(space);
     println!();
@@ -263,7 +263,7 @@ fn vaporise_asteroids(space: &mut [Vec<SpaceLocation>], station_point: (usize, u
                 vaporised_asteroids += 1;
             }
 
-            if vaporised_asteroids == 20 {
+            if vaporised_asteroids == stop_at {
                 return Some(visit_point.0 as u32 * 100 + visit_point.1 as u32);
             }
         }
@@ -361,16 +361,16 @@ mod tests {
 
     #[test]
     fn test_get_vaporised_asteroids_test01() {
-        assert_eq!(Some(802), get_vaporised_asteroids("input/2019/day10_test07.txt"));
+        assert_eq!(Some(802), get_vaporised_asteroids("input/2019/day10_test07.txt", 1));
     }
 
     #[test]
     fn test_get_vaporised_asteroids_test02() {
-        assert_eq!(None, get_vaporised_asteroids("input/2019/day10_test06.txt"));
+        assert_eq!(None, get_vaporised_asteroids("input/2019/day10_test06.txt", 20));
     }
 
     #[test]
     fn test_get_vaporised_asteroids() {
-        assert_eq!(Some(0), get_vaporised_asteroids("input/2019/day10.txt"));
+        assert_eq!(Some(0), get_vaporised_asteroids("input/2019/day10.txt", 20));
     }
 }
