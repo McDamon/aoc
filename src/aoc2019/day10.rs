@@ -2,6 +2,8 @@
 
 use std::collections::HashMap;
 
+use ordered_float::OrderedFloat;
+
 use crate::utils::get_lines;
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Hash)]
@@ -224,7 +226,7 @@ fn vaporise_asteroids(
     station_point: (usize, usize),
     stop_at: usize,
 ) -> Option<u64> {
-    let mut asteroid_angles: HashMap<u64, Vec<(usize, usize)>> = HashMap::new();
+    let mut asteroid_angles: HashMap<OrderedFloat<f64>, Vec<(usize, usize)>> = HashMap::new();
 
     let mut num_asteroids = 0;
     let mut vaporised_asteroids = 1;
@@ -248,7 +250,7 @@ fn vaporise_asteroids(
                 num_asteroids += 1;
 
                 asteroid_angles
-                    .entry(angle as u64)
+                    .entry(OrderedFloat(angle))
                     .or_default()
                     .push((x, y));
             }
@@ -259,9 +261,10 @@ fn vaporise_asteroids(
         let mut finished = false;
         println!("Starting new rotation...");
         
-        for i in 0..360 {
+        let keys: Vec<OrderedFloat<f64>> = asteroid_angles.keys().cloned().collect();
+        for key in keys {
             let mut maybe_result: Option<u64> = None;
-            if let Some(asteroids) = asteroid_angles.get_mut(&i) {
+            if let Some(asteroids) = asteroid_angles.get_mut(&key) {
                 if let Some((x, y)) = asteroids.pop() {
                     space[y][x] = SpaceLocation::Space;
                     println!("Vaporised asteroid at: ({}, {})", x, y);
@@ -355,7 +358,7 @@ mod tests {
     #[test]
     fn test_get_vaporised_asteroids_test01() {
         assert_eq!(
-            Some(0),
+            Some(1203),
             get_vaporised_asteroids("input/2019/day10_test07.txt", 36)
         );
     }
