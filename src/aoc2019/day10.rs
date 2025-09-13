@@ -229,7 +229,7 @@ fn vaporise_asteroids(
     let mut asteroid_angles: HashMap<OrderedFloat<f64>, Vec<(usize, usize)>> = HashMap::new();
 
     let mut num_asteroids = 0;
-    let mut vaporised_asteroids = 1;
+    let mut vaporised_asteroids = 0;
 
     for (y, space_row) in space.iter().enumerate() {
         for (x, space_entry) in space_row.iter().enumerate() {
@@ -260,14 +260,18 @@ fn vaporise_asteroids(
     loop {
         let mut finished = false;
         println!("Starting new rotation...");
-        
-        let keys: Vec<OrderedFloat<f64>> = asteroid_angles.keys().cloned().collect();
-        for key in keys {
+
+        let mut angles: Vec<OrderedFloat<f64>> = asteroid_angles.keys().cloned().collect();
+        angles.sort();
+
+        for angle in angles {
             let mut maybe_result: Option<u64> = None;
-            if let Some(asteroids) = asteroid_angles.get_mut(&key) {
+            if let Some(asteroids) = asteroid_angles.get_mut(&angle) {
                 if let Some((x, y)) = asteroids.pop() {
                     space[y][x] = SpaceLocation::Space;
                     println!("Vaporised asteroid at: ({}, {})", x, y);
+
+                    vaporised_asteroids += 1;
 
                     if vaporised_asteroids >= stop_at {
                         maybe_result = Some(x as u64 * 100 + y as u64);
@@ -281,8 +285,6 @@ fn vaporise_asteroids(
                     if vaporised_asteroids == num_asteroids {
                         finished = true;
                     }
-
-                    vaporised_asteroids += 1;
                 }
             }
             if let Some(val) = maybe_result {
@@ -373,6 +375,9 @@ mod tests {
 
     #[test]
     fn test_get_vaporised_asteroids() {
-        assert_eq!(Some(0), get_vaporised_asteroids("input/2019/day10.txt", 20));
+        assert_eq!(
+            Some(404),
+            get_vaporised_asteroids("input/2019/day10.txt", 200)
+        );
     }
 }
