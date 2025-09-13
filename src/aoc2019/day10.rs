@@ -80,19 +80,19 @@ pub fn bresenham_line(origin: (usize, usize), dest: (usize, usize)) -> Vec<(usiz
 }
 
 /// Calculate the gradient between two points
-pub fn calculate_gradient(origin: (usize, usize), point: (usize, usize)) -> f32 {
+pub fn calculate_gradient(origin: (usize, usize), point: (usize, usize)) -> f64 {
     let y_change = point.1 as isize - origin.1 as isize;
     let x_change = point.0 as isize - origin.0 as isize;
 
     if x_change == 0 {
-        f32::INFINITY
+        f64::INFINITY
     } else {
-        y_change as f32 / x_change as f32
+        y_change as f64 / x_change as f64
     }
 }
 
 /// Check if an asteroid is visible from the origin based on gradient analysis
-pub fn check_visibility(gradients: &[f32]) -> bool {
+pub fn check_visibility(gradients: &[f64]) -> bool {
     if gradients.len() <= 1 {
         return true;
     }
@@ -104,7 +104,7 @@ pub fn check_visibility(gradients: &[f32]) -> bool {
                 if grad.is_infinite() && last_grad.is_infinite() {
                     grad.is_sign_positive() == last_grad.is_sign_positive()
                 } else {
-                    (grad - last_grad).abs() < f32::EPSILON
+                    (grad - last_grad).abs() < f64::EPSILON
                 }
             })
             .count();
@@ -119,7 +119,7 @@ pub fn is_asteroid_detectable(space: &[Vec<SpaceLocation>], points: &[(usize, us
     //println!("Origin: {:?}, Dest: {:?}", origin, dest);
 
     if let Some(origin) = points.first() {
-        let mut grads: Vec<f32> = vec![];
+        let mut grads: Vec<f64> = vec![];
 
         for (x, y) in points.iter() {
             match space[*y][*x] {
@@ -155,7 +155,7 @@ pub fn is_asteroid_detectable(space: &[Vec<SpaceLocation>], points: &[(usize, us
 pub fn get_detected_asteroids_for_entry(
     space: &[Vec<SpaceLocation>],
     origin: (usize, usize),
-) -> u32 {
+) -> u64 {
     let mut detected_asteroids = 0;
 
     for (i, space_col) in space.iter().enumerate() {
@@ -173,10 +173,10 @@ pub fn get_detected_asteroids_for_entry(
     detected_asteroids
 }
 
-pub fn get_detected_asteroids(input_file: &str) -> u32 {
+pub fn get_detected_asteroids(input_file: &str) -> u64 {
     let input = parse_input(input_file);
 
-    let mut detected_asteroids: Vec<u32> = vec![];
+    let mut detected_asteroids: Vec<u64> = vec![];
 
     for (i, space_col) in input.space.iter().enumerate() {
         for (j, space_entry) in space_col.iter().enumerate() {
@@ -189,10 +189,10 @@ pub fn get_detected_asteroids(input_file: &str) -> u32 {
     *detected_asteroids.iter().max().unwrap_or(&0)
 }
 
-pub fn get_vaporised_asteroids(input_file: &str, stop_at: usize) -> Option<u32> {
+pub fn get_vaporised_asteroids(input_file: &str, stop_at: usize) -> Option<u64> {
     let input = parse_input(input_file);
 
-    let mut detected_asteroids: Vec<(u32, (usize, usize))> = vec![];
+    let mut detected_asteroids: Vec<(u64, (usize, usize))> = vec![];
 
     for (i, space_col) in input.space.iter().enumerate() {
         for (j, space_entry) in space_col.iter().enumerate() {
@@ -223,8 +223,8 @@ fn vaporise_asteroids(
     space: &mut [Vec<SpaceLocation>],
     station_point: (usize, usize),
     stop_at: usize,
-) -> Option<u32> {
-    let mut asteroid_angles: HashMap<u32, Vec<(usize, usize)>> = HashMap::new();
+) -> Option<u64> {
+    let mut asteroid_angles: HashMap<u64, Vec<(usize, usize)>> = HashMap::new();
 
     let mut num_asteroids = 0;
     let mut vaporised_asteroids = 1;
@@ -240,7 +240,7 @@ fn vaporise_asteroids(
                 let y_diff = y as isize - station_point.1 as isize;
 
                 let mut angle =
-                    (f32::atan2(y_diff as f32, x_diff as f32).to_degrees() + 90.0) % 360.0;
+                    (f64::atan2(y_diff as f64, x_diff as f64).to_degrees() + 90.0) % 360.0;
                 if angle < 0.0 {
                     angle += 360.0;
                 }
@@ -248,7 +248,7 @@ fn vaporise_asteroids(
                 num_asteroids += 1;
 
                 asteroid_angles
-                    .entry(angle as u32)
+                    .entry(angle as u64)
                     .or_default()
                     .push((x, y));
             }
@@ -260,14 +260,14 @@ fn vaporise_asteroids(
         println!("Starting new rotation...");
         
         for i in 0..360 {
-            let mut maybe_result: Option<u32> = None;
+            let mut maybe_result: Option<u64> = None;
             if let Some(asteroids) = asteroid_angles.get_mut(&i) {
                 if let Some((x, y)) = asteroids.pop() {
                     space[y][x] = SpaceLocation::Space;
                     println!("Vaporised asteroid at: ({}, {})", x, y);
 
                     if vaporised_asteroids >= stop_at {
-                        maybe_result = Some(x as u32 * 100 + y as u32);
+                        maybe_result = Some(x as u64 * 100 + y as u64);
                     }
 
                     println!("vaporised_asteroids = {}", vaporised_asteroids);
@@ -364,7 +364,7 @@ mod tests {
     fn test_get_vaporised_asteroids_test02() {
         assert_eq!(
             Some(802),
-            get_vaporised_asteroids("input/2019/day10_test05.txt", 300)
+            get_vaporised_asteroids("input/2019/day10_test05.txt", 200)
         );
     }
 
