@@ -1,5 +1,7 @@
 // https://adventofcode.com/2019/day/10
 
+use std::collections::HashMap;
+
 use crate::utils::get_lines;
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Hash)]
@@ -222,108 +224,76 @@ fn vaporise_asteroids(
     station_point: (usize, usize),
     stop_at: usize,
 ) -> Option<u32> {
-    println!();
-    print_space(space);
-    println!();
-
-    let width = space.first().map_or(0, |row| row.len());
-    let height = space.len();
+    let mut asteroid_angles: HashMap<u32, Vec<(usize, usize)>> = HashMap::new();
 
     let mut num_asteroids = 0;
-    for space_row in space.iter() {
-        for cell in space_row.iter() {
-            if let SpaceLocation::Asteroid = cell {
+    let mut vaporised_asteroids = 1;
+
+    for (y, space_row) in space.iter().enumerate() {
+        for (x, space_entry) in space_row.iter().enumerate() {
+            let asteroid_point = (x, y);
+
+            if station_point != asteroid_point
+                && let SpaceLocation::Asteroid = *space_entry
+            {
+                let x_diff = x as isize - station_point.0 as isize;
+                let y_diff = y as isize - station_point.1 as isize;
+
+                let mut angle =
+                    (f32::atan2(y_diff as f32, x_diff as f32).to_degrees() + 90.0) % 360.0;
+                if angle < 0.0 {
+                    angle += 360.0;
+                }
+
                 num_asteroids += 1;
+
+                asteroid_angles
+                    .entry(angle as u32)
+                    .or_default()
+                    .push((x, y));
             }
         }
-    }
-
-    println!("width = {}, height = {}", width, height);
-
-    let mut vaporised_asteroids = 0;
-
-    // Construct the list of points we need to visit
-    let mut visit_points: Vec<(usize, usize)> = vec![];
-
-    // Loop top row, north from station, to east
-    for x in station_point.0..width {
-        visit_points.push((x, 0));
-    }
-
-    // Loop east most column, skipping the top entry
-    for y in 1..height {
-        visit_points.push((width - 1, y));
-    }
-
-    // Loop bottom row, from east to west, skipping rightmost entry
-    for x in (0..(width - 1)).rev() {
-        visit_points.push((x, height - 1));
-    }
-
-    // Loop west most column, skipping the bottom entry
-    for y in (0..(height - 1)).rev() {
-        visit_points.push((0, y));
-    }
-
-    // Loop top row from west to east, skipping the first column, up until the start point
-    for x in 1..station_point.0 {
-        visit_points.push((x, 0));
     }
 
     loop {
-        if vaporised_asteroids == num_asteroids - 1 {
-            println!("All possible asteroids vaporised!");
-            break;
-        }
+        let mut finished = false;
+        println!("Starting new rotation...");
+        
+        for i in 0..360 {
+            let mut maybe_result: Option<u32> = None;
+            if let Some(asteroids) = asteroid_angles.get_mut(&i) {
+                if let Some((x, y)) = asteroids.pop() {
+                    space[y][x] = SpaceLocation::Space;
+                    println!("Vaporised asteroid at: ({}, {})", x, y);
 
-        if let Some(visit_point) = visit_points.first() {
-            if vaporise_asteroid(space, station_point, *visit_point) {
-                vaporised_asteroids += 1;
-            }
+                    if vaporised_asteroids >= stop_at {
+                        maybe_result = Some(x as u32 * 100 + y as u32);
+                    }
 
-            if vaporised_asteroids == stop_at {
-                return Some(visit_point.0 as u32 * 100 + visit_point.1 as u32);
-            }
-        }
-
-        visit_points.rotate_left(1);
-    }
-
-    None
-}
-
-fn vaporise_asteroid(
-    space: &mut [Vec<SpaceLocation>],
-    origin: (usize, usize),
-    dest: (usize, usize),
-) -> bool {
-    println!(
-        "Vaporising asteroid along vector: origin: {:?}, dest: {:?}",
-        origin, dest
-    );
-
-    let points = bresenham_line(origin, dest);
-
-    println!("Path: {:?}", points);
-
-    for (x, y) in points.iter().rev() {
-        match space[*y][*x] {
-            SpaceLocation::Asteroid => {
-                if (*x, *y) != origin && is_asteroid_detectable(space, &points) {
-                    space[*y][*x] = SpaceLocation::Space;
-
-                    println!();
+                    println!("vaporised_asteroids = {}", vaporised_asteroids);
+                    println!("");
                     print_space(space);
-                    println!();
+                    println!("");
 
-                    return true;
+                    if vaporised_asteroids == num_asteroids {
+                        finished = true;
+                    }
+
+                    vaporised_asteroids += 1;
                 }
             }
-            SpaceLocation::Space => {}
+            if let Some(val) = maybe_result {
+                return Some(val);
+            }
+            if finished {
+                break;
+            }
+        }
+        if finished {
+            break;
         }
     }
-
-    false
+    None
 }
 
 pub fn print_space(space: &[Vec<SpaceLocation>]) {
@@ -386,7 +356,7 @@ mod tests {
     fn test_get_vaporised_asteroids_test01() {
         assert_eq!(
             Some(0),
-            get_vaporised_asteroids("input/2019/day10_test07.txt", 20)
+            get_vaporised_asteroids("input/2019/day10_test07.txt", 36)
         );
     }
 
@@ -394,7 +364,7 @@ mod tests {
     fn test_get_vaporised_asteroids_test02() {
         assert_eq!(
             Some(802),
-            get_vaporised_asteroids("input/2019/day10_test05.txt", 3)
+            get_vaporised_asteroids("input/2019/day10_test05.txt", 300)
         );
     }
 
