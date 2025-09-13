@@ -210,7 +210,7 @@ pub fn get_vaporised_asteroids(input_file: &str, stop_at: usize) -> Option<u64> 
     if let Some((_max_visible_asteroids, max_visible_asteroids_pos)) =
         detected_asteroids.iter().max()
     {
-        println!("Max visible asteroids pos {:?}", *max_visible_asteroids_pos);
+        //println!("Max visible asteroids pos {:?}", *max_visible_asteroids_pos);
         return vaporise_asteroids(
             &mut input.space.clone(),
             *max_visible_asteroids_pos,
@@ -259,7 +259,7 @@ fn vaporise_asteroids(
 
     loop {
         let mut finished = false;
-        println!("Starting new rotation...");
+        //println!("Starting new rotation...");
 
         let mut angles: Vec<OrderedFloat<f64>> = asteroid_angles.keys().cloned().collect();
         angles.sort();
@@ -270,7 +270,7 @@ fn vaporise_asteroids(
                 && let Some((x, y)) = asteroids.pop()
             {
                 space[y][x] = SpaceLocation::Space;
-                println!("Vaporised asteroid at: ({}, {})", x, y);
+                //println!("Vaporised asteroid at: ({}, {})", x, y);
 
                 vaporised_asteroids += 1;
 
@@ -278,10 +278,10 @@ fn vaporise_asteroids(
                     maybe_result = Some(x as u64 * 100 + y as u64);
                 }
 
-                println!("vaporised_asteroids = {}", vaporised_asteroids);
+                /*println!("vaporised_asteroids = {}", vaporised_asteroids);
                 println!();
                 print_space(space);
-                println!();
+                println!();*/
 
                 if vaporised_asteroids == num_asteroids {
                     finished = true;
