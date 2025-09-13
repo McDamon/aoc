@@ -266,25 +266,25 @@ fn vaporise_asteroids(
 
         for angle in angles {
             let mut maybe_result: Option<u64> = None;
-            if let Some(asteroids) = asteroid_angles.get_mut(&angle) {
-                if let Some((x, y)) = asteroids.pop() {
-                    space[y][x] = SpaceLocation::Space;
-                    println!("Vaporised asteroid at: ({}, {})", x, y);
+            if let Some(asteroids) = asteroid_angles.get_mut(&angle)
+                && let Some((x, y)) = asteroids.pop()
+            {
+                space[y][x] = SpaceLocation::Space;
+                println!("Vaporised asteroid at: ({}, {})", x, y);
 
-                    vaporised_asteroids += 1;
+                vaporised_asteroids += 1;
 
-                    if vaporised_asteroids >= stop_at {
-                        maybe_result = Some(x as u64 * 100 + y as u64);
-                    }
+                if vaporised_asteroids >= stop_at {
+                    maybe_result = Some(x as u64 * 100 + y as u64);
+                }
 
-                    println!("vaporised_asteroids = {}", vaporised_asteroids);
-                    println!("");
-                    print_space(space);
-                    println!("");
+                println!("vaporised_asteroids = {}", vaporised_asteroids);
+                println!();
+                print_space(space);
+                println!();
 
-                    if vaporised_asteroids == num_asteroids {
-                        finished = true;
-                    }
+                if vaporised_asteroids == num_asteroids {
+                    finished = true;
                 }
             }
             if let Some(val) = maybe_result {
