@@ -1,5 +1,9 @@
 use std::{
-    collections::HashMap, error::Error, fs::File, io::{BufRead, BufReader}, path::Path
+    collections::HashMap,
+    error::Error,
+    fs::File,
+    io::{BufRead, BufReader},
+    path::Path,
 };
 
 use petgraph::graph::NodeIndex;

@@ -75,7 +75,7 @@ pub fn get_painted_panels(intcode: &mut [isize]) -> usize {
         if let Some(color) = grid.get(&pose.pos) {
             println!("*****");
             println!("Robot is at {:?}, color is {:?}", pose.pos, color);
-            println!("");
+            println!();
 
             let input_value: isize = *color as u8 as isize;
 
@@ -131,7 +131,7 @@ pub fn get_painted_panels(intcode: &mut [isize]) -> usize {
         }
 
         println!("*****");
-        println!("");
+        println!();
     }
 
     0

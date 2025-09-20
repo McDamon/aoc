@@ -164,8 +164,11 @@ pub fn get_lowest_score(input_file: &str) -> (usize, usize) {
             };
 
             if let Some(&end_idx) = node_indices.get(&end_move) {
-                let dijkstra_map = algo::dijkstra(&graph, start_idx, Some(end_idx), |e| *e.weight());
-                node_costs = dijkstra_map.into_iter().collect::<HashMap<NodeIndex, f64>>();
+                let dijkstra_map =
+                    algo::dijkstra(&graph, start_idx, Some(end_idx), |e| *e.weight());
+                node_costs = dijkstra_map
+                    .into_iter()
+                    .collect::<HashMap<NodeIndex, f64>>();
 
                 let new_min_length = node_costs[&end_idx] as isize;
 

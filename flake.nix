@@ -10,12 +10,12 @@
   };
 
   outputs =
-    { self
-    , fenix
-    , flake-utils
-    , treefmt-nix
-    , nixpkgs
-    ,
+    {
+      self,
+      fenix,
+      flake-utils,
+      treefmt-nix,
+      nixpkgs,
     }:
     let
       # Define `pkgs` for each system
