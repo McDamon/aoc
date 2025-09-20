@@ -311,9 +311,12 @@ fn get_parameter_value(intcode: &[isize], param: isize, mode: Mode, relative_bas
     match mode {
         Mode::Position => {
             let index = param as usize;
-            let param_val = intcode[index];
-            println!("Position mode. Index {}. Param Val {}", index, param_val);
-            param_val
+            if let Some(param_val) = intcode.get(index) {
+                println!("Position mode. Index {}. Param Val {}", index, param_val);
+                *param_val
+            } else {
+                panic!("Requesting index {} larger than memory!", index);
+            }
         }
         Mode::Immediate => {
             println!("Immediate mode. Param Val {}", param);
@@ -321,9 +324,12 @@ fn get_parameter_value(intcode: &[isize], param: isize, mode: Mode, relative_bas
         }
         Mode::Relative => {
             let index = param + relative_base;
-            let param_val = intcode[index as usize];
-            println!("Relative mode. Index {}. Param Val {}", index, param_val);
-            param_val
+            if let Some(param_val) = intcode.get(index as usize) {
+                println!("Relative mode. Index {}. Param Val {}", index, param_val);
+                *param_val
+            } else {
+                panic!("Requesting index {} larger than memory!", index as usize);
+            }
         }
     }
 }
