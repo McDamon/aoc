@@ -324,15 +324,11 @@ fn get_parameter_value(intcode: &[isize], param: isize, mode: Mode, relative_bas
         }
         Mode::Relative => {
             let index = param + relative_base;
-            if index >= 0 {
-                if let Some(param_val) = intcode.get(index as usize) {
-                    println!("Relative mode. Index {}. Param Val {}", index, param_val);
-                    *param_val
-                } else {
-                    panic!("Requesting index {} larger than memory!", index);
-                }
+            if let Some(param_val) = intcode.get(index as usize) {
+                println!("Relative mode. Index {}. Param Val {}", index, param_val);
+                *param_val
             } else {
-                panic!("Relative mode. Index is less than 0!");
+                panic!("Requesting index {} larger than memory!", index as usize);
             }
         }
     }
