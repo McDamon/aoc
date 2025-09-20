@@ -159,9 +159,13 @@ fn get_shortest_paths_for_move(
     let start_idx = keypad_graph_data.node_indices[start_move];
     let end_idx = keypad_graph_data.node_indices[end_move];
 
-    let keypad_costs = algo::dijkstra(&keypad_graph_data.graph, start_idx, Some(end_idx), |e| {
-        *e.weight()
-    });
+    let keypad_costs_hashbrown =
+        algo::dijkstra(&keypad_graph_data.graph, start_idx, Some(end_idx), |e| *e.weight());
+
+    // Convert hashbrown::HashMap returned by petgraph into the std::collections::HashMap
+    // expected by get_all_paths.
+    let keypad_costs: std::collections::HashMap<_, _> = keypad_costs_hashbrown.into_iter().collect();
+
     let all_paths = get_all_paths(&keypad_graph_data.graph, &keypad_costs, start_idx, end_idx);
     all_paths
         .iter()

@@ -6,16 +6,16 @@
     };
     flake-utils.url = "github:numtide/flake-utils";
     treefmt-nix.url = "github:numtide/treefmt-nix";
-    nixpkgs.url = "nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
   outputs =
-    {
-      self,
-      fenix,
-      flake-utils,
-      treefmt-nix,
-      nixpkgs,
+    { self
+    , fenix
+    , flake-utils
+    , treefmt-nix
+    , nixpkgs
+    ,
     }:
     let
       # Define `pkgs` for each system
@@ -34,7 +34,7 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         cargoToml = builtins.fromTOML (builtins.readFile ./Cargo.toml);
-        toolchain = fenix.packages.${system}.complete.toolchain;
+        toolchain = fenix.packages.${system}.stable.toolchain;
 
         # Define the Rust package
         rustPackage =

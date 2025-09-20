@@ -73,6 +73,10 @@ pub fn get_painted_panels(intcode: &mut [isize]) -> usize {
 
     loop {
         if let Some(color) = grid.get(&pose.pos) {
+            println!("*****");
+            println!("Robot is at {:?}, color is {:?}", pose.pos, color);
+            println!("");
+
             let input_value: isize = *color as u8 as isize;
 
             let mut inputs: Vec<isize> = vec![input_value];
@@ -125,6 +129,9 @@ pub fn get_painted_panels(intcode: &mut [isize]) -> usize {
         } else {
             panic!("Invalid robot pos");
         }
+
+        println!("*****");
+        println!("");
     }
 
     0
@@ -138,6 +145,8 @@ mod tests {
     #[test]
     fn test_run_intcode() {
         let mut input_intcode = parse_intcode_input("input/2019/day11.txt");
+        input_intcode.extend(vec![0; 1000]);
+
         let painted_panels = get_painted_panels(&mut input_intcode);
         assert_eq!(0, painted_panels);
     }
