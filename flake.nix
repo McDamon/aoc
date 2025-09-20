@@ -10,12 +10,11 @@
   };
 
   outputs =
-    {
-      self,
-      fenix,
-      flake-utils,
-      treefmt-nix,
-      nixpkgs,
+    { self
+    , fenix
+    , flake-utils
+    , treefmt-nix
+    , nixpkgs
     }:
     let
       # Define `pkgs` for each system
@@ -34,7 +33,7 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         cargoToml = builtins.fromTOML (builtins.readFile ./Cargo.toml);
-        toolchain = fenix.packages.${system}.stable.toolchain;
+        toolchain = fenix.packages.${system}.complete.toolchain;
 
         # Define the Rust package
         rustPackage =
